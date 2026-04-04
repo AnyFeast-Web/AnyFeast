@@ -1,0 +1,258 @@
+===================================================================
+  NUTRITIONIST PLATFORM — CONNECT FRONTEND TO FASTAPI BACKEND
+  Paste this into Antigravity after Firebase Auth + FastAPI are set up
+===================================================================
+
+CONTEXT
+-------
+This is a React 18 + TypeScript frontend (Vite) connected to a
+FastAPI backend. Firebase Auth is already set up. The frontend
+currently uses mock data files (mockClients.ts, mockConsultations.ts,
+mockMealPlans.ts, etc.). Replace ALL mock data with real API calls.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — AXIOS INSTANCE WITH AUTH TOKEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create or update src/api/axiosInstance.ts:
+
+- Create an axios instance with baseURL = import.meta.env.VITE_API_URL
+- Add a REQUEST interceptor:
+    1. Get the current Firebase user from auth (imported from src/lib/firebase.ts)
+    2. If user exists, call user.getIdToken() to get a fresh JWT
+    3. Attach it as: Authorization: Bearer <token>
+- Add a RESPONSE interceptor:
+    1. If response status is 401 → clear Zustand authStore + redirect to /login
+    2. All other errors → rethrow so TanStack Query can handle them
+- Export this instance as: export default api
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — API FUNCTIONS (one file per resource)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create these files in src/api/:
+
+--- src/api/clients.api.ts ---
+import api from './axiosInstance'
+import { Client, CreateClientInput, UpdateClientInput } from '../types/client.types'
+
+export const getClients = () =>
+  api.get<Client[]>('/clients').then(r => r.data)
+
+export const getClientById = (id: string) =>
+  api.get<Client>(`/clients/${id}`).then(r => r.data)
+
+export const createClient = (data: CreateClientInput) =>
+  api.post<Client>('/clients', data).then(r => r.data)
+
+export const updateClient = (id: string, data: UpdateClientInput) =>
+  api.put<Client>(`/clients/${id}`, data).then(r => r.data)
+
+export const deleteClient = (id: string) =>
+  api.delete(`/clients/${id}`)
+
+--- src/api/mealplans.api.ts ---
+export const getMealPlansByClient = (clientId: string) =>
+  api.get(`/meal-plans?clientId=${clientId}`).then(r => r.data)
+
+export const getMealPlanById = (id: string) =>
+  api.get(`/meal-plans/${id}`).then(r => r.data)
+
+export const createMealPlan = (data: any) =>
+  api.post('/meal-plans', data).then(r => r.data)
+
+export const updateMealPlan = (id: string, data: any) =>
+  api.put(`/meal-plans/${id}`, data).then(r => r.data)
+
+--- src/api/consultations.api.ts ---
+export const getConsultationsByClient = (clientId: string) =>
+  api.get(`/consultations?clientId=${clientId}`).then(r => r.data)
+
+export const createConsultation = (data: any) =>
+  api.post('/consultations', data).then(r => r.data)
+
+export const updateConsultation = (id: string, data: any) =>
+  api.put(`/consultations/${id}`, data).then(r => r.data)
+
+--- src/api/ingredients.api.ts ---
+export const getIngredients = (search?: string) =>
+  api.get(`/ingredients${search ? `?search=${search}` : ''}`).then(r => r.data)
+
+export const createIngredient = (data: any) =>
+  api.post('/ingredients', data).then(r => r.data)
+
+export const updateIngredient = (id: string, data: any) =>
+  api.put(`/ingredients/${id}`, data).then(r => r.data)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — TANSTACK QUERY HOOKS (replace mock data)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create these files in src/hooks/:
+
+--- src/hooks/useClients.ts ---
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import * as clientsApi from '../api/clients.api'
+
+export const useClients = () =>
+  useQuery({ queryKey: ['clients'], queryFn: clientsApi.getClients })
+
+export const useClient = (id: string) =>
+  useQuery({ queryKey: ['clients', id], queryFn: () => clientsApi.getClientById(id), enabled: !!id })
+
+export const useCreateClient = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: clientsApi.createClient,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['clients'] })
+  })
+}
+
+export const useUpdateClient = (id: string) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: any) => clientsApi.updateClient(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['clients'] })
+      qc.invalidateQueries({ queryKey: ['clients', id] })
+    }
+  })
+}
+
+export const useDeleteClient = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: clientsApi.deleteClient,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['clients'] })
+  })
+}
+
+--- src/hooks/useMealPlans.ts ---
+(Same pattern — useQuery for fetching, useMutation for create/update,
+invalidate ['mealPlans'] and ['mealPlans', clientId] on success)
+
+--- src/hooks/useConsultations.ts ---
+(Same pattern — queryKey: ['consultations', clientId])
+
+--- src/hooks/useIngredients.ts ---
+(Same pattern — queryKey: ['ingredients'], pass search param)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — UPDATE EVERY PAGE TO USE REAL HOOKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For EVERY page that imports mock data, make these changes:
+
+BEFORE (mock):
+  import { mockClients } from '../data/mockClients'
+  const clients = mockClients
+
+AFTER (real):
+  import { useClients } from '../hooks/useClients'
+  const { data: clients = [], isLoading, isError } = useClients()
+
+Apply this pattern to:
+  - DashboardPage.tsx      → useClients, useConsultations, useMealPlans
+  - ClientListPage.tsx     → useClients
+  - ClientProfilePage.tsx  → useClient(id), useMealPlans, useConsultations
+  - MealPlanBuilderPage.tsx → useMealPlan(id), useIngredients, useUpdateMealPlan
+  - ConsultationPage.tsx   → useConsultation(id), useUpdateConsultation
+  - IngredientDatabasePage.tsx → useIngredients, useCreateIngredient
+
+For every page, also add:
+  - Loading state: show skeleton cards / spinner when isLoading is true
+  - Error state: show a red error banner when isError is true
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        Failed to load data. Please refresh the page.
+      </div>
+  - Empty state: show a helpful message when data array is empty
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — DASHBOARD REAL DATA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Update DashboardPage.tsx to show live stats:
+
+- Active Clients count    → clients.filter(c => c.status === 'active').length
+- Pending Consultations   → consultations.filter(c => c.status === 'pending').length
+- Active Meal Plans       → mealPlans.filter(p => p.status === 'active').length
+- Alerts count            → clients.filter(c => c.status === 'inactive').length
+
+Recent Activity section:
+  - Show last 5 consultations sorted by date descending
+  - Each row: client avatar + name + date + duration
+
+Alerts section:
+  - Inactive clients (no consultation in 14+ days): amber left-border card
+  - Expiring meal plans (end date within 7 days): red left-border card
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6 — FORMS THAT WRITE TO BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For every form that creates or edits data:
+
+Create Client Form:
+  - On submit: call useCreateClient().mutate(formData)
+  - On success: close modal + show green toast "Client created"
+  - On error: show error message inside form
+
+Edit Client Form:
+  - Pre-fill fields from useClient(id).data
+  - On submit: call useUpdateClient(id).mutate(formData)
+  - On success: close modal + invalidate client query
+
+Meal Plan Builder auto-save:
+  - Debounce 1500ms after any cell edit
+  - Call useUpdateMealPlan(id).mutate(currentPlanData)
+  - Show "Saved" indicator top-right when save succeeds
+
+Consultation Notes:
+  - On blur of any notes field: call useUpdateConsultation(id).mutate(notes)
+  - Show subtle "Saving..." → "Saved ✓" indicator
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 7 — VERIFY CORS ON BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Make sure backend/app/main.py has this CORS config:
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "https://your-production-domain.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+Also confirm FastAPI is running on port 8000:
+  cd backend && uvicorn app.main:app --reload --port 8000
+
+And frontend .env has:
+  VITE_API_URL=http://localhost:8000
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 8 — TEST CHECKLIST (verify everything works)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After the agent finishes, manually test these flows:
+
+[ ] Login with Firebase email/password → lands on Dashboard
+[ ] Dashboard shows real counts (not hardcoded numbers)
+[ ] Client List loads from /clients API endpoint
+[ ] Click a client → Profile page loads their real data
+[ ] Create a new client → appears in list immediately
+[ ] Open Meal Plan Builder → loads existing plan or blank grid
+[ ] Edit a meal cell → auto-saves after 1.5s
+[ ] Open Consultation page → shows real chat history + notes
+[ ] Ingredient search → filters results from /ingredients API
+[ ] Log out → redirected to /login, protected routes blocked
+[ ] Refresh page while logged in → stays logged in (auth persists)
+[ ] Open browser DevTools → Network tab shows requests to
+    localhost:8000 with Authorization: Bearer <token> header
+
+===================================================================
+END OF FRONTEND ↔ BACKEND CONNECTION PROMPT
+===================================================================

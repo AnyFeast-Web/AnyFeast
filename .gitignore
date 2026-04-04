@@ -1,0 +1,13 @@
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.g.dart
+.env
+firebase-credentials.json
+serviceAccountKey.json
+google-services.json
+node_modules/
+__pycache__/
+.idea/
+*.iml

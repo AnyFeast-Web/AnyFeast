@@ -1,0 +1,363 @@
+===================================================================
+  NUTRITIONIST PLATFORM — FIREBASE + FASTAPI INTEGRATION PROMPTS
+  Use these prompts sequentially in Antigravity / Cursor AI agent
+===================================================================
+
+INSTRUCTIONS
+------------
+Run each prompt block ONE AT A TIME. Wait for the agent to finish
+before moving to the next. Order matters — Auth must come before
+API integration.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT 1 — FIREBASE SETUP (Frontend)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Set up Firebase in this React + TypeScript + Vite project.
+
+1. Install firebase package: npm install firebase
+
+2. Create the file src/lib/firebase.ts with:
+   - Initialize Firebase app using environment variables:
+       VITE_FIREBASE_API_KEY
+       VITE_FIREBASE_AUTH_DOMAIN
+       VITE_FIREBASE_PROJECT_ID
+       VITE_FIREBASE_STORAGE_BUCKET
+       VITE_FIREBASE_MESSAGING_SENDER_ID
+       VITE_FIREBASE_APP_ID
+   - Export: app, auth (getAuth), db (getFirestore), storage (getStorage)
+   - Use initializeApp with the config object built from import.meta.env
+
+3. Create the file src/hooks/useAuth.ts:
+   - Listen to Firebase auth state with onAuthStateChanged
+   - On user login: set user in Zustand authStore, fetch Firebase ID token
+   - On user logout: clear authStore
+   - Export: useAuth hook
+
+4. Update src/store/authStore.ts with Zustand:
+   - State: user (FirebaseUser | null), token (string | null),
+     isAuthenticated (boolean), isLoading (boolean)
+   - Actions: setUser(user, token), logout()
+   - logout() must call Firebase signOut()
+
+5. Update src/pages/LoginPage.tsx:
+   - Use signInWithEmailAndPassword from Firebase Auth
+   - On success: navigate to /dashboard
+   - On error: show error message below the form
+   - Show loading spinner on the button while signing in
+   - Do NOT store password anywhere
+
+6. Create src/routes/ProtectedRoute.tsx:
+   - Check authStore.isAuthenticated
+   - If not authenticated → redirect to /login
+   - If isLoading (auth state not yet resolved) → show full-page spinner
+   - If authenticated → render <Outlet />
+
+7. Wrap the entire app in src/main.tsx with QueryClientProvider and
+   call useAuth() inside App.tsx to initialize auth listener on mount.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT 2 — AXIOS + API LAYER (Frontend)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Set up the Axios API layer that connects the frontend to FastAPI.
+
+1. Install axios: npm install axios
+
+2. Create src/api/axiosInstance.ts:
+   - Create axios instance with baseURL from import.meta.env.VITE_API_URL
+   - Add a request interceptor that:
+       a. Gets the current Firebase user from auth
+       b. Calls user.getIdToken() to get the JWT token
+       c. Attaches it as Authorization: Bearer <token> header
+   - Add a response interceptor that:
+       a. On 401 response: clears authStore and redirects to /login
+       b. On other errors: rethrows for TanStack Query to handle
+   - Export the instance as 'api'
+
+3. Create src/api/clients.api.ts:
+   - getClients(): GET /clients → returns Client[]
+   - getClientById(id): GET /clients/{id} → returns Client
+   - createClient(data): POST /clients → returns Client
+   - updateClient(id, data): PUT /clients/{id} → returns Client
+   - deleteClient(id): DELETE /clients/{id}
+
+4. Create src/api/mealplans.api.ts:
+   - getMealPlansByClient(clientId): GET /meal-plans?clientId={id}
+   - getMealPlanById(id): GET /meal-plans/{id}
+   - createMealPlan(data): POST /meal-plans
+   - updateMealPlan(id, data): PUT /meal-plans/{id}
+   - deleteMealPlan(id): DELETE /meal-plans/{id}
+
+5. Create src/api/consultations.api.ts:
+   - getConsultationsByClient(clientId): GET /consultations?clientId={id}
+   - createConsultation(data): POST /consultations
+   - updateConsultation(id, data): PUT /consultations/{id}
+
+6. Create src/api/ingredients.api.ts:
+   - getIngredients(search?): GET /ingredients?search={term}
+   - createIngredient(data): POST /ingredients
+   - updateIngredient(id, data): PUT /ingredients/{id}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT 3 — TANSTACK QUERY HOOKS (Frontend)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace all mock data imports with real TanStack Query hooks
+that call the Axios API layer.
+
+1. Create src/hooks/useClients.ts:
+   - useClients(): useQuery({ queryKey: ['clients'], queryFn: getClients })
+   - useClient(id): useQuery({ queryKey: ['clients', id], queryFn: ... })
+   - useCreateClient(): useMutation + invalidate ['clients'] on success
+   - useUpdateClient(): useMutation + invalidate ['clients', id] on success
+   - useDeleteClient(): useMutation + invalidate ['clients'] on success
+
+2. Create src/hooks/useMealPlans.ts:
+   - useMealPlansByClient(clientId): useQuery
+   - useMealPlan(id): useQuery
+   - useCreateMealPlan(): useMutation
+   - useUpdateMealPlan(): useMutation
+
+3. Create src/hooks/useConsultations.ts:
+   - useConsultationsByClient(clientId): useQuery
+   - useCreateConsultation(): useMutation
+   - useUpdateConsultation(): useMutation
+
+4. Create src/hooks/useIngredients.ts:
+   - useIngredients(search): useQuery with enabled: !!search or always
+   - useCreateIngredient(): useMutation
+   - useUpdateIngredient(): useMutation
+
+5. In each page component, replace:
+   - import { mockClients } from '../data/mockClients'
+   With:
+   - const { data: clients, isLoading, isError } = useClients()
+   - Show skeleton cards while isLoading
+   - Show error banner if isError
+
+6. Configure QueryClient in src/lib/queryClient.ts:
+   - defaultOptions: { queries: { staleTime: 60000, retry: 1 } }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT 4 — FASTAPI BACKEND SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create the FastAPI backend for this nutritionist platform.
+
+Requirements:
+- Python 3.11+
+- All routes require Firebase authentication
+- Use Firestore as the database
+- Use async/await throughout
+
+1. Create backend/requirements.txt:
+   fastapi
+   uvicorn[standard]
+   firebase-admin
+   pydantic>=2.0
+   python-dotenv
+   httpx
+
+2. Create backend/app/config.py:
+   - Load .env variables with python-dotenv
+   - Initialize Firebase Admin SDK using service account JSON path from env
+   - Initialize Firestore client
+   - Export: db (Firestore client), settings
+
+3. Create backend/app/middleware/auth_middleware.py:
+   - Function verify_token(token: str = Header(alias="Authorization"))
+   - Strip "Bearer " prefix
+   - Verify token using firebase_admin.auth.verify_id_token()
+   - Return decoded token dict (contains uid)
+   - Raise HTTPException 401 if invalid/expired
+
+4. Create backend/app/services/firestore_service.py with:
+
+   CLIENTS:
+   - async get_all_clients(uid) → list of client dicts from /clients
+   - async get_client(uid, client_id) → single client doc
+   - async create_client(uid, data) → add doc to /clients
+   - async update_client(uid, client_id, data) → update doc
+   - async delete_client(uid, client_id) → delete doc
+
+   MEAL PLANS:
+   - async get_meal_plans(uid, client_id) → list filtered by clientId
+   - async get_meal_plan(uid, plan_id) → single plan doc
+   - async create_meal_plan(uid, data) → add to /mealPlans
+   - async update_meal_plan(uid, plan_id, data) → update
+   - async save_plan_version(uid, plan_id, data) → append to version history
+
+   CONSULTATIONS:
+   - async get_consultations(uid, client_id) → list filtered by clientId
+   - async create_consultation(uid, data) → add to /consultations
+   - async update_consultation(uid, consultation_id, data) → update
+
+   INGREDIENTS:
+   - async get_ingredients(search=None) → list, filter by name if search
+   - async create_ingredient(data) → add to /ingredients
+   - async update_ingredient(ingredient_id, data) → update
+
+5. Create backend/app/models/ with Pydantic models:
+
+   client.py:
+     class ClientBase(BaseModel): name, age, weight, height, goals,
+       medical_conditions, diet_preferences, tags, status
+     class ClientCreate(ClientBase): pass
+     class ClientUpdate(ClientBase): all fields Optional
+     class ClientResponse(ClientBase): id: str, created_at: datetime
+
+   mealplan.py:
+     class MealEntry(BaseModel): ingredient_id, name, quantity_grams,
+       calories, protein, carbs, fat
+     class DayPlan(BaseModel): breakfast, lunch, dinner, snacks: list[MealEntry]
+     class MealPlan(BaseModel): client_id, week_start_date, days: dict[str, DayPlan],
+       version, notes
+     class MealPlanResponse(MealPlan): id: str
+
+   consultation.py:
+     class ConsultationNotes(BaseModel): goals, issues, plan, follow_up
+     class Consultation(BaseModel): client_id, date, duration_min,
+       notes: ConsultationNotes, messages: list
+     class ConsultationResponse(Consultation): id: str
+
+6. Create backend/app/routers/:
+
+   clients.py — prefix /clients:
+     GET    /           → get all clients
+     GET    /{id}       → get one client
+     POST   /           → create client
+     PUT    /{id}       → update client
+     DELETE /{id}       → delete client
+   All routes: Depends(verify_token)
+
+   mealplans.py — prefix /meal-plans:
+     GET    /           → get plans (query param: clientId)
+     GET    /{id}       → get one plan
+     POST   /           → create plan
+     PUT    /{id}       → update plan
+
+   consultations.py — prefix /consultations:
+     GET    /           → get by clientId (query param)
+     POST   /           → create consultation
+     PUT    /{id}       → update
+
+   ingredients.py — prefix /ingredients:
+     GET    /           → list (optional ?search=)
+     POST   /           → create
+     PUT    /{id}       → update
+
+   automation.py — prefix /automate:
+     POST   /send-plan  → trigger n8n webhook to send PDF to client
+     POST   /order      → trigger n8n webhook to order ingredients
+     POST   /schedule   → trigger n8n webhook to schedule follow-up
+
+7. Create backend/app/main.py:
+   - Initialize FastAPI app
+   - Add CORSMiddleware (origins from env)
+   - Include all routers
+   - Health check: GET /health → {"status": "ok"}
+
+8. Create backend/app/services/n8n_service.py:
+   - async trigger_send_plan(plan_id, client_id, client_email)
+     → POST to N8N_WEBHOOK_BASE_URL/send-meal-plan
+   - async trigger_order(ingredients: list)
+     → POST to N8N_WEBHOOK_BASE_URL/trigger-order
+   - async trigger_followup(client_id, scheduled_date)
+     → POST to N8N_WEBHOOK_BASE_URL/schedule-followup
+   - Use httpx.AsyncClient for all calls
+   - Log success/failure but do not block main response
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT 5 — FIREBASE STORAGE (File Uploads)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add file upload functionality to the Client Profile page
+using Firebase Storage.
+
+1. Create src/hooks/useFileUpload.ts:
+   - Accept: file (File object) and clientId (string)
+   - Use Firebase Storage: ref(storage, `clients/${clientId}/${file.name}`)
+   - Use uploadBytesResumable to track progress
+   - Return: { uploadFile, progress, isUploading, error, downloadURL }
+
+2. Update ClientProfilePage.tsx:
+   - Add a "Files" tab
+   - Show uploaded files list (fetched from Firestore
+     sub-collection: /clients/{id}/files)
+   - Drag-and-drop zone + click-to-browse
+   - Progress bar during upload
+   - After upload: save { name, url, uploadedAt } to Firestore
+   - Allow download (open URL in new tab)
+   - Allow delete (Firebase Storage deleteObject + Firestore delete)
+
+3. Allowed file types: PDF, JPG, PNG, XLSX (validate on frontend)
+   Max file size: 10MB (validate on frontend before upload)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT 6 — PDF GENERATION (Meal Plan Export)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add PDF generation for meal plans.
+
+Backend — add to automation router:
+  POST /automate/export-pdf/{plan_id}
+  - Fetch meal plan from Firestore
+  - Generate a formatted PDF with:
+      Client name, week dates
+      Daily meal table: Meal | Food | Calories | Protein | Carbs | Fat
+      Daily nutrition totals
+      Footer: nutritionist name + date generated
+  - Use reportlab or weasyprint Python library
+  - Return PDF as FileResponse with
+    Content-Disposition: attachment; filename="mealplan_{plan_id}.pdf"
+
+Frontend:
+  - In MealPlanBuilderPage.tsx, add "Export PDF" button
+  - On click: call POST /automate/export-pdf/{id}
+  - Trigger file download in browser using blob URL
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENVIRONMENT VARIABLES CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BEFORE running any prompts, ensure these .env files exist:
+
+frontend/.env:
+  VITE_API_URL=http://localhost:8000
+  VITE_FIREBASE_API_KEY=your_api_key
+  VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+  VITE_FIREBASE_PROJECT_ID=your_project_id
+  VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+  VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+  VITE_FIREBASE_APP_ID=your_app_id
+
+backend/.env:
+  FIREBASE_CREDENTIALS_JSON=./serviceAccountKey.json
+  N8N_WEBHOOK_BASE_URL=https://your-n8n.instance.com/webhook
+  CORS_ORIGINS=http://localhost:5173
+  PORT=8000
+
+How to get these values:
+  Firebase Console → Project Settings → General → Your Apps → SDK setup
+  Firebase Console → Project Settings → Service Accounts → Generate new key
+    → Save as backend/serviceAccountKey.json (DO NOT commit to git)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECOMMENDED EXECUTION ORDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1  → Run PROMPT 1 (Firebase Auth setup — frontend)
+Step 2  → Test login works in browser
+Step 3  → Run PROMPT 4 (FastAPI backend)
+Step 4  → Run backend: uvicorn app.main:app --reload (from /backend)
+Step 5  → Run PROMPT 2 (Axios API layer)
+Step 6  → Run PROMPT 3 (TanStack Query hooks + replace mock data)
+Step 7  → Test full data flow: login → clients list → client profile
+Step 8  → Run PROMPT 5 (File uploads)
+Step 9  → Run PROMPT 6 (PDF generation)
+Step 10 → Configure n8n webhooks and test automation triggers
+
+===================================================================
+END OF FIREBASE + FASTAPI INTEGRATION PROMPTS
+===================================================================

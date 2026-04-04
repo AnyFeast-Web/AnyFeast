@@ -1,0 +1,104 @@
+Nutritionist Consultation Portal Requirements
+Purpose
+Build a secure portal for nutritionists to capture deeper customer information during a 1 to 1 consultation that is not collected during initial onboarding.
+Primary users
+Nutritionists / coaches
+Admin team
+Future: customer view only access if needed
+Core objective
+Enable nutritionists to open a customer profile, review existing onboarding data, and add structured consultation notes that support personalised nutrition guidance.
+Key screens
+1. Login and access
+Secure login for authorised nutritionists only
+Role based access
+Session timeout
+2. Customer search and profile
+Search by name, email, phone, customer ID
+View customer summary
+Existing onboarding data visible in read only mode
+Consultation history timeline
+3. Consultation form
+Structured sections for the nutritionist to complete during or after the session:
+A. Medical and health history
+Previous diagnoses
+Current symptoms
+Digestive issues
+Allergies and intolerances
+Family history
+Medication history
+Previous surgeries or major illnesses
+B. Lifestyle and behaviour
+Sleep pattern
+Stress levels
+Energy levels
+Physical activity
+Work schedule
+Smoking
+Alcohol
+Hydration
+C. Nutrition history
+Past diets followed
+What worked / did not work
+Meal timings
+Cravings
+Binge eating / emotional eating patterns
+Cultural food preferences
+Food aversions
+D. Supplements and treatments
+Current supplements
+Past supplements taken
+Brand, dosage, frequency, duration
+Reason for taking
+Side effects or outcomes
+Other treatments or programmes followed
+E. Blood reports and test results
+Upload blood reports, scans, prescriptions, PDFs, images
+Key manual entry fields for important markers
+Example: HbA1c, glucose, cholesterol, vitamin D, B12, iron, thyroid, liver markers
+Date of test
+Comments by nutritionist
+F. Goals and constraints
+Weight goals
+Health goals
+Budget
+Cooking ability
+Time available
+Family / household context
+Religious or dietary restrictions
+G. Consultation notes and plan
+Free text notes
+Priority issues
+Agreed next steps
+Follow up date
+Internal notes not visible to customer
+Functional requirements
+Auto save draft
+Save and continue later
+Edit previous consultation entries
+Time stamped entries with nutritionist name
+File upload with preview
+Structured dropdowns, checkboxes, text fields, date fields
+Validation for required fields
+Mobile responsive but desktop first
+Clear section navigation
+Searchable consultation history
+Security and compliance
+Encrypted data storage and transfer
+Consent checkbox before storing medical information
+Audit trail of who viewed or edited records
+Role based permissions
+GDPR aligned handling of health data
+Nice to have
+Flag missing critical data
+Highlight abnormal blood marker values
+Generate summary note after consultation
+Export consultation PDF
+Front end expectations
+Clean dashboard style UI
+Fast form loading
+Accessible design
+Simple step by step consultation flow
+Reusable components for forms, uploads, notes, and timelines
+Definition of done
+Nutritionist can search customer, open profile, review onboarding data, add consultation details, upload reports, save notes, and view past history in one place.
+

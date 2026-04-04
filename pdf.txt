@@ -1,0 +1,60 @@
+Nutritionist Platform – Detailed System Plan
+1. Dashboard
+1 Active clients overview
+2 Pending consultations
+3 Recent meal plans
+4 Alerts (inactive clients, expiring plans)
+5 Quick actions (create plan, open client)
+2. Client Management
+1 Client list (table/grid)
+2 Search and filter (goal, condition, status)
+3 Tags (fat loss, diabetic, athlete)
+4 Open client profile
+3. Client Profile
+1 Basic info (age, weight, goals)
+2 Medical conditions
+3 Diet preferences
+4 History (plans, notes, consultations)
+5 File uploads (reports)
+6 Actions: create plan, start consultation, view progress
+4. Meal Plan Builder
+1 Weekly grid (Mon–Sun)
+2 Meals: breakfast, lunch, dinner, snacks
+3 Add/edit meals
+4 Auto nutrition calculation (macros + calories)
+5 Duplicate/edit plans
+6 Version history
+7 Live nutrition summary panel
+5. Ingredient / Nutrition Database
+1 Ingredient list
+2 Nutrition values (macros + micros)
+3 Add/edit entries
+4 Search and filters
+5 Link to inventory system
+6. Consultation Interface
+1 Chat system
+2 File sharing
+3 Structured notes (goal, issues, plan)
+4 Session history
+7. Automation / Actions
+1 Generate PDF meal plan
+2 Send plan to client
+3 Trigger ingredient orders
+4 Schedule follow-ups
+5 Notifications
+8. Authentication & Access
+1 Nutritionist-only login
+2 Role-based access control
+3 Secure API access
+System Flow
+1 Dashboard → Client → Profile → Consultation → Meal Plan → Finalize → Send/Order
+High-Level Architecture Diagram (Text Representation)
+1 [Frontend (React Dashboard)]
+2 ↓
+3 [FastAPI Backend]
+4 ↓
+5 [Firestore Database]
+6 ↓
+7 [n8n Automation / AI Layer]
+8 ↓
+9 [AnyFeast Ordering System

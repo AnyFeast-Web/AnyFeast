@@ -1,0 +1,722 @@
+================================================================================
+  NUTRITIONIST PLATFORM — TECHNICAL REQUIREMENTS, FOLDER STRUCTURE & PATTERNS
+  Stack: React + FastAPI + Firestore + n8n + AnyFeast
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. TECHNOLOGY STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FRONTEND:
+  Framework:        React 18 (with Vite as bundler)
+  Language:         TypeScript (strict mode)
+  Styling:          Tailwind CSS v3 + CSS Modules for component-specific styles
+  State Management: Zustand (lightweight, no boilerplate)
+  Server State:     TanStack Query v5 (React Query) — for API calls, caching
+  Routing:          React Router v6 (createBrowserRouter)
+  Forms:            React Hook Form + Zod (validation)
+  Icons:            Lucide React
+  Charts:           Recharts (macro donut, progress bars, trend lines)
+  Drag & Drop:      @dnd-kit/core (meal plan weekly grid)
+  Date/Time:        date-fns
+  PDF Generation:   @react-pdf/renderer (client-side PDF meal plan preview)
+  Notifications:    react-hot-toast
+  Animations:       Framer Motion (page transitions, card mounts)
+  HTTP Client:      Axios with interceptors
+  Auth:             Firebase Auth SDK (Google + Email/Password)
+
+BACKEND:
+  Framework:        FastAPI (Python 3.11+)
+  Language:         Python
+  Database:         Firestore (via firebase-admin SDK)
+  Auth:             Firebase Admin SDK (JWT verification)
+  File Storage:     Firebase Storage (reports, profile images)
+  Background Tasks: FastAPI BackgroundTasks + Celery (for heavy async jobs)
+  Automation:       n8n (self-hosted or cloud) via webhooks
+  PDF (server):     WeasyPrint or ReportLab (for server-generated PDFs)
+  Data Validation:  Pydantic v2
+  CORS:             Handled via FastAPI middleware
+  Environment:      python-dotenv
+
+INTEGRATIONS:
+  Nutrition API:    USDA FoodData Central API (free, comprehensive)
+                    OR Edamam Nutrition API (paid, more detailed)
+  Ordering:         AnyFeast API (ingredient ordering system)
+  Automation:       n8n webhooks for notifications, scheduling, email sends
+  Email:            SendGrid or Resend (via n8n or direct)
+  SMS/Notify:       Twilio or Firebase Cloud Messaging (via n8n)
+
+DEVOPS:
+  Frontend Host:    Vercel or Firebase Hosting
+  Backend Host:     Railway, Render, or GCP Cloud Run
+  CI/CD:            GitHub Actions
+  Environment Mgmt: .env files (local), GitHub Secrets (CI), Doppler (prod)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. FRONTEND FOLDER STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  nutritionist-platform/
+  ├── frontend/
+  │   ├── public/
+  │   │   └── favicon.svg
+  │   ├── src/
+  │   │   ├── assets/                   # Static: logos, illustrations, fonts
+  │   │   │
+  │   │   ├── components/               # Reusable UI components
+  │   │   │   ├── ui/                   # Atomic/primitive components
+  │   │   │   │   ├── Button.tsx
+  │   │   │   │   ├── Card.tsx
+  │   │   │   │   ├── Badge.tsx
+  │   │   │   │   ├── Input.tsx
+  │   │   │   │   ├── Avatar.tsx
+  │   │   │   │   ├── Modal.tsx
+  │   │   │   │   ├── Tooltip.tsx
+  │   │   │   │   ├── Skeleton.tsx
+  │   │   │   │   ├── Tabs.tsx
+  │   │   │   │   ├── Table.tsx
+  │   │   │   │   ├── Alert.tsx
+  │   │   │   │   └── index.ts          # barrel export
+  │   │   │   │
+  │   │   │   ├── layout/               # Shell/structural components
+  │   │   │   │   ├── AppShell.tsx      # Sidebar + topbar wrapper
+  │   │   │   │   ├── Sidebar.tsx
+  │   │   │   │   ├── TopBar.tsx
+  │   │   │   │   └── PageWrapper.tsx   # Adds page padding + title
+  │   │   │   │
+  │   │   │   ├── nutrition/            # Domain-specific components
+  │   │   │   │   ├── MacroBar.tsx      # Segmented protein/carb/fat bar
+  │   │   │   │   ├── MacroDonut.tsx    # Recharts donut chart
+  │   │   │   │   ├── NutritionPanel.tsx # Live summary panel
+  │   │   │   │   └── MealCell.tsx      # Single cell in weekly grid
+  │   │   │   │
+  │   │   │   ├── clients/
+  │   │   │   │   ├── ClientCard.tsx
+  │   │   │   │   ├── ClientTable.tsx
+  │   │   │   │   ├── ClientFilters.tsx
+  │   │   │   │   └── ClientTagBadge.tsx
+  │   │   │   │
+  │   │   │   └── consultation/
+  │   │   │       ├── ChatBubble.tsx
+  │   │   │       ├── ChatInput.tsx
+  │   │   │       └── SessionNotes.tsx
+  │   │   │
+  │   │   ├── pages/                    # Route-level page components
+  │   │   │   ├── Dashboard/
+  │   │   │   │   ├── DashboardPage.tsx
+  │   │   │   │   ├── KpiCard.tsx
+  │   │   │   │   ├── AlertsList.tsx
+  │   │   │   │   └── RecentPlansTable.tsx
+  │   │   │   │
+  │   │   │   ├── Clients/
+  │   │   │   │   ├── ClientListPage.tsx
+  │   │   │   │   └── ClientProfilePage.tsx
+  │   │   │   │
+  │   │   │   ├── MealPlans/
+  │   │   │   │   ├── MealPlanListPage.tsx
+  │   │   │   │   └── MealPlanBuilderPage.tsx
+  │   │   │   │
+  │   │   │   ├── NutritionDB/
+  │   │   │   │   └── NutritionDBPage.tsx
+  │   │   │   │
+  │   │   │   ├── Consultations/
+  │   │   │   │   └── ConsultationPage.tsx
+  │   │   │   │
+  │   │   │   ├── Automation/
+  │   │   │   │   └── AutomationPage.tsx
+  │   │   │   │
+  │   │   │   ├── Auth/
+  │   │   │   │   └── LoginPage.tsx
+  │   │   │   │
+  │   │   │   └── NotFound/
+  │   │   │       └── NotFoundPage.tsx
+  │   │   │
+  │   │   ├── hooks/                    # Custom React hooks
+  │   │   │   ├── useAuth.ts            # Auth state from Firebase
+  │   │   │   ├── useClients.ts         # TanStack Query for clients CRUD
+  │   │   │   ├── useMealPlan.ts        # Meal plan builder state & API
+  │   │   │   ├── useNutritionCalc.ts   # Real-time macro calculation
+  │   │   │   ├── useConsultation.ts    # Consultation session state
+  │   │   │   └── useAlerts.ts          # Dashboard alerts
+  │   │   │
+  │   │   ├── store/                    # Zustand global stores
+  │   │   │   ├── authStore.ts          # User + role
+  │   │   │   ├── mealPlanStore.ts      # Current meal plan being built
+  │   │   │   ├── uiStore.ts            # Sidebar open, modal state, etc.
+  │   │   │   └── notificationStore.ts  # In-app notification queue
+  │   │   │
+  │   │   ├── api/                      # All API call functions
+  │   │   │   ├── axiosInstance.ts      # Axios setup + interceptors + auth token
+  │   │   │   ├── clients.api.ts        # CRUD for clients
+  │   │   │   ├── mealPlans.api.ts      # CRUD for meal plans
+  │   │   │   ├── nutrition.api.ts      # Ingredient DB + USDA API calls
+  │   │   │   ├── consultations.api.ts  # Consultation sessions
+  │   │   │   ├── automation.api.ts     # Trigger n8n webhooks
+  │   │   │   └── auth.api.ts           # Firebase auth actions
+  │   │   │
+  │   │   ├── types/                    # TypeScript interfaces & types
+  │   │   │   ├── client.types.ts
+  │   │   │   ├── mealPlan.types.ts
+  │   │   │   ├── ingredient.types.ts
+  │   │   │   ├── consultation.types.ts
+  │   │   │   ├── auth.types.ts
+  │   │   │   └── api.types.ts          # Generic API response wrappers
+  │   │   │
+  │   │   ├── utils/                    # Pure utility functions
+  │   │   │   ├── nutritionCalc.ts      # Macro arithmetic, TDEE calc
+  │   │   │   ├── formatters.ts         # Date, number, weight formatters
+  │   │   │   ├── validators.ts         # Zod schemas (shared)
+  │   │   │   └── constants.ts          # App-wide constants
+  │   │   │
+  │   │   ├── styles/
+  │   │   │   ├── globals.css           # CSS variables, base reset
+  │   │   │   └── animations.css        # Keyframe definitions
+  │   │   │
+  │   │   ├── routes/
+  │   │   │   ├── router.tsx            # createBrowserRouter config
+  │   │   │   └── ProtectedRoute.tsx    # Auth guard HOC
+  │   │   │
+  │   │   ├── config/
+  │   │   │   └── firebase.ts           # Firebase app init
+  │   │   │
+  │   │   ├── App.tsx
+  │   │   └── main.tsx                  # Entry point
+  │   │
+  │   ├── index.html
+  │   ├── vite.config.ts
+  │   ├── tailwind.config.ts
+  │   ├── tsconfig.json
+  │   └── package.json
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. BACKEND FOLDER STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  nutritionist-platform/
+  ├── backend/
+  │   ├── app/
+  │   │   ├── main.py                   # FastAPI app init, middleware, routers
+  │   │   │
+  │   │   ├── core/
+  │   │   │   ├── config.py             # Settings via pydantic-settings
+  │   │   │   ├── firebase.py           # Firebase Admin SDK init
+  │   │   │   ├── security.py           # JWT token verification
+  │   │   │   └── dependencies.py       # FastAPI Depends (get_current_user, etc.)
+  │   │   │
+  │   │   ├── routers/                  # API route handlers (thin layer)
+  │   │   │   ├── auth.py               # /api/auth/*
+  │   │   │   ├── clients.py            # /api/clients/*
+  │   │   │   ├── meal_plans.py         # /api/meal-plans/*
+  │   │   │   ├── ingredients.py        # /api/ingredients/*
+  │   │   │   ├── consultations.py      # /api/consultations/*
+  │   │   │   └── automation.py         # /api/automation/*
+  │   │   │
+  │   │   ├── services/                 # Business logic layer
+  │   │   │   ├── client_service.py
+  │   │   │   ├── meal_plan_service.py
+  │   │   │   ├── nutrition_service.py  # Macro calculation, USDA API wrapper
+  │   │   │   ├── consultation_service.py
+  │   │   │   ├── pdf_service.py        # PDF generation
+  │   │   │   ├── email_service.py      # SendGrid/Resend integration
+  │   │   │   └── n8n_service.py        # n8n webhook triggers
+  │   │   │
+  │   │   ├── models/                   # Pydantic v2 models (request/response)
+  │   │   │   ├── client.py
+  │   │   │   ├── meal_plan.py
+  │   │   │   ├── ingredient.py
+  │   │   │   ├── consultation.py
+  │   │   │   └── common.py             # Shared: PaginatedResponse, etc.
+  │   │   │
+  │   │   ├── db/                       # Firestore data access layer
+  │   │   │   ├── firestore.py          # Firestore client helper
+  │   │   │   ├── client_repo.py
+  │   │   │   ├── meal_plan_repo.py
+  │   │   │   ├── ingredient_repo.py
+  │   │   │   └── consultation_repo.py
+  │   │   │
+  │   │   └── utils/
+  │   │       ├── nutrition_calc.py     # Pure macro/calorie math functions
+  │   │       └── validators.py         # Custom Pydantic validators
+  │   │
+  │   ├── tests/
+  │   │   ├── test_clients.py
+  │   │   ├── test_meal_plans.py
+  │   │   └── test_nutrition.py
+  │   │
+  │   ├── .env.example
+  │   ├── requirements.txt
+  │   └── Dockerfile
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. FIRESTORE COLLECTION SCHEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /nutritionists/{nutritionistId}
+    - name, email, role, avatar_url, created_at
+
+  /clients/{clientId}
+    - nutritionist_id, name, age, gender, weight_kg, height_cm
+    - goal: "fat_loss" | "muscle_gain" | "maintenance" | "diabetic_control"
+    - conditions: string[]           (e.g., ["diabetes", "hypertension"])
+    - tags: string[]
+    - diet_preferences: { veg, vegan, halal, gluten_free, allergies[] }
+    - status: "active" | "inactive"
+    - last_active: timestamp
+    - created_at: timestamp
+
+  /clients/{clientId}/meal_plans/{planId}
+    - title, version, date_range: { start, end }
+    - status: "draft" | "active" | "sent" | "archived"
+    - days: {
+        monday: { breakfast: [MealItem], lunch: [], dinner: [], snack: [] },
+        tuesday: { ... },
+        ...
+      }
+    - total_nutrition: { calories, protein_g, carbs_g, fat_g, fiber_g }
+    - created_at, updated_at
+
+  /clients/{clientId}/consultations/{sessionId}
+    - date, duration_min
+    - notes: { goals, issues, plan, follow_up }
+    - messages: [{ sender, content, timestamp, type: "text"|"file" }]
+    - files: [{ name, url, uploaded_at }]
+
+  /ingredients/{ingredientId}
+    - name, category, unit
+    - nutrition_per_100g: {
+        calories, protein_g, carbs_g, fat_g, fiber_g,
+        sodium_mg, calcium_mg, iron_mg, ...
+      }
+    - source: "usda" | "custom"
+    - usda_fdc_id: string (if from USDA)
+    - created_at
+
+  /alerts/{alertId}
+    - type: "inactive_client" | "expiring_plan" | "missed_followup"
+    - client_id, message, priority: "high"|"medium"|"low"
+    - resolved: boolean, created_at
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. API ENDPOINT MAP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  BASE_URL: /api/v1
+
+  AUTH:
+    POST   /auth/verify-token            — Verify Firebase JWT, return user info
+
+  CLIENTS:
+    GET    /clients                       — List all clients (paginated + filters)
+    POST   /clients                       — Create new client
+    GET    /clients/{id}                  — Get full client profile
+    PUT    /clients/{id}                  — Update client info
+    DELETE /clients/{id}                  — Soft delete
+
+  MEAL PLANS:
+    GET    /clients/{id}/meal-plans       — List client's meal plans
+    POST   /clients/{id}/meal-plans       — Create new plan
+    GET    /clients/{id}/meal-plans/{pid} — Get specific plan
+    PUT    /clients/{id}/meal-plans/{pid} — Update plan
+    POST   /clients/{id}/meal-plans/{pid}/duplicate — Duplicate plan
+    GET    /clients/{id}/meal-plans/{pid}/nutrition  — Get calculated nutrition
+
+  INGREDIENTS:
+    GET    /ingredients                   — List/search ingredients
+    POST   /ingredients                   — Add custom ingredient
+    PUT    /ingredients/{id}              — Edit ingredient
+    GET    /ingredients/search?q=chicken  — Search USDA + local DB
+
+  CONSULTATIONS:
+    GET    /clients/{id}/consultations    — List sessions
+    POST   /clients/{id}/consultations    — Create session
+    GET    /clients/{id}/consultations/{sid}  — Get session with messages
+    POST   /clients/{id}/consultations/{sid}/messages — Add message
+    POST   /clients/{id}/consultations/{sid}/files    — Upload file
+
+  AUTOMATION:
+    POST   /automation/send-plan          — Trigger n8n to send plan to client
+    POST   /automation/generate-pdf       — Generate and return meal plan PDF
+    POST   /automation/schedule-followup  — Schedule follow-up via n8n
+    POST   /automation/order-ingredients  — Trigger AnyFeast order
+
+  DASHBOARD:
+    GET    /dashboard/stats               — Active clients, pending, alerts summary
+    GET    /dashboard/alerts              — Full alerts list
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. KEY CODING PATTERNS & CONVENTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FRONTEND PATTERNS:
+
+  A. COMPONENT PATTERN — Compound Components with composition:
+     ───────────────────────────────────────────────────────
+     // Prefer this pattern for complex components
+     <Card>
+       <Card.Header>
+         <Card.Title>Active Clients</Card.Title>
+         <Card.Actions><Button variant="ghost">...</Button></Card.Actions>
+       </Card.Header>
+       <Card.Body>...</Card.Body>
+     </Card>
+
+  B. TANSTACK QUERY — Consistent query key factory:
+     ──────────────────────────────────────────────
+     // src/utils/queryKeys.ts
+     export const queryKeys = {
+       clients: {
+         all:    () => ['clients'],
+         list:   (filters) => ['clients', 'list', filters],
+         detail: (id: string) => ['clients', id],
+       },
+       mealPlans: {
+         byClient: (clientId: string) => ['mealPlans', clientId],
+         detail:   (clientId, planId) => ['mealPlans', clientId, planId],
+       },
+     }
+
+  C. CUSTOM HOOK PATTERN:
+     ─────────────────────
+     // Always co-locate loading/error/data states
+     export function useClients(filters: ClientFilters) {
+       return useQuery({
+         queryKey: queryKeys.clients.list(filters),
+         queryFn: () => clientsApi.getAll(filters),
+         staleTime: 1000 * 60 * 5, // 5 min
+       });
+     }
+
+  D. ZUSTAND STORE PATTERN:
+     ───────────────────────
+     // Slice pattern — separate stores per domain, no mega-store
+     // Each store has state + actions in same file
+     export const useMealPlanStore = create<MealPlanState>()((set, get) => ({
+       currentPlan: null,
+       selectedDay: 'monday',
+       setDay: (day) => set({ selectedDay: day }),
+       updateMeal: (day, mealType, items) => set((s) => ({
+         currentPlan: {
+           ...s.currentPlan,
+           days: { ...s.currentPlan.days, [day]: { ...s.currentPlan.days[day], [mealType]: items } }
+         }
+       })),
+     }));
+
+  E. AXIOS INTERCEPTOR PATTERN:
+     ────────────────────────────
+     // Auto-attach Firebase token to every request
+     axiosInstance.interceptors.request.use(async (config) => {
+       const user = auth.currentUser;
+       if (user) {
+         const token = await user.getIdToken();
+         config.headers.Authorization = `Bearer ${token}`;
+       }
+       return config;
+     });
+
+  F. ZOD FORM VALIDATION:
+     ────────────────────
+     // Define schema once, use for form + API type
+     const clientSchema = z.object({
+       name: z.string().min(2),
+       age: z.number().min(1).max(120),
+       weight_kg: z.number().positive(),
+       goal: z.enum(['fat_loss', 'muscle_gain', 'maintenance', 'diabetic_control']),
+       conditions: z.array(z.string()).optional(),
+     });
+     type ClientFormData = z.infer<typeof clientSchema>;
+
+  G. PROTECTED ROUTE PATTERN:
+     ─────────────────────────
+     function ProtectedRoute({ children }: { children: ReactNode }) {
+       const { user, loading } = useAuth();
+       if (loading) return <FullPageSpinner />;
+       if (!user) return <Navigate to="/login" replace />;
+       return <>{children}</>;
+     }
+
+  H. ERROR BOUNDARY:
+     Wrap each page with a custom ErrorBoundary that shows a styled
+     fallback card, not a blank screen.
+
+  I. LAZY LOADING ROUTES:
+     All pages are lazy-loaded via React.lazy() + Suspense for fast
+     initial load. Skeleton loaders used, never spinners alone.
+
+
+BACKEND PATTERNS:
+
+  A. DEPENDENCY INJECTION (FastAPI Depends):
+     ─────────────────────────────────────────
+     async def get_current_user(
+         credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+     ) -> NutritionistUser:
+         token = credentials.credentials
+         decoded = verify_firebase_token(token)  # raises 401 if invalid
+         return NutritionistUser(**decoded)
+
+     # Use in router:
+     @router.get("/clients")
+     async def list_clients(user = Depends(get_current_user)):
+         ...
+
+  B. REPOSITORY PATTERN:
+     ─────────────────────
+     # All Firestore calls go through repo classes, never in routers
+     class ClientRepository:
+         def __init__(self, db: Client):
+             self.collection = db.collection("clients")
+
+         async def get_all(self, nutritionist_id: str) -> list[ClientDoc]:
+             ...
+         async def get_by_id(self, client_id: str) -> ClientDoc | None:
+             ...
+         async def create(self, data: ClientCreate) -> ClientDoc:
+             ...
+
+  C. SERVICE LAYER:
+     ────────────────
+     # Business logic lives here, not in routers
+     class MealPlanService:
+         def __init__(self, repo: MealPlanRepository, nutrition: NutritionService):
+             self.repo = repo
+             self.nutrition = nutrition
+
+         async def create_plan(self, client_id: str, data: MealPlanCreate) -> MealPlan:
+             nutrition_totals = self.nutrition.calculate(data.days)
+             return await self.repo.create(client_id, data, nutrition_totals)
+
+  D. PYDANTIC V2 RESPONSE MODELS:
+     ──────────────────────────────
+     class PaginatedResponse(BaseModel, Generic[T]):
+         items: list[T]
+         total: int
+         page: int
+         per_page: int
+         has_more: bool
+
+  E. ERROR HANDLING:
+     ─────────────────
+     # Global exception handler in main.py
+     @app.exception_handler(AppException)
+     async def app_exception_handler(request, exc):
+         return JSONResponse(
+             status_code=exc.status_code,
+             content={"error": exc.message, "code": exc.code}
+         )
+
+  F. ENVIRONMENT CONFIG (pydantic-settings):
+     ──────────────────────────────────────────
+     class Settings(BaseSettings):
+         firebase_project_id: str
+         usda_api_key: str
+         n8n_webhook_url: str
+         anyfeast_api_key: str
+         sendgrid_api_key: str
+         model_config = SettingsConfig(env_file=".env")
+
+     settings = Settings()
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. NUTRITION CALCULATION LOGIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Macro calculation per meal item:
+    protein_g  = (ingredient.protein_per_100g  * portion_g) / 100
+    carbs_g    = (ingredient.carbs_per_100g    * portion_g) / 100
+    fat_g      = (ingredient.fat_per_100g      * portion_g) / 100
+    fiber_g    = (ingredient.fiber_per_100g    * portion_g) / 100
+    calories   = (protein_g * 4) + (carbs_g * 4) + (fat_g * 9)
+
+  Daily total = sum of all meals in a day
+  Weekly avg  = sum of daily totals / 7
+
+  Both frontend (live preview) and backend (on save) calculate nutrition.
+  Backend value is the authoritative stored value.
+
+  TDEE Helper (for nutritionist guidance UI):
+    BMR (Mifflin-St Jeor):
+      Male:   10 × weight_kg + 6.25 × height_cm − 5 × age + 5
+      Female: 10 × weight_kg + 6.25 × height_cm − 5 × age − 161
+    TDEE = BMR × activity_factor
+      Sedentary:     1.2
+      Light:         1.375
+      Moderate:      1.55
+      Active:        1.725
+      Very Active:   1.9
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. AUTHENTICATION & ACCESS CONTROL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Firebase Authentication (Email/Password)
+  - No public sign-up — nutritionists are pre-created by admin
+  - Every API request carries Firebase ID Token in Authorization header
+  - Backend verifies token via firebase_admin.auth.verify_id_token()
+  - Role stored in Firestore /nutritionists document + Firebase Custom Claims
+  - Roles:
+      "admin"        — Full access, can manage other nutritionists
+      "nutritionist" — Default role, full client management
+      "viewer"       — Read-only (optional for observers)
+  - Frontend: Protected routes check auth state from Firebase onAuthStateChanged
+  - Sessions: Firebase handles token refresh automatically (1-hour tokens)
+  - Secure API access: All endpoints require valid Firebase JWT
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. N8N AUTOMATION FLOWS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  All triggered via POST to n8n webhook URLs from FastAPI:
+
+  Flow 1: Send Meal Plan to Client
+    Trigger: POST /automation/send-plan
+    n8n does: Generate PDF → Send email via SendGrid → Update Firestore plan status
+
+  Flow 2: Schedule Follow-up
+    Trigger: POST /automation/schedule-followup
+    n8n does: Create calendar event → Send reminder SMS/email to nutritionist
+
+  Flow 3: Inactive Client Alert
+    Trigger: n8n cron (daily 9am)
+    n8n does: Query Firestore for clients not active >14 days → Create alert document
+
+  Flow 4: Expiring Plan Alert
+    Trigger: n8n cron (daily)
+    n8n does: Check plan end_dates → Create alert if < 7 days left
+
+  Flow 5: Ingredient Order (AnyFeast)
+    Trigger: POST /automation/order-ingredients
+    n8n does: Extract ingredient list from plan → POST to AnyFeast API → Return order ID
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. PERFORMANCE & QUALITY STANDARDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Frontend:
+    - Lighthouse score target: 90+ (Performance, Accessibility, Best Practices)
+    - All routes lazy-loaded (React.lazy)
+    - Images: WebP format + lazy loading
+    - Fonts: preload + font-display: swap
+    - API responses: cached via TanStack Query (staleTime: 5 min)
+    - Skeletons: every data-loaded UI shows skeleton while loading (never blank)
+    - No prop drilling beyond 2 levels — use Zustand or context
+    - Strict TypeScript — no `any` types
+    - ESLint + Prettier enforced in CI
+
+  Backend:
+    - FastAPI async throughout (async def for all routes)
+    - Firestore reads: use .where() + .limit() — never fetch full collections
+    - Pagination: all list endpoints support limit/offset or cursor
+    - Rate limiting: slowapi middleware (100 req/min per user)
+    - Input validation: Pydantic blocks all invalid data at entry
+    - Logging: structured JSON logs (loguru)
+    - Tests: pytest with coverage target 80%+
+
+  Security:
+    - HTTPS only (enforced at hosting level)
+    - CORS: only allow frontend domain
+    - Firebase ID token required for every protected endpoint
+    - File uploads: validate MIME type + max 10MB server-side
+    - No sensitive data in frontend env (only VITE_FIREBASE_* public config)
+    - Secrets: stored in .env (local) and GitHub Secrets / Doppler (prod)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. DEVELOPMENT SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Prerequisites:
+    Node.js 20+, Python 3.11+, Git, Firebase CLI, Docker (optional for n8n)
+
+  Frontend setup:
+    cd frontend
+    npm install
+    cp .env.example .env.local     # Add Firebase config keys
+    npm run dev                    # Runs on http://localhost:5173
+
+  Backend setup:
+    cd backend
+    python -m venv venv
+    source venv/bin/activate       # Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    cp .env.example .env           # Add Firebase service account path + API keys
+    uvicorn app.main:app --reload  # Runs on http://localhost:8000
+
+  n8n (local dev):
+    docker run -it --rm -p 5678:5678 n8nio/n8n
+    # Access at http://localhost:5678
+
+  Environment Variables (.env.example — Frontend):
+    VITE_FIREBASE_API_KEY=
+    VITE_FIREBASE_AUTH_DOMAIN=
+    VITE_FIREBASE_PROJECT_ID=
+    VITE_FIREBASE_STORAGE_BUCKET=
+    VITE_API_BASE_URL=http://localhost:8000/api/v1
+
+  Environment Variables (.env.example — Backend):
+    FIREBASE_PROJECT_ID=
+    FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json
+    USDA_API_KEY=
+    N8N_WEBHOOK_BASE_URL=http://localhost:5678
+    ANYFEAST_API_KEY=
+    SENDGRID_API_KEY=
+    ALLOWED_ORIGINS=http://localhost:5173
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. PACKAGE VERSIONS (pinned)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Frontend (package.json):
+    "react": "^18.3.0"
+    "react-dom": "^18.3.0"
+    "typescript": "^5.4.0"
+    "vite": "^5.2.0"
+    "@vitejs/plugin-react": "^4.2.0"
+    "tailwindcss": "^3.4.0"
+    "@tanstack/react-query": "^5.28.0"
+    "zustand": "^4.5.0"
+    "react-router-dom": "^6.22.0"
+    "react-hook-form": "^7.51.0"
+    "zod": "^3.22.0"
+    "@hookform/resolvers": "^3.3.0"
+    "axios": "^1.6.0"
+    "framer-motion": "^11.0.0"
+    "lucide-react": "^0.368.0"
+    "recharts": "^2.12.0"
+    "@dnd-kit/core": "^6.1.0"
+    "@dnd-kit/sortable": "^8.0.0"
+    "date-fns": "^3.6.0"
+    "react-hot-toast": "^2.4.0"
+    "@react-pdf/renderer": "^3.4.0"
+    "firebase": "^10.10.0"
+    "clsx": "^2.1.0"
+    "tailwind-merge": "^2.2.0"
+
+  Backend (requirements.txt):
+    fastapi==0.110.0
+    uvicorn[standard]==0.29.0
+    pydantic==2.7.0
+    pydantic-settings==2.2.0
+    firebase-admin==6.5.0
+    httpx==0.27.0
+    python-dotenv==1.0.0
+    loguru==0.7.2
+    slowapi==0.1.9
+    weasyprint==62.1
+    python-multipart==0.0.9
+    pytest==8.1.0
+    pytest-asyncio==0.23.0
+
+================================================================================
+  END OF TECHNICAL REQUIREMENTS GUIDE
+================================================================================

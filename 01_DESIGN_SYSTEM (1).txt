@@ -1,0 +1,429 @@
+================================================================================
+  NUTRITIONIST PLATFORM — DESIGN SYSTEM & UI GUIDE
+  Professional · Modern · Clinical-Grade
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. DESIGN PHILOSOPHY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Direction: "Refined Clinical Luxury"
+  - Inspired by premium health tech (e.g., Whoop, Levels, Hims)
+  - Trust-building aesthetic: clean, precise, data-forward
+  - Generous white/dark space — no clutter
+  - Every screen should feel like a premium medical tool, not a generic SaaS app
+  - Information density is high but never chaotic; data is beautiful here
+  - Memorable detail: a subtle animated "pulse" ring on active client avatars
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. COLOR PALETTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CSS Variables (to define in :root):
+
+  /* Backgrounds */
+  --bg-base:        #0D0F14    /* Deep charcoal — main app background          */
+  --bg-surface:     #13161E    /* Slightly lighter — cards, sidebars            */
+  --bg-elevated:    #1C2030    /* Modals, dropdowns, popovers                   */
+  --bg-input:       #1A1D27    /* Form fields, search bars                      */
+
+  /* Brand / Primary */
+  --brand-primary:  #00D4A1    /* Vibrant teal-green — CTAs, active states      */
+  --brand-glow:     rgba(0, 212, 161, 0.15)  /* Soft glow for cards/focus rings */
+  --brand-dim:      #00A07A    /* Darker teal — hover states                    */
+
+  /* Accent */
+  --accent-amber:   #F5A623    /* Alerts, warnings, expiring plans              */
+  --accent-rose:    #F0506E    /* Errors, critical alerts                       */
+  --accent-blue:    #4A9EFF    /* Info states, links, secondary highlights      */
+  --accent-purple:  #8B6FFF    /* Premium badge, pro features                   */
+
+  /* Text */
+  --text-primary:   #EAEDF5    /* Main content                                  */
+  --text-secondary: #7E8BA8    /* Labels, metadata, placeholders               */
+  --text-muted:     #3E4760    /* Disabled, ghost                               */
+  --text-inverse:   #0D0F14    /* Text on bright backgrounds                   */
+
+  /* Borders */
+  --border-subtle:  rgba(255,255,255,0.06)   /* Default card/section borders   */
+  --border-active:  rgba(0, 212, 161, 0.40)  /* Focused / selected borders     */
+  --border-strong:  rgba(255,255,255,0.14)   /* Dividers                       */
+
+  /* Nutrition Macro Colors (consistent throughout app) */
+  --macro-protein:  #4A9EFF    /* Blue  */
+  --macro-carbs:    #F5A623    /* Amber */
+  --macro-fat:      #F0506E    /* Rose  */
+  --macro-fiber:    #00D4A1    /* Teal  */
+  --macro-calories: #8B6FFF    /* Purple */
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. TYPOGRAPHY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Font Stack:
+
+  Display / Headings:  "DM Sans" (Google Fonts)
+    — Modern geometric, clinical authority without being cold
+    — Weights used: 400, 500, 600, 700
+
+  Body / Data:         "IBM Plex Sans" (Google Fonts)
+    — Technical, readable at small sizes, trusted in data-rich UIs
+    — Weights used: 300, 400, 500
+
+  Monospace (macros, values): "IBM Plex Mono"
+    — For calorie counts, macro numbers, nutrition values
+    — Gives a "precision instrument" feel to numbers
+
+Google Fonts Import:
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+Type Scale:
+  --text-xs:    0.70rem   / 11px  — Tags, badges, micro-labels
+  --text-sm:    0.813rem  / 13px  — Secondary info, table data
+  --text-base:  0.938rem  / 15px  — Body text
+  --text-md:    1.063rem  / 17px  — Section labels
+  --text-lg:    1.25rem   / 20px  — Card headers
+  --text-xl:    1.563rem  / 25px  — Page sub-headings
+  --text-2xl:   2rem      / 32px  — Page headings
+  --text-3xl:   2.75rem   / 44px  — Dashboard hero numbers (e.g., "24 Active Clients")
+
+Line Heights:
+  Headings: 1.15
+  Body:     1.6
+  Data/Mono: 1.4
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. SPACING SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Base unit: 4px
+
+  --space-1:   4px
+  --space-2:   8px
+  --space-3:   12px
+  --space-4:   16px
+  --space-5:   20px
+  --space-6:   24px
+  --space-8:   32px
+  --space-10:  40px
+  --space-12:  48px
+  --space-16:  64px
+  --space-20:  80px
+
+  Card padding:    24px (--space-6)
+  Section gap:     32px (--space-8)
+  Page padding:    32px–48px sides
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. ELEVATION & SHADOW SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.5);
+  --shadow-brand: 0 0 0 1px var(--brand-primary), 0 4px 24px var(--brand-glow);
+
+  Teal glow effect (used on active cards, KPI tiles):
+    box-shadow: 0 0 0 1px rgba(0, 212, 161, 0.2),
+                0 8px 32px rgba(0, 212, 161, 0.08);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. BORDER RADIUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  --radius-sm:   6px    — Badges, tags, small chips
+  --radius-md:   10px   — Inputs, buttons, small cards
+  --radius-lg:   16px   — Main cards, panels
+  --radius-xl:   24px   — Modals, side sheets
+  --radius-full: 9999px — Pills, avatars, toggles
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. LAYOUT STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+App Shell:
+  ┌─────────────────────────────────────────────┐
+  │  LEFT SIDEBAR (64px collapsed / 240px open) │
+  │  ┌──────────────────────────────────────┐   │
+  │  │  Logo + Brand Name                   │   │
+  │  │  ─────────────────                   │   │
+  │  │  Nav Items (icon + label)            │   │
+  │  │    • Dashboard                       │   │
+  │  │    • Clients                         │   │
+  │  │    • Meal Plans                      │   │
+  │  │    • Nutrition DB                    │   │
+  │  │    • Consultations                   │   │
+  │  │    • Automation                      │   │
+  │  │    • Settings                        │   │
+  │  │  ─────────────────                   │   │
+  │  │  Nutritionist avatar + role badge    │   │
+  │  └──────────────────────────────────────┘   │
+  │                                             │
+  │  MAIN CONTENT AREA                          │
+  │  ┌──────────────────────────────────────┐   │
+  │  │  TOP BAR: page title + search +      │   │
+  │  │           quick actions + notif bell  │   │
+  │  │  ─────────────────                   │   │
+  │  │  PAGE CONTENT                        │   │
+  │  └──────────────────────────────────────┘   │
+  └─────────────────────────────────────────────┘
+
+Grid:
+  Dashboard KPI row:  4-column grid (repeat(4, 1fr))
+  Client list:        Full width table/grid
+  Client profile:     2-column: main (65%) + sidebar (35%)
+  Meal plan builder:  7-column weekly grid + right panel (300px)
+  Ingredient DB:      Full width table
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. COMPONENT DESIGN SPECS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+— CARDS —
+  background:    var(--bg-surface)
+  border:        1px solid var(--border-subtle)
+  border-radius: var(--radius-lg)
+  padding:       24px
+  transition:    border-color 200ms, box-shadow 200ms
+  hover:         border-color → var(--border-strong)
+
+  KPI/Stat Card (active state):
+    border-color: var(--brand-primary) at 30% opacity
+    left accent bar: 3px solid var(--brand-primary)
+    top-left corner: subtle teal glow
+
+— BUTTONS —
+  Primary:
+    background:    var(--brand-primary)
+    color:         var(--text-inverse)
+    border-radius: var(--radius-md)
+    padding:       10px 20px
+    font:          DM Sans 500, 14px
+    hover:         background → var(--brand-dim), translateY(-1px)
+    active:        translateY(0)
+
+  Secondary:
+    background:    transparent
+    border:        1px solid var(--border-strong)
+    color:         var(--text-primary)
+    hover:         background → var(--bg-elevated)
+
+  Danger:
+    background:    rgba(240, 80, 110, 0.12)
+    border:        1px solid rgba(240, 80, 110, 0.30)
+    color:         var(--accent-rose)
+
+  Ghost / Icon Button:
+    background:    transparent
+    color:         var(--text-secondary)
+    hover:         color → var(--text-primary), bg → var(--bg-elevated)
+
+— INPUTS & FORM FIELDS —
+  background:    var(--bg-input)
+  border:        1px solid var(--border-subtle)
+  border-radius: var(--radius-md)
+  padding:       10px 14px
+  color:         var(--text-primary)
+  font:          IBM Plex Sans 400, 14px
+  placeholder:   var(--text-muted)
+  focus:
+    border-color: var(--brand-primary)
+    box-shadow:   0 0 0 3px var(--brand-glow)
+    outline:      none
+
+— BADGES / TAGS —
+  Goal tags:
+    Fat Loss    → background: rgba(245,166,35,0.12)  color: #F5A623
+    Diabetic    → background: rgba(74,158,255,0.12)  color: #4A9EFF
+    Athlete     → background: rgba(0,212,161,0.12)   color: #00D4A1
+    Heart       → background: rgba(240,80,110,0.12)  color: #F0506E
+
+  Status badges:
+    Active      → teal pill
+    Inactive    → gray pill
+    Expiring    → amber pill
+
+— AVATAR / CLIENT ICON —
+  Shape:         Circle (40px default, 48px in profile)
+  Active pulse:  2px teal ring + subtle CSS pulse animation
+  Initials:      DM Sans 600, white on gradient bg
+
+— DATA TABLES —
+  header-bg:     var(--bg-elevated)
+  row-hover:     rgba(255,255,255,0.03)
+  row-border:    1px solid var(--border-subtle) (bottom only)
+  selected-row:  rgba(0, 212, 161, 0.07) bg + left teal border
+
+— NUTRITION MACRO BAR —
+  Segmented horizontal bar:
+    Segments: Protein (blue) | Carbs (amber) | Fat (rose)
+    Height:   8px, border-radius: full
+    Show % labels above each segment
+    Animated fill on load (width: 0 → actual, 600ms ease-out)
+
+— SIDEBAR NAV ITEM —
+  padding:       10px 16px
+  border-radius: var(--radius-md)
+  default:       color → var(--text-secondary)
+  hover:         color → var(--text-primary), bg → var(--bg-elevated)
+  active:
+    color:       var(--brand-primary)
+    background:  rgba(0, 212, 161, 0.10)
+    left border: 3px solid var(--brand-primary)
+    icon:        teal colored
+
+— WEEKLY MEAL GRID —
+  7 columns (Mon–Sun) + row headers (Breakfast/Lunch/Dinner/Snack)
+  Cell:
+    background:  var(--bg-surface)
+    border:      1px solid var(--border-subtle)
+    min-height:  80px
+    hover:       dashed teal border, "+" icon appears
+  Filled cell:
+    background:  var(--bg-elevated)
+    Shows:       meal name, thumbnail macro bar (tiny), calorie count
+
+— LIVE NUTRITION PANEL —
+  Fixed right panel (300px) in meal plan builder
+  Shows:
+    Total daily calories (large mono font, teal color)
+    Macro ring chart (donut, colored by macro-colors)
+    Per-meal breakdown
+    Goal vs actual progress bars
+
+— ALERT / NOTIFICATION —
+  Alert bar (top of card):
+    Warning:  amber left border + amber icon
+    Error:    rose left border + rose icon
+    Success:  teal left border + teal icon
+    Info:     blue left border + blue icon
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. MOTION & ANIMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Global easing:  cubic-bezier(0.22, 1, 0.36, 1)  (smooth decelerate)
+  Fast:           150ms
+  Base:           250ms
+  Slow:           450ms
+
+  Page transitions:     Fade + translateY(8px → 0)
+  Card mount:           staggered (50ms delay between each KPI card)
+  Sidebar open/close:   width transition 250ms
+  Modal appear:         scale(0.96 → 1) + fade, 200ms
+  Macro bar fill:       0 → target width, 600ms, staggered per segment
+  Counter animation:    Odometer-style roll-up for KPI numbers on dashboard load
+  Active client pulse:
+    @keyframes pulse-ring {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      70%  { transform: scale(1.4); opacity: 0; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    animation: pulse-ring 2s ease-out infinite
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. ICONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Library:  Lucide React (consistent, clean, 1.5px stroke weight)
+  Size:     16px (inline), 20px (nav), 24px (page headers)
+  Color:    inherit from parent (teal when active, secondary when default)
+
+  Key icons per section:
+    Dashboard        →  LayoutDashboard
+    Clients          →  Users
+    Meal Plans       →  CalendarDays
+    Nutrition DB     →  Database
+    Consultations    →  MessageSquare
+    Automation       →  Zap
+    Settings         →  Settings2
+    Alerts           →  BellRing
+    Fat Loss goal    →  TrendingDown
+    Athlete tag      →  Activity
+    Diabetic tag     →  Heart
+    Upload           →  Upload
+    Add Meal         →  PlusCircle
+    Generate PDF     →  FileDown
+    Send Plan        →  Send
+    Schedule         →  CalendarClock
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. SCREEN-BY-SCREEN DESIGN NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DASHBOARD:
+  - Hero greeting: "Good morning, Dr. Ananya." (DM Sans 700, 2xl)
+  - KPI row: 4 stat cards → Active Clients | Pending Consultations |
+    Meal Plans This Week | Alerts
+  - Each card: large mono number (teal), label, small trend arrow
+  - Section below: "Recent Meal Plans" table (3 cols) + "Alerts" list (side)
+  - Quick action bar: [+ New Client] [+ Create Meal Plan] [Open Consultation]
+  - Subtle grid background pattern on hero section (SVG grid, 5% opacity)
+
+CLIENT LIST:
+  - Top bar: search input (full width) + filter chips (All / Active / Inactive)
+    + tag filters (Fat Loss / Diabetic / Athlete)
+  - Table: Avatar | Name | Age | Goal | Condition | Last Active | Status | Actions
+  - Row hover: subtle bg highlight + action icons appear (Edit / View / Chat)
+  - Empty state: friendly illustration + "Add your first client" CTA
+
+CLIENT PROFILE:
+  - Profile header: large avatar + name + age + tags + status badge
+  - Tab navigation: Overview | Meal Plans | Consultations | Files | Progress
+  - Medical & Diet info displayed as clean key-value grid
+  - Timeline on right sidebar for recent activity
+  - Sticky action bar at bottom: [Create Plan] [Start Consultation] [View Progress]
+
+MEAL PLAN BUILDER:
+  - Header: plan name (editable inline) + client name + date range + version badge
+  - 7×4 weekly grid (days × meals) — see component specs above
+  - Right panel: live nutrition summary (always visible, scrolls with page)
+  - Bottom bar: [Save Draft] [Duplicate] [Generate PDF] [Send to Client]
+  - Add meal modal: search ingredient DB, set portions, see macro preview
+
+NUTRITION DATABASE:
+  - Split view: left ingredient list (searchable) + right detail panel
+  - Filters: category chips (Protein / Grains / Dairy / Veg / Fruit / Fats)
+  - Macro columns shown as colored dots for scannability
+  - [+ Add Ingredient] button → inline form or modal
+
+CONSULTATION INTERFACE:
+  - Chat column (left 60%) + structured notes (right 40%)
+  - Chat bubbles: nutritionist (teal, right) / client (gray, left)
+  - Notes panel: accordion sections → Goals | Issues | Plan | Follow-up
+  - File sharing: drag-drop zone in chat
+
+LOGIN:
+  - Centered card on dark background with subtle animated gradient mesh
+  - Logo at top, email + password fields, "Nutritionist Login" branding
+  - No public registration — invite-only system notice below form
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. RESPONSIVE BREAKPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Mobile first, but dashboard is desktop-primary.
+
+  sm:   640px   — Stack KPI cards 2×2
+  md:   768px   — Sidebar collapses to icon-only
+  lg:   1024px  — Full layout, sidebar expanded
+  xl:   1280px  — Optimal layout
+  2xl:  1536px  — Wider content max-width (1200px centered)
+
+  max-width of main content:  1200px
+  min supported width:        1024px (professional tool)
+
+================================================================================
+  END OF DESIGN SYSTEM GUIDE
+================================================================================
