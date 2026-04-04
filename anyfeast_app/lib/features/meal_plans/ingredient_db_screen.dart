@@ -46,36 +46,72 @@ class IngredientDBScreen extends StatelessWidget {
           ),
           Expanded(
             child: ListView.separated(
-              itemCount: 8, // Mock data
+              itemCount: 8,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final names = [
-                  'Avocado (Raw)', 'Chicken Breast', 'Oats (Rolled)',
-                  'Sweet Potato', 'Greek Yogurt', 'Almonds', 'Salmon', 'Broccoli'
+                const names = [
+                  'Avocado (Raw)',
+                  'Chicken Breast',
+                  'Oats (Rolled)',
+                  'Sweet Potato',
+                  'Greek Yogurt',
+                  'Almonds',
+                  'Salmon',
+                  'Broccoli'
                 ];
-                final cats = ['Fats', 'Protein', 'Grains', 'Carbs', 'Dairy', 'Fats', 'Protein', 'Vegetables'];
-                final calories = ['160k', '165k', '389k', '86k', '59k', '579k', '208k', '34k'];
-
+                const cats = [
+                  'Fats',
+                  'Protein',
+                  'Grains',
+                  'Carbs',
+                  'Dairy',
+                  'Fats',
+                  'Protein',
+                  'Vegetables'
+                ];
+                const calories = [
+                  '160k',
+                  '165k',
+                  '389k',
+                  '86k',
+                  '59k',
+                  '579k',
+                  '208k',
+                  '34k'
+                ];
                 return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(names[index], style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(names[index],
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: AppTheme.brandPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                            child: Text(calories[index], style: const TextStyle(color: AppTheme.brandPrimary, fontSize: 10, fontWeight: FontWeight.bold)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color:
+                                  AppTheme.brandPrimary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(calories[index],
+                                style: const TextStyle(
+                                    color: AppTheme.brandPrimary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold)),
                           ),
                           const SizedBox(width: 8),
-                          const Icon(Icons.edit, size: 16, color: AppTheme.textMuted),
+                          const Icon(Icons.edit,
+                              size: 16, color: AppTheme.textMuted),
                         ],
                       ),
                     ],
                   ),
-                  subtitle: Text('Category: ${cats[index]} • per 100g', style: const TextStyle(fontSize: 12)),
+                  subtitle: Text('Category: ${cats[index]} • per 100g',
+                      style: const TextStyle(fontSize: 12)),
                   onTap: () {},
                 );
               },

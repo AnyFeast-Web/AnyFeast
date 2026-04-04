@@ -31,21 +31,38 @@ class ClientListScreen extends StatelessWidget {
           ),
           Expanded(
             child: ListView.separated(
-              itemCount: 5, // Mock data
+              itemCount: 5,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final names = ['Sarah Johnson', 'Michael Chen', 'Emily Davis', 'James Wilson', 'Olivia Martinez'];
-                final goals = ['Fat Loss', 'Muscle Gain', 'Maintenance', 'Diabetic Control', 'Fat Loss'];
-                
+                const names = [
+                  'Sarah Johnson',
+                  'Michael Chen',
+                  'Emily Davis',
+                  'James Wilson',
+                  'Olivia Martinez'
+                ];
+                const goals = [
+                  'Fat Loss',
+                  'Muscle Gain',
+                  'Maintenance',
+                  'Diabetic Control',
+                  'Fat Loss'
+                ];
                 return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: CircleAvatar(
-                    backgroundColor: AppTheme.brandPrimary.withOpacity(0.2),
-                    child: Text(names[index].substring(0, 1), style: const TextStyle(color: AppTheme.brandPrimary)),
+                    backgroundColor:
+                        AppTheme.brandPrimary.withValues(alpha: 0.2),
+                    child: Text(names[index].substring(0, 1),
+                        style: const TextStyle(color: AppTheme.brandPrimary)),
                   ),
-                  title: Text(names[index], style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('Goal: ${goals[index]} • Last active 2d ago', style: const TextStyle(fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right, color: AppTheme.textMuted),
+                  title: Text(names[index],
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('Goal: ${goals[index]} • Last active 2d ago',
+                      style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right,
+                      color: AppTheme.textMuted),
                   onTap: () {},
                 );
               },

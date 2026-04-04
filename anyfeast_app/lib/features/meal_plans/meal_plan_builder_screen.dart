@@ -8,7 +8,8 @@ class MealPlanBuilderScreen extends StatefulWidget {
   State<MealPlanBuilderScreen> createState() => _MealPlanBuilderScreenState();
 }
 
-class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen> with SingleTickerProviderStateMixin {
+class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -30,7 +31,8 @@ class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen> with Sing
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight + 48),
         child: AppBar(
-          title: const Text('Cutting Phase Plan — W1', style: TextStyle(fontSize: 16)),
+          title: const Text('Cutting Phase Plan — W1',
+              style: TextStyle(fontSize: 16)),
           actions: [
             IconButton(icon: const Icon(Icons.ios_share), onPressed: () {}),
             IconButton(icon: const Icon(Icons.send), onPressed: () {}),
@@ -47,7 +49,6 @@ class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen> with Sing
       ),
       body: Column(
         children: [
-          // Live Summary Bar
           Container(
             padding: const EdgeInsets.all(12),
             color: AppTheme.bgSurface,
@@ -76,8 +77,12 @@ class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen> with Sing
   Widget _buildMacroStat(String label, String value, Color textCol) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textCol)),
-        Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+        Text(value,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 16, color: textCol)),
+        Text(label,
+            style:
+                const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
       ],
     );
   }
@@ -111,11 +116,14 @@ class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen> with Sing
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
                 IconButton(
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.add_circle_outline, color: AppTheme.brandPrimary),
+                  icon: const Icon(Icons.add_circle_outline,
+                      color: AppTheme.brandPrimary),
                   onPressed: () {},
                 ),
               ],
@@ -125,43 +133,63 @@ class _MealPlanBuilderScreenState extends State<MealPlanBuilderScreen> with Sing
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.borderSubtle, style: BorderStyle.solid),
+                  border: Border.all(color: AppTheme.borderSubtle),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(
-                  child: Text('Add meal', style: TextStyle(color: AppTheme.textMuted)),
+                  child: Text('Add meal',
+                      style: TextStyle(color: AppTheme.textMuted)),
                 ),
               )
             else
               ...meals.map((m) => Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.borderSubtle),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(m['name']!, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    Row(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppTheme.borderSubtle),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: AppTheme.brandPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                          child: Text(m['cals']!, style: const TextStyle(color: AppTheme.brandPrimary, fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                          child: Text(m['pro']!, style: const TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
+                        Text(m['name']!,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandPrimary
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(m['cals']!,
+                                  style: const TextStyle(
+                                      color: AppTheme.brandPrimary,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(m['pro']!,
+                                  style: const TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              )),
+                  )),
           ],
         ),
       ),

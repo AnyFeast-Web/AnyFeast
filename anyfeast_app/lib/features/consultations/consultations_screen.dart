@@ -31,23 +31,50 @@ class ConsultationsScreen extends StatelessWidget {
           ),
           Expanded(
             child: ListView.separated(
-              itemCount: 4, // Mock data
+              itemCount: 4,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final headings = ['Initial Assessment', 'W1 Check-in', 'Chat Message', 'W4 Review'];
-                final clients = ['Sarah Johnson', 'Michael Chen', 'Emily Davis', 'James Wilson'];
-                final types = ['Structured', 'Structured', 'Chat', 'Structured'];
-                
+                const headings = [
+                  'Initial Assessment',
+                  'W1 Check-in',
+                  'Chat Message',
+                  'W4 Review'
+                ];
+                const clients = [
+                  'Sarah Johnson',
+                  'Michael Chen',
+                  'Emily Davis',
+                  'James Wilson'
+                ];
+                const types = [
+                  'Structured',
+                  'Structured',
+                  'Chat',
+                  'Structured'
+                ];
                 return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: CircleAvatar(
-                    backgroundColor: types[index] == 'Chat' ? Colors.blue.withOpacity(0.1) : AppTheme.accentTeal.withOpacity(0.1),
-                    child: Icon(types[index] == 'Chat' ? Icons.chat_bubble : Icons.assignment, 
-                                color: types[index] == 'Chat' ? Colors.blue : AppTheme.accentTeal),
+                    backgroundColor: types[index] == 'Chat'
+                        ? Colors.blue.withValues(alpha: 0.1)
+                        : AppTheme.accentTeal.withValues(alpha: 0.1),
+                    child: Icon(
+                      types[index] == 'Chat'
+                          ? Icons.chat_bubble
+                          : Icons.assignment,
+                      color: types[index] == 'Chat'
+                          ? Colors.blue
+                          : AppTheme.accentTeal,
+                    ),
                   ),
-                  title: Text('${headings[index]} • ${clients[index]}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: Text('Type: ${types[index]} • Oct 24, 2023', style: const TextStyle(fontSize: 12)),
-                  trailing: const Icon(Icons.chevron_right, color: AppTheme.textMuted),
+                  title: Text('${headings[index]} • ${clients[index]}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text('Type: ${types[index]} • Oct 24, 2023',
+                      style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.chevron_right,
+                      color: AppTheme.textMuted),
                   onTap: () {},
                 );
               },
