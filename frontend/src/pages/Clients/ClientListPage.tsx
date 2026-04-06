@@ -306,6 +306,18 @@ export function ClientListPage() {
                 </div>
 
                 <div>
+                  <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Health Goals</label>
+                  <Input 
+                    placeholder="e.g. Weight Loss, Muscle Gain (comma separated)" 
+                    value={formData.tags?.join(', ') || ''} 
+                    onChange={e => {
+                      const tags = e.target.value.split(',').map(t => t.trim()).filter(t => t);
+                      setFormData({...formData, tags});
+                    }} 
+                  />
+                </div>
+
+                <div>
                   <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Status</label>
                   <select 
                     value={formData.status || 'active'} 
@@ -337,6 +349,15 @@ export function ClientListPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating Action Button */}
+      <button 
+        onClick={handleOpenNew}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-brand-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-brand-dim transition-colors z-40"
+        title="Add Client"
+      >
+        <PlusCircle className="w-6 h-6" />
+      </button>
     </>
   );
 }
