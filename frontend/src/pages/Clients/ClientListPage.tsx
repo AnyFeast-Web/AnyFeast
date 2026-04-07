@@ -176,16 +176,16 @@ export function ClientListPage() {
                         </td>
                         <td className="px-5 py-4 text-sm text-text-secondary">{client.age}</td>
                         <td className="px-5 py-4">
-                          {client.goals && client.goals.length > 0 ? (
-                            <GoalBadge goal={client.goals[0]} />
+                          {client.goal ? (
+                            <GoalBadge goal={client.goal} />
                           ) : (
                             <span className="text-xs text-text-muted">None</span>
                           )}
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex flex-wrap gap-1">
-                            {client.personal_info?.conditions?.length > 0 ? (
-                              client.personal_info.conditions.map((c: string) => (
+                            {client.conditions?.length > 0 ? (
+                              client.conditions.map((c: string) => (
                                 <Badge key={c} variant="gray" size="sm">{c}</Badge>
                               ))
                             ) : (

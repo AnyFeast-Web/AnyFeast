@@ -34,3 +34,6 @@ export interface Client {
   phone?: string;
   customer_id?: string;
 }
+
+export type CreateClientInput = Omit<Client, 'id' | 'nutritionist_id' | 'last_active' | 'created_at'>;
+export type UpdateClientInput = Partial<CreateClientInput>;
