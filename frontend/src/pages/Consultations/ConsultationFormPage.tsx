@@ -71,10 +71,13 @@ export function ConsultationFormPage() {
 
   // Update form with client name once loaded
   useEffect(() => {
-    if (clientData && clientData.name && form.client_name !== clientData.name) {
-      setForm((prev) => ({ ...prev, client_name: clientData.name }));
+    if (clientData) {
+      const name = `${clientData.personal_info.first_name} ${clientData.personal_info.last_name}`;
+      if (form.client_name !== name) {
+        setForm((prev: FullConsultationForm) => ({ ...prev, client_name: name }));
+      }
     }
-  }, [clientData]);
+  }, [clientData, form.client_name]);
 
   const createMutation = useCreateConsultation();
   const updateMutation = useUpdateConsultation(id || 'temp');
@@ -233,7 +236,7 @@ export function ConsultationFormPage() {
     <>
       <TopBar
         title="Consultation Form"
-        subtitle={client?.name || 'New Consultation'}
+        subtitle={client ? `${client.personal_info.first_name} ${client.personal_info.last_name}` : 'New Consultation'}
         actions={
           <div className="flex items-center gap-3">
             <AutoSaveIndicator status={saveStatus} lastSaved={lastSaved} />
@@ -259,7 +262,7 @@ export function ConsultationFormPage() {
           onClick={() => navigate(client ? `/clients/${client.id}` : '/clients')}
           className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary mb-6 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to {client?.name || 'Clients'}
+          <ArrowLeft className="w-4 h-4" /> Back to {client ? `${client.personal_info.first_name} ${client.personal_info.last_name}` : 'Clients'}
         </button>
 
         <div className="flex gap-6">

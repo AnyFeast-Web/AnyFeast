@@ -20,6 +20,24 @@ export interface Measurements {
   activity_multiplier?: number;
 }
 
+export interface DietPreferences {
+  veg: boolean;
+  vegan: boolean;
+  halal: boolean;
+  gluten_free: boolean;
+  allergies: string[];
+}
+
+export interface MedicalHistorySummary {
+  previous_diagnoses: string;
+  current_symptoms: string;
+  digestive_issues: string[];
+  allergies_intolerances: string;
+  family_history: string;
+  medication_history: string;
+  previous_surgeries: string;
+}
+
 export interface Client {
   id: string;
   nutritionist_id: string;
@@ -28,6 +46,8 @@ export interface Client {
   goals: string[];
   tags: string[];
   measurements: Measurements;
+  diet_preferences?: DietPreferences;
+  medical_history?: MedicalHistorySummary;
   created_at: string;
   updated_at: string;
 }

@@ -62,9 +62,9 @@ export function ClientProfilePage() {
     );
   }
 
-  const clientPlans = allPlans.filter((p: any) => p.client_id === client.id);
-  const clientConsultations = allConsultations.filter((c: any) => c.client_id === client.id);
-  const clientForms = clientConsultations.filter((c: any) => c.plan || c.medical_history);
+  const clientPlans = (allPlans as any[]).filter((p) => p.client_id === client.id);
+  const clientConsultations = (allConsultations as any[]).filter((c) => c.client_id === client.id);
+  const clientForms = clientConsultations.filter((c) => c.plan || c.medical_history);
 
   const dob = client.personal_info.dob ? new Date(client.personal_info.dob) : null;
   const age = dob ? Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null;
@@ -78,10 +78,10 @@ export function ClientProfilePage() {
     if (!consultationSearch.trim()) return true;
     const q = consultationSearch.toLowerCase();
     return (
-      f.plan.free_notes.toLowerCase().includes(q) ||
-      f.plan.priority_issues.toLowerCase().includes(q) ||
-      f.plan.next_steps.toLowerCase().includes(q) ||
-      f.nutritionist_name.toLowerCase().includes(q) ||
+      f.plan?.free_notes?.toLowerCase().includes(q) ||
+      f.plan?.priority_issues?.toLowerCase().includes(q) ||
+      f.plan?.next_steps?.toLowerCase().includes(q) ||
+      f.nutritionist_name?.toLowerCase().includes(q) ||
       formatDate(f.created_at).toLowerCase().includes(q)
     );
   });
@@ -148,10 +148,10 @@ export function ClientProfilePage() {
                   <Card.Body>
                     <div className="grid grid-cols-2 gap-4">
                       {[
-                        { icon: <Mail className="w-4 h-4" />, label: 'Email', value: client.email || 'N/A' },
-                        { icon: <Phone className="w-4 h-4" />, label: 'Phone', value: client.phone || 'N/A' },
-                        { icon: <Weight className="w-4 h-4" />, label: 'Weight', value: formatWeight(client.weight_kg) },
-                        { icon: <Ruler className="w-4 h-4" />, label: 'Height', value: formatHeight(client.height_cm) },
+                        { icon: <Mail className="w-4 h-4" />, label: 'Email', value: client.personal_info?.email || 'N/A' },
+                        { icon: <Phone className="w-4 h-4" />, label: 'Phone', value: client.personal_info?.phone || 'N/A' },
+                        { icon: <Weight className="w-4 h-4" />, label: 'Weight', value: formatWeight(client.measurements?.weight_kg) },
+                        { icon: <Ruler className="w-4 h-4" />, label: 'Height', value: formatHeight(client.measurements?.height_cm) },
                         { icon: <Activity className="w-4 h-4" />, label: 'BMR', value: `${Math.round(bmr)} kcal` },
                         { icon: <TrendingUp className="w-4 h-4" />, label: 'TDEE (Moderate)', value: `${Math.round(tdee)} kcal` },
                       ].map((item) => (

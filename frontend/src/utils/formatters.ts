@@ -31,11 +31,13 @@ export function formatNumber(num: number): string {
   return new Intl.NumberFormat('en-IN').format(num);
 }
 
-export function formatWeight(kg: number): string {
+export function formatWeight(kg: number | undefined | null): string {
+  if (!kg) return 'N/A';
   return `${kg} kg`;
 }
 
-export function formatHeight(cm: number): string {
+export function formatHeight(cm: number | undefined | null): string {
+  if (!cm) return 'N/A';
   return `${cm} cm`;
 }
 

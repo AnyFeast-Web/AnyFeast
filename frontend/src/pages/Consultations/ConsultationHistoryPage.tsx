@@ -29,19 +29,22 @@ export function ConsultationHistoryPage() {
   const { data: clients = [] } = useClients();
 
   // Combine and format all consultations
-  const allConsultations: ConsultationItem[] = rawConsultations.map((c: any) => {
-    const clientName = clients.find((cl: any) => cl.id === c.client_id)?.name || 'Unknown Client';
+  const allConsultations: ConsultationItem[] = (rawConsultations as any[]).map((c) => {
+    const client = clients.find((cl) => cl.id === c.client_id);
+    const clientName = client 
+      ? `${client.personal_info.first_name} ${client.personal_info.last_name}` 
+      : 'Unknown Client';
     return {
       id: c.id,
       clientId: c.client_id,
       clientName: clientName,
       date: c.created_at || new Date().toISOString(),
-      type: c.type || 'structured',
-      status: c.status || 'draft',
-      summary: c.summary_notes || 'No summary notes recorded',
+      type: (c as any).type || 'structured',
+      status: (c as any).status || 'draft',
+      summary: (c as any).summary_notes || 'No summary notes recorded',
       nutritionist: 'You', // In a real app we'd fetch the user's name
     };
-  }).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Filter logic
   const filteredConsultations = allConsultations.filter((c) => {
