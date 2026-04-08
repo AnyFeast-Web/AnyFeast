@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PlusCircle, Copy, FileDown, Send, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from '../../components/layout/TopBar';
@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Badge, StatusBadge, Input } from '../../components/ui';
 import { NutritionPanel } from '../../components/nutrition/NutritionPanel';
 import { useMealPlan, useCreateMealPlan, useUpdateMealPlan } from '../../hooks/useMealPlans';
+import { useIngredients } from '../../hooks/useIngredients';
 import { DAYS_OF_WEEK, DAY_LABELS, MEAL_TYPES, MEAL_LABELS } from '../../utils/constants';
 
 type DayOfWeek = typeof DAYS_OF_WEEK[number];
@@ -16,18 +17,15 @@ interface MacroMeal {
   id: string;
   name: string;
   calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
 }
 
 // Initial mock state for a 7x4 grid
 const initialGrid: Record<DayOfWeek, Record<MealType, MacroMeal[]>> = DAYS_OF_WEEK.reduce((acc, day) => {
   acc[day] = MEAL_TYPES.reduce((mAcc, mealType) => {
-    // Pre-populate some data
-    if (day === 'monday' && mealType === 'breakfast') mAcc[mealType] = [{ id: '1', name: 'Oatmeal Bowl', calories: 400, protein: 12, carbs: 60, fat: 8 }];
-    else if (day === 'tuesday' && mealType === 'lunch') mAcc[mealType] = [{ id: '2', name: 'Chicken Salad', calories: 550, protein: 45, carbs: 20, fat: 25 }];
-    else mAcc[mealType] = [];
+    mAcc[mealType] = [];
     return mAcc;
   }, {} as Record<MealType, MacroMeal[]>);
   return acc;
@@ -39,17 +37,30 @@ export function MealPlanBuilderPage() {
   const [grid, setGrid] = useState(initialGrid);
 
   const { data: existingPlan, isLoading } = useMealPlan(id || '');
+  const { data: ingredients = [], isLoading: ingredientsLoading } = useIngredients();
+
+  // Sync grid with existing plan
+  useEffect(() => {
+    if (existingPlan?.grid) {
+      setGrid(existingPlan.grid);
+    }
+  }, [existingPlan]);
+
   const createMutation = useCreateMealPlan();
   const updateMutation = useUpdateMealPlan(id || 'temp');
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCell, setActiveCell] = useState<{ day: DayOfWeek; mealType: MealType } | null>(null);
-  const [newMeal, setNewMeal] = useState<Partial<MacroMeal>>({ name: '', calories: 0, protein: 0, carbs: 0, fat: 0 });
+  const [newMeal, setNewMeal] = useState<Partial<MacroMeal>>({ name: '', calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 });
+  const [selectedIngredientId, setSelectedIngredientId] = useState<string>('');
+  const [portionGrams, setPortionGrams] = useState<number>(100);
 
   const handleOpenModal = (day: DayOfWeek, mealType: MealType) => {
     setActiveCell({ day, mealType });
-    setNewMeal({ name: '', calories: 0, protein: 0, carbs: 0, fat: 0 });
+    setNewMeal({ name: '', calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 });
+    setSelectedIngredientId('');
+    setPortionGrams(100);
     setIsModalOpen(true);
   };
 
@@ -59,9 +70,9 @@ export function MealPlanBuilderPage() {
       id: Math.random().toString(),
       name: newMeal.name,
       calories: Number(newMeal.calories) || 0,
-      protein: Number(newMeal.protein) || 0,
-      carbs: Number(newMeal.carbs) || 0,
-      fat: Number(newMeal.fat) || 0,
+      protein_g: Number(newMeal.protein_g) || 0,
+      carbs_g: Number(newMeal.carbs_g) || 0,
+      fat_g: Number(newMeal.fat_g) || 0,
     };
     
     setGrid(prev => ({
@@ -90,7 +101,7 @@ export function MealPlanBuilderPage() {
     Object.values(grid).forEach(day => {
       Object.values(day).forEach(meals => {
         meals.forEach(m => {
-          cal += m.calories; pro += m.protein; ch += m.carbs; f += m.fat;
+          cal += m.calories; pro += m.protein_g; ch += m.carbs_g; f += m.fat_g;
         });
       });
     });
@@ -134,7 +145,10 @@ export function MealPlanBuilderPage() {
                 const payload = {
                   client_id: existingPlan?.client_id || 'new-client',
                   title: existingPlan?.title || 'New Meal Plan',
-                  date_range: { start: new Date().toISOString(), end: new Date().toISOString() },
+                  date_range: { 
+                    start_date: existingPlan?.date_range?.start_date || new Date().toISOString(), 
+                    end_date: existingPlan?.date_range?.end_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() 
+                  },
                   grid: grid,
                   total_nutrition_targets: totals
                 };
@@ -190,7 +204,7 @@ export function MealPlanBuilderPage() {
                               <p className="text-xs font-semibold text-text-primary leading-tight mb-1 truncate pr-4">{meal.name}</p>
                               <div className="flex flex-wrap gap-1">
                                 <span className="text-[10px] px-1.5 py-0.5 bg-brand-primary/10 text-brand-primary rounded">{meal.calories}k</span>
-                                <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">{meal.protein}p</span>
+                                <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">{meal.protein_g}p</span>
                               </div>
                               <button 
                                 onClick={() => handleRemoveMeal(day, mealType, meal.id)}
@@ -264,13 +278,71 @@ export function MealPlanBuilderPage() {
                 {activeCell?.day} • {activeCell?.mealType}
               </p>
               
-              <div className="space-y-3">
-                <Input label="Meal Name (e.g. Oatmeal Bowl)" value={newMeal.name} onChange={e => setNewMeal({...newMeal, name: e.target.value})} autoFocus />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Select Ingredient</label>
+                  {ingredients.length > 0 ? (
+                    <select 
+                      value={selectedIngredientId} 
+                      onChange={e => {
+                        const id = e.target.value;
+                        setSelectedIngredientId(id);
+                        const ing = ingredients.find((i: any) => i.id === id);
+                        if (ing) {
+                          setNewMeal({
+                            name: ing.name,
+                            calories: Math.round((Number(ing.calories) || 0) * (portionGrams / 100)),
+                            protein_g: Math.round((Number(ing.protein) || 0) * (portionGrams / 100)),
+                            carbs_g: Math.round((Number(ing.carbs) || 0) * (portionGrams / 100)),
+                            fat_g: Math.round((Number(ing.fat) || 0) * (portionGrams / 100))
+                          });
+                        }
+                      }}
+                      className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
+                    >
+                      <option value="">Choose item...</option>
+                      {ingredients.map((ing: any) => (
+                        <option key={ing.id} value={ing.id}>{ing.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="p-3 bg-bg-elevated rounded-md border border-dashed border-border-subtle text-center">
+                      <p className="text-xs text-text-muted">No ingredients found. Add ingredients to Nutrition DB first.</p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
-                  <Input label="Calories" type="number" value={newMeal.calories || ''} onChange={e => setNewMeal({...newMeal, calories: parseInt(e.target.value)})} />
-                  <Input label="Protein (g)" type="number" value={newMeal.protein || ''} onChange={e => setNewMeal({...newMeal, protein: parseInt(e.target.value)})} />
-                  <Input label="Carbs (g)" type="number" value={newMeal.carbs || ''} onChange={e => setNewMeal({...newMeal, carbs: parseInt(e.target.value)})} />
-                  <Input label="Fat (g)" type="number" value={newMeal.fat || ''} onChange={e => setNewMeal({...newMeal, fat: parseInt(e.target.value)})} />
+                  <Input 
+                    label="Portion (grams)" 
+                    type="number" 
+                    value={portionGrams} 
+                    onChange={e => {
+                      const grams = parseInt(e.target.value) || 0;
+                      setPortionGrams(grams);
+                      const ing = ingredients.find((i: any) => i.id === selectedIngredientId);
+                      if (ing) {
+                        setNewMeal({
+                          ...newMeal,
+                          calories: Math.round((Number(ing.calories) || 0) * (grams / 100)),
+                          protein_g: Math.round((Number(ing.protein) || 0) * (grams / 100)),
+                          carbs_g: Math.round((Number(ing.carbs) || 0) * (grams / 100)),
+                          fat_g: Math.round((Number(ing.fat) || 0) * (grams / 100))
+                        });
+                      }
+                    }} 
+                  />
+                  <Input label="Meal Name Override" value={newMeal.name} onChange={e => setNewMeal({...newMeal, name: e.target.value})} />
+                </div>
+
+                <div className="p-3 bg-bg-elevated/50 rounded-lg flex items-center justify-between text-xs">
+                  <span className="text-text-muted">Estimated:</span>
+                  <div className="flex gap-2 font-medium">
+                    <span className="text-brand-primary">{newMeal.calories} kcal</span>
+                    <span className="text-macro-protein">{newMeal.protein_g}p</span>
+                    <span className="text-macro-carbs">{newMeal.carbs_g}c</span>
+                    <span className="text-macro-fat">{newMeal.fat_g}f</span>
+                  </div>
                 </div>
               </div>
 

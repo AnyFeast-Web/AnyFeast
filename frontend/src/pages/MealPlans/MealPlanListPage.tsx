@@ -35,8 +35,12 @@ export function MealPlanListPage() {
       return;
     }
 
+    const selectedClient = clients.find((c: Client) => c.id === formData.client_id);
+    const clientName = selectedClient ? `${selectedClient.personal_info.first_name} ${selectedClient.personal_info.last_name}`.trim() : 'Unknown';
+
     const payload = {
       client_id: formData.client_id,
+      client_name: clientName,
       title: formData.title,
       status: 'draft',
       date_range: {

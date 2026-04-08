@@ -199,35 +199,35 @@ export function NutritionDBPage() {
                         {isEditing ? (
                           <input type="number" value={editForm.calories ?? ''} onChange={e => setEditForm({...editForm, calories: Number(e.target.value)})} className="w-16 px-2 py-1 text-sm border border-border-strong rounded text-right focus:outline-none focus:border-brand-primary" />
                         ) : (
-                          <span className="text-sm text-text-secondary mono-number">{Math.round(ing.calories)}</span>
+                          <span className="text-sm text-text-secondary mono-number">{Math.round(Number(ing.calories) || 0)}</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right">
                         {isEditing ? (
                           <input type="number" value={editForm.protein ?? ''} onChange={e => setEditForm({...editForm, protein: Number(e.target.value)})} className="w-16 px-2 py-1 text-sm border border-border-strong rounded text-right focus:outline-none focus:border-brand-primary" />
                         ) : (
-                          <span className="text-sm text-text-secondary mono-number">{ing.protein}</span>
+                          <span className="text-sm text-text-secondary mono-number">{Number(ing.protein) || 0}</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right">
                         {isEditing ? (
                           <input type="number" value={editForm.carbs ?? ''} onChange={e => setEditForm({...editForm, carbs: Number(e.target.value)})} className="w-16 px-2 py-1 text-sm border border-border-strong rounded text-right focus:outline-none focus:border-brand-primary" />
                         ) : (
-                          <span className="text-sm text-text-secondary mono-number">{ing.carbs}</span>
+                          <span className="text-sm text-text-secondary mono-number">{Number(ing.carbs) || 0}</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right">
                         {isEditing ? (
                           <input type="number" value={editForm.fat ?? ''} onChange={e => setEditForm({...editForm, fat: Number(e.target.value)})} className="w-16 px-2 py-1 text-sm border border-border-strong rounded text-right focus:outline-none focus:border-brand-primary" />
                         ) : (
-                          <span className="text-sm text-text-secondary mono-number">{ing.fat}</span>
+                          <span className="text-sm text-text-secondary mono-number">{Number(ing.fat) || 0}</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right">
                         {isEditing ? (
                           <input type="number" value={editForm.fiber ?? ''} onChange={e => setEditForm({...editForm, fiber: Number(e.target.value)})} className="w-16 px-2 py-1 text-sm border border-border-strong rounded text-right focus:outline-none focus:border-brand-primary" />
                         ) : (
-                          <span className="text-sm text-text-secondary mono-number">{ing.fiber}</span>
+                          <span className="text-sm text-text-secondary mono-number">{Number(ing.fiber) || 0}</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right">

@@ -16,7 +16,20 @@ def get_mealplans(client_id: Optional[str] = None, current_user: dict = Depends(
         query = query.where("client_id", "==", client_id)
         
     docs = query.stream()
-    return [{**doc.to_dict(), "id": doc.id} for doc in docs]
+    plans = []
+    
+    # Simple denormalized lookup for client name if missing
+    for doc in docs:
+        plan = doc.to_dict()
+        plan["id"] = doc.id
+        if not plan.get("client_name") and plan.get("client_id"):
+            client_ref = db.collection("clients").document(plan["client_id"]).get()
+            if client_ref.exists:
+                ci = client_ref.to_dict().get("personal_info", {})
+                plan["client_name"] = f"{ci.get('first_name', '')} {ci.get('last_name', '')}".strip()
+        plans.append(plan)
+        
+    return plans
 
 @router.post("/", response_model=Dict[str, Any])
 def create_mealplan(plan_data: MealPlanCreate, current_user: dict = Depends(get_current_user)):
@@ -25,6 +38,13 @@ def create_mealplan(plan_data: MealPlanCreate, current_user: dict = Depends(get_
     new_plan["nutritionist_id"] = current_user["uid"]
     new_plan["created_at"] = datetime.utcnow()
     new_plan["updated_at"] = datetime.utcnow()
+    
+    # Denormalize client name for faster fetching later
+    if new_plan.get("client_id"):
+        client_ref = db.collection("clients").document(new_plan["client_id"]).get()
+        if client_ref.exists:
+            ci = client_ref.to_dict().get("personal_info", {})
+            new_plan["client_name"] = f"{ci.get('first_name', '')} {ci.get('last_name', '')}".strip()
     
     doc_ref = db.collection(COLLECTION_NAME).document()
     doc_ref.set(new_plan)
