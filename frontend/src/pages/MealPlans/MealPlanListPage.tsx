@@ -24,8 +24,9 @@ export function MealPlanListPage() {
   const [formError, setFormError] = useState<string | null>(null);
 
   // Handle deep-linking from Client Profile
-  useState(() => {
-    if (location.state?.openNew && location.state?.clientId) {
+  useEffect(() => {
+    if (location.state?.openNew && location.state?.clientId && clients.length > 0) {
+      const selectedClient = clients.find((c: Client) => c.id === location.state.clientId);
       setFormData({ 
         title: '', 
         client_id: location.state.clientId, 
@@ -35,10 +36,11 @@ export function MealPlanListPage() {
         fat: 70 
       });
       setIsModalOpen(true);
+      
       // Clear state so it doesn't reopen on refresh
       window.history.replaceState({}, document.title);
     }
-  });
+  }, [location.state, clients]);
 
   const handleOpenNew = () => {
     setFormData({ title: '', client_id: '', calories: 2000, protein: 150, carbs: 200, fat: 70 });

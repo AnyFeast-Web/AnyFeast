@@ -23,6 +23,7 @@ import { AuditTrailPanel } from '../../components/forms/AuditTrailPanel';
 import { useClient } from '../../hooks/useClients';
 import { useCreateConsultation, useUpdateConsultation, useConsultation } from '../../hooks/useConsultations';
 import { getMissingDataFlags, getAbnormalMarkers, exportConsultationPDF } from '../../utils/consultationUtils';
+import { useAuthStore } from '../../store/authStore';
 import {
   CONSULTATION_SECTIONS,
   createEmptyConsultationForm,
@@ -60,12 +61,14 @@ export function ConsultationFormPage() {
 
   const { data: clientData } = useClient(clientId || '');
 
+  const { user } = useAuthStore();
+
   const [form, setForm] = useState<FullConsultationForm>(() => {
     return createEmptyConsultationForm(
       clientId || '',
       'Loading...',
-      'n1',
-      'Dr. Anika Desai'
+      user?.id || 'n1',
+      user?.name || 'Nutritionist'
     );
   });
 
@@ -78,6 +81,17 @@ export function ConsultationFormPage() {
       }
     }
   }, [clientData, form.client_name]);
+
+  // Sync nutritionist info from auth store
+  useEffect(() => {
+    if (user && form.nutritionist_name === 'Nutritionist') {
+      setForm((prev: FullConsultationForm) => ({ 
+        ...prev, 
+        nutritionist_name: user.name,
+        nutritionist_id: user.id
+      }));
+    }
+  }, [user, form.nutritionist_name]);
 
   const createMutation = useCreateConsultation();
   const updateMutation = useUpdateConsultation(id || 'temp');
