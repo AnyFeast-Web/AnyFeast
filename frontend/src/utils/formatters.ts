@@ -1,15 +1,30 @@
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
 export function formatDate(dateStr: string): string {
-  return format(parseISO(dateStr), 'MMM dd, yyyy');
+  if (!dateStr) return 'N/A';
+  try {
+    return format(parseISO(dateStr), 'MMM dd, yyyy');
+  } catch (e) {
+    return 'Invalid Date';
+  }
 }
 
 export function formatDateTime(dateStr: string): string {
-  return format(parseISO(dateStr), 'MMM dd, yyyy · h:mm a');
+  if (!dateStr) return 'N/A';
+  try {
+    return format(parseISO(dateStr), 'MMM dd, yyyy · h:mm a');
+  } catch (e) {
+    return 'Invalid Date';
+  }
 }
 
 export function formatTimeAgo(dateStr: string): string {
-  return formatDistanceToNow(parseISO(dateStr), { addSuffix: true });
+  if (!dateStr) return 'some time ago';
+  try {
+    return formatDistanceToNow(parseISO(dateStr), { addSuffix: true });
+  } catch (e) {
+    return 'unknown time';
+  }
 }
 
 export function formatNumber(num: number): string {

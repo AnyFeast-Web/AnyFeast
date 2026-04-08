@@ -174,16 +174,16 @@ export function ClientProfilePage() {
                   </Card.Header>
                   <Card.Body>
                     <div className="flex flex-wrap gap-2">
-                      {client.diet_preferences.veg && <Badge variant="teal">Vegetarian</Badge>}
-                      {client.diet_preferences.vegan && <Badge variant="teal">Vegan</Badge>}
-                      {client.diet_preferences.halal && <Badge variant="blue">Halal</Badge>}
-                      {client.diet_preferences.gluten_free && <Badge variant="amber">Gluten Free</Badge>}
-                      {client.diet_preferences.allergies.map((a) => (
+                      {client?.diet_preferences?.veg && <Badge variant="teal">Vegetarian</Badge>}
+                      {client?.diet_preferences?.vegan && <Badge variant="teal">Vegan</Badge>}
+                      {client?.diet_preferences?.halal && <Badge variant="blue">Halal</Badge>}
+                      {client?.diet_preferences?.gluten_free && <Badge variant="amber">Gluten Free</Badge>}
+                      {(client?.diet_preferences?.allergies || []).map((a) => (
                         <Badge key={a} variant="rose">Allergy: {a}</Badge>
                       ))}
-                      {!client.diet_preferences.veg && !client.diet_preferences.vegan && 
-                       !client.diet_preferences.halal && !client.diet_preferences.gluten_free &&
-                       client.diet_preferences.allergies.length === 0 && (
+                      {!client?.diet_preferences?.veg && !client?.diet_preferences?.vegan && 
+                       !client?.diet_preferences?.halal && !client?.diet_preferences?.gluten_free &&
+                       (client?.diet_preferences?.allergies || []).length === 0 && (
                         <span className="text-sm text-text-muted">No specific preferences</span>
                       )}
                     </div>
@@ -202,19 +202,19 @@ export function ClientProfilePage() {
                         const latest = clientForms[0];
                         return (
                           <div className="space-y-4">
-                            {latest.medical_history.previous_diagnoses && (
+                            {latest?.medical_history?.previous_diagnoses && (
                               <div>
                                 <p className="text-xs font-display font-semibold text-text-muted uppercase mb-1">Medical History</p>
                                 <p className="text-sm text-text-primary">{latest.medical_history.previous_diagnoses}</p>
                               </div>
                             )}
-                            {latest.plan.priority_issues && (
+                            {latest?.plan?.priority_issues && (
                               <div>
                                 <p className="text-xs font-display font-semibold text-text-muted uppercase mb-1">Priority Issues</p>
                                 <p className="text-sm text-text-primary whitespace-pre-line">{latest.plan.priority_issues}</p>
                               </div>
                             )}
-                            {latest.plan.next_steps && (
+                            {latest?.plan?.next_steps && (
                               <div>
                                 <p className="text-xs font-display font-semibold text-text-muted uppercase mb-1">Next Steps</p>
                                 <p className="text-sm text-text-primary whitespace-pre-line">{latest.plan.next_steps}</p>
@@ -365,7 +365,7 @@ export function ClientProfilePage() {
                                     {form.nutritionist_name}
                                   </span>
                                 </div>
-                                {form.plan.priority_issues && (
+                                {form?.plan?.priority_issues && (
                                   <p className="text-xs text-text-muted line-clamp-2">
                                     {form.plan.priority_issues.split('\n')[0]}
                                   </p>

@@ -18,5 +18,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         decoded_token = auth.verify_id_token(token)
         return decoded_token
     except Exception as e:
-        # Fallback to mock user if token is invalid or missing
-        return {"uid": "mock_uid", "email": "mock@example.com"}
+        raise HTTPException(
+            status_code=401,
+            detail=f"Invalid or expired token: {str(e)}"
+        )

@@ -48,6 +48,7 @@ export function ClientListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormState>(defaultForm);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const createMutation = useCreateClient();
   const updateMutation = useUpdateClient(editingClientId || '');
@@ -56,6 +57,7 @@ export function ClientListPage() {
   const handleOpenNew = () => {
     setEditingClientId(null);
     setFormData(defaultForm);
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -112,11 +114,13 @@ export function ClientListPage() {
     };
     if (editingClientId) {
       updateMutation.mutate(payload, {
-        onSuccess: () => setIsModalOpen(false)
+        onSuccess: () => setIsModalOpen(false),
+        onError: (err: any) => setFormError(err.response?.data?.detail?.[0]?.msg || "Update failed")
       });
     } else {
       createMutation.mutate(payload, {
-        onSuccess: () => setIsModalOpen(false)
+        onSuccess: () => setIsModalOpen(false),
+        onError: (err: any) => setFormError(err.response?.data?.detail?.[0]?.msg || "Creation failed")
       });
     }
   };
@@ -401,6 +405,10 @@ export function ClientListPage() {
                     onChange={e => setFormData({...formData, measurements: {...formData.measurements, activity_multiplier: e.target.value}})}
                   />
                 </div>
+
+                {formError && (
+                  <p className="text-xs text-accent-rose bg-accent-rose/10 p-2 rounded mb-4">{formError}</p>
+                )}
 
                 <div>
                   <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Status</label>
