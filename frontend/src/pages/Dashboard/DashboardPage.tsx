@@ -55,7 +55,11 @@ export function DashboardPage() {
         subtitle="Overview of your practice and client activity"
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary" icon={<CalendarIcon className="w-4 h-4" />}>
+            <Button 
+              variant="secondary" 
+              icon={<CalendarIcon className="w-4 h-4" />}
+              onClick={() => navigate('/consultations')}
+            >
               Schedule
             </Button>
             <Button icon={<Plus className="w-4 h-4" />} onClick={() => navigate('/clients')}>
