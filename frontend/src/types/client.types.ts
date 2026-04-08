@@ -2,38 +2,54 @@
 // CLIENT TYPES
 // ============================================================
 
-export type ClientGoal = 'fat_loss' | 'muscle_gain' | 'maintenance' | 'diabetic_control';
 export type ClientStatus = 'active' | 'inactive';
-export type Gender = 'male' | 'female' | 'other';
 
-export interface DietPreferences {
-  veg: boolean;
-  vegan: boolean;
-  halal: boolean;
-  gluten_free: boolean;
-  allergies: string[];
+export interface PersonalInfo {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  dob?: string;
+  age?: number;
+  gender?: string;
+}
+
+export interface Measurements {
+  height_cm?: number;
+  weight_kg?: number;
+  activity_multiplier?: number;
 }
 
 export interface Client {
   id: string;
   nutritionist_id: string;
-  name: string;
-  age: number;
-  gender: Gender;
-  weight_kg: number;
-  height_cm: number;
-  goal: ClientGoal;
-  conditions: string[];
-  tags: string[];
-  diet_preferences: DietPreferences;
   status: ClientStatus;
-  last_active: string;
+  personal_info: PersonalInfo;
+  goals: string[];
+  tags: string[];
+  measurements: Measurements;
   created_at: string;
-  avatar_url?: string;
-  email?: string;
-  phone?: string;
-  customer_id?: string;
+  updated_at: string;
 }
 
-export type CreateClientInput = Omit<Client, 'id' | 'nutritionist_id' | 'last_active' | 'created_at'>;
+export interface CreateClientInput {
+  status?: ClientStatus;
+  personal_info: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone?: string;
+    dob?: string;
+    age?: number;
+    gender?: string;
+  };
+  goals?: string[];
+  tags?: string[];
+  measurements?: {
+    height_cm?: number;
+    weight_kg?: number;
+    activity_multiplier?: number;
+  };
+}
+
 export type UpdateClientInput = Partial<CreateClientInput>;

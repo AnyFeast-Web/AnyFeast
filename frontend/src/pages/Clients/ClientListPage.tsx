@@ -6,23 +6,48 @@ import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card, Button, Input, Avatar, GoalBadge, StatusBadge, Badge } from '../../components/ui';
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from '../../hooks/useClients';
-import { Client } from '../../types';
+import { Client, CreateClientInput } from '../../types';
 
 const filterTabs = ['All', 'Active', 'Inactive'] as const;
-const goalFilters = ['Fat Loss', 'Diabetic', 'Athlete', 'Maintenance'] as const;
+
+interface FormState {
+  status: 'active' | 'inactive';
+  personal_info: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    dob: string;
+    age: string;
+    gender: string;
+  };
+  goals: string;
+  tags: string;
+  measurements: {
+    height_cm: string;
+    weight_kg: string;
+    activity_multiplier: string;
+  };
+}
+
+const defaultForm: FormState = {
+  status: 'active',
+  personal_info: { first_name: '', last_name: '', email: '', phone: '', dob: '', age: '', gender: '' },
+  goals: '',
+  tags: '',
+  measurements: { height_cm: '', weight_kg: '', activity_multiplier: '1.2' },
+};
 
 export function ClientListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [goalFilter, setGoalFilter] = useState<string | null>(null);
 
   const { data: clients = [], isLoading, error } = useClients();
 
-  // Modal / form states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<Client>>({});
+  const [formData, setFormData] = useState<FormState>(defaultForm);
 
   const createMutation = useCreateClient();
   const updateMutation = useUpdateClient(editingClientId || '');
@@ -30,32 +55,67 @@ export function ClientListPage() {
 
   const handleOpenNew = () => {
     setEditingClientId(null);
-    setFormData({ 
-      name: '', email: '', phone: '', status: 'active', age: 30, gender: 'female', tags: [] 
-    });
+    setFormData(defaultForm);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (client: Client) => {
     setEditingClientId(client.id);
-    setFormData(client);
+    setFormData({
+      status: client.status,
+      personal_info: {
+        first_name: client.personal_info.first_name,
+        last_name: client.personal_info.last_name,
+        email: client.personal_info.email,
+        phone: client.personal_info.phone || '',
+        dob: client.personal_info.dob ? client.personal_info.dob.slice(0, 10) : '',
+        age: client.personal_info.age?.toString() || '',
+        gender: client.personal_info.gender || '',
+      },
+      goals: (client.goals || []).join(', '),
+      tags: (client.tags || []).join(', '),
+      measurements: {
+        height_cm: client.measurements?.height_cm?.toString() || '',
+        weight_kg: client.measurements?.weight_kg?.toString() || '',
+        activity_multiplier: client.measurements?.activity_multiplier?.toString() || '1.2',
+      },
+    });
     setIsModalOpen(true);
   };
 
   const handleDelete = (client: Client) => {
-    if (window.confirm(`Are you sure you want to delete ${client.name}?`)) {
+    if (window.confirm(`Are you sure you want to delete ${client.personal_info.first_name}?`)) {
       deleteMutation.mutate(client.id);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const payload: CreateClientInput = {
+      status: formData.status,
+      personal_info: {
+        first_name: formData.personal_info.first_name,
+        last_name: formData.personal_info.last_name,
+        email: formData.personal_info.email,
+        phone: formData.personal_info.phone || undefined,
+        dob: formData.personal_info.dob || undefined,
+        age: formData.personal_info.age ? parseInt(formData.personal_info.age) : undefined,
+        gender: formData.personal_info.gender || undefined,
+      },
+      goals: formData.goals.split(',').map(g => g.trim()).filter(Boolean),
+      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+      measurements: {
+        height_cm: formData.measurements.height_cm ? parseFloat(formData.measurements.height_cm) : undefined,
+        weight_kg: formData.measurements.weight_kg ? parseFloat(formData.measurements.weight_kg) : undefined,
+        activity_multiplier: formData.measurements.activity_multiplier ? parseFloat(formData.measurements.activity_multiplier) : undefined,
+      },
+    };
     if (editingClientId) {
-      updateMutation.mutate(formData, {
+      updateMutation.mutate(payload, {
         onSuccess: () => setIsModalOpen(false)
       });
     } else {
-      createMutation.mutate(formData as any, {
+      createMutation.mutate(payload, {
         onSuccess: () => setIsModalOpen(false)
       });
     }
@@ -63,14 +123,13 @@ export function ClientListPage() {
 
   const filteredClients = clients.filter((client: Client) => {
     const q = search.toLowerCase().trim();
-    const matchesSearch = !q || 
-      client.name.toLowerCase().includes(q) ||
-      (client.email?.toLowerCase().includes(q) ?? false) ||
-      (client.phone?.replace(/\s/g, '').includes(q.replace(/\s/g, '')) ?? false) ||
-      (client.customer_id?.toLowerCase().includes(q) ?? false);
+    const fullName = `${client.personal_info.first_name} ${client.personal_info.last_name}`.toLowerCase();
+    const matchesSearch = !q ||
+      fullName.includes(q) ||
+      client.personal_info.email.toLowerCase().includes(q) ||
+      (client.personal_info.phone?.replace(/\s/g, '').includes(q.replace(/\s/g, '')) ?? false);
     const matchesStatus = statusFilter === 'All' || client.status === statusFilter.toLowerCase();
-    const matchesGoal = !goalFilter || (client.tags && client.tags.includes(goalFilter));
-    return matchesSearch && matchesStatus && matchesGoal;
+    return matchesSearch && matchesStatus;
   });
 
   return (
@@ -122,22 +181,6 @@ export function ClientListPage() {
                   </button>
                 ))}
               </div>
-
-              <div className="flex items-center gap-2">
-                {goalFilters.map((goal) => (
-                  <button
-                    key={goal}
-                    onClick={() => setGoalFilter(goalFilter === goal ? null : goal)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-display font-medium transition-all ${
-                      goalFilter === goal
-                        ? 'bg-accent-amber/10 text-accent-amber border border-accent-amber/30'
-                        : 'bg-bg-elevated text-text-secondary border border-border-subtle hover:text-text-primary'
-                    }`}
-                  >
-                    {goal}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Client Table */}
@@ -147,10 +190,9 @@ export function ClientListPage() {
                   <thead>
                     <tr className="bg-bg-elevated">
                       <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3 rounded-l-md">Client</th>
-                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Age</th>
-                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Goal</th>
-                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Conditions</th>
-                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Last Active</th>
+                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Goals</th>
+                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Weight</th>
+                      <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Height</th>
                       <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3">Status</th>
                       <th className="text-left text-xs font-display font-medium text-text-secondary px-5 py-3 rounded-r-md">Actions</th>
                     </tr>
@@ -167,34 +209,32 @@ export function ClientListPage() {
                       >
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            <Avatar name={client.name} size="md" active={client.status === 'active'} />
+                            <Avatar name={`${client.personal_info.first_name} ${client.personal_info.last_name}`} size="md" active={client.status === 'active'} />
                             <div>
-                              <p className="text-sm font-display font-medium text-text-primary">{client.name}</p>
-                              <p className="text-xs text-text-secondary">{client.email}</p>
+                              <p className="text-sm font-display font-medium text-text-primary">{client.personal_info.first_name} {client.personal_info.last_name}</p>
+                              <p className="text-xs text-text-secondary">{client.personal_info.email}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-4 text-sm text-text-secondary">{client.age}</td>
                         <td className="px-5 py-4">
-                          {client.goal ? (
-                            <GoalBadge goal={client.goal} />
+                          {client.goals && client.goals.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {client.goals.slice(0, 2).map((g: string) => (
+                                <GoalBadge key={g} goal={g} />
+                              ))}
+                              {client.goals.length > 2 && (
+                                <span className="text-xs text-text-muted">+{client.goals.length - 2}</span>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-xs text-text-muted">None</span>
                           )}
                         </td>
-                        <td className="px-5 py-4">
-                          <div className="flex flex-wrap gap-1">
-                            {client.conditions?.length > 0 ? (
-                              client.conditions.map((c: string) => (
-                                <Badge key={c} variant="gray" size="sm">{c}</Badge>
-                              ))
-                            ) : (
-                              <span className="text-xs text-text-muted">None</span>
-                            )}
-                          </div>
+                        <td className="px-5 py-4 text-sm text-text-secondary">
+                          {client.measurements?.weight_kg ? `${client.measurements.weight_kg} kg` : '—'}
                         </td>
                         <td className="px-5 py-4 text-sm text-text-secondary">
-                          {client.last_active ? client.last_active : 'New'}
+                          {client.measurements?.height_cm ? `${client.measurements.height_cm} cm` : '—'}
                         </td>
                         <td className="px-5 py-4">
                           <StatusBadge status={client.status} />
@@ -249,79 +289,124 @@ export function ClientListPage() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-inverse/20 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-bg-surface border border-border-subtle rounded-xl p-6 w-full max-w-lg shadow-xl"
             >
               <h3 className="text-lg font-display font-semibold text-text-primary mb-4">
                 {editingClientId ? 'Edit Client' : 'Add New Client'}
               </h3>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
-                <Input 
-                  label="Full Name" 
-                  placeholder="e.g. Jane Doe" 
-                  value={formData.name || ''} 
-                  onChange={e => setFormData({...formData, name: e.target.value})} 
-                  required 
-                />
-                
                 <div className="grid grid-cols-2 gap-4">
-                  <Input 
-                    label="Email Address" 
-                    type="email"
-                    placeholder="jane@example.com" 
-                    value={formData.email || ''} 
-                    onChange={e => setFormData({...formData, email: e.target.value})} 
+                  <Input
+                    label="First Name"
+                    placeholder="Jane"
+                    value={formData.personal_info.first_name}
+                    onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, first_name: e.target.value}})}
+                    required
                   />
-                  <Input 
-                    label="Phone Number" 
-                    placeholder="+1 234 567 8900" 
-                    value={formData.phone || ''} 
-                    onChange={e => setFormData({...formData, phone: e.target.value})} 
+                  <Input
+                    label="Last Name"
+                    placeholder="Doe"
+                    value={formData.personal_info.last_name}
+                    onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, last_name: e.target.value}})}
+                    required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <Input 
-                    label="Age" 
-                    type="number"
-                    value={formData.age || ''} 
-                    onChange={e => setFormData({...formData, age: Number(e.target.value)})} 
+                  <Input
+                    label="Email Address"
+                    type="email"
+                    placeholder="jane@example.com"
+                    value={formData.personal_info.email}
+                    onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, email: e.target.value}})}
+                    required
                   />
-                  <div>
-                    <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Gender</label>
-                    <select 
-                      value={formData.gender || 'female'} 
-                      onChange={e => setFormData({...formData, gender: e.target.value as any})}
-                      className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm font-body text-text-primary focus:border-brand-primary focus:outline-none transition-colors"
-                    >
-                      <option value="female">Female</option>
-                      <option value="male">Male</option>
-                      <option value="other">Other</option>
-                    </select>
+                  <Input
+                    label="Phone Number"
+                    placeholder="+1 234 567 8900"
+                    value={formData.personal_info.phone}
+                    onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, phone: e.target.value}})}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Date of Birth"
+                    type="date"
+                    value={formData.personal_info.dob}
+                    onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, dob: e.target.value}})}
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      label="Age"
+                      type="number"
+                      placeholder="25"
+                      value={formData.personal_info.age}
+                      onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, age: e.target.value}})}
+                    />
+                    <Input
+                      label="Gender"
+                      placeholder="Male"
+                      value={formData.personal_info.gender}
+                      onChange={e => setFormData({...formData, personal_info: {...formData.personal_info, gender: e.target.value}})}
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Health Goals</label>
-                  <Input 
-                    placeholder="e.g. Weight Loss, Muscle Gain (comma separated)" 
-                    value={formData.tags?.join(', ') || ''} 
-                    onChange={e => {
-                      const tags = e.target.value.split(',').map(t => t.trim()).filter(t => t);
-                      setFormData({...formData, tags});
-                    }} 
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Health Goals</label>
+                    <Input
+                      placeholder="e.g. weight_loss"
+                      value={formData.goals}
+                      onChange={e => setFormData({...formData, goals: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Tags</label>
+                    <Input
+                      placeholder="e.g. vip, new_client"
+                      value={formData.tags}
+                      onChange={e => setFormData({...formData, tags: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    label="Height (cm)"
+                    type="number"
+                    placeholder="175"
+                    value={formData.measurements.height_cm}
+                    onChange={e => setFormData({...formData, measurements: {...formData.measurements, height_cm: e.target.value}})}
+                  />
+                  <Input
+                    label="Weight (kg)"
+                    type="number"
+                    placeholder="70"
+                    value={formData.measurements.weight_kg}
+                    onChange={e => setFormData({...formData, measurements: {...formData.measurements, weight_kg: e.target.value}})}
+                  />
+                  <Input
+                    label="Activity Multiplier"
+                    type="number"
+                    step="0.1"
+                    placeholder="1.2"
+                    value={formData.measurements.activity_multiplier}
+                    onChange={e => setFormData({...formData, measurements: {...formData.measurements, activity_multiplier: e.target.value}})}
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-display font-semibold text-text-secondary uppercase mb-1.5">Status</label>
-                  <select 
-                    value={formData.status || 'active'} 
-                    onChange={e => setFormData({...formData, status: e.target.value as any})}
+                  <select
+                    value={formData.status}
+                    onChange={e => setFormData({...formData, status: e.target.value as 'active' | 'inactive'})}
                     className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm font-body text-text-primary focus:border-brand-primary focus:outline-none transition-colors"
                   >
                     <option value="active">Active</option>
@@ -333,13 +418,13 @@ export function ClientListPage() {
                   <Button type="button" variant="secondary" className="flex-1" onClick={() => setIsModalOpen(false)}>
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1" 
+                  <Button
+                    type="submit"
+                    className="flex-1"
                     disabled={createMutation.isPending || updateMutation.isPending}
                   >
-                    {createMutation.isPending || updateMutation.isPending 
-                      ? 'Saving...' 
+                    {createMutation.isPending || updateMutation.isPending
+                      ? 'Saving...'
                       : (editingClientId ? 'Update Client' : 'Create Client')
                     }
                   </Button>
@@ -351,7 +436,7 @@ export function ClientListPage() {
       </AnimatePresence>
 
       {/* Floating Action Button */}
-      <button 
+      <button
         onClick={handleOpenNew}
         className="fixed bottom-6 right-6 w-14 h-14 bg-brand-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-brand-dim transition-colors z-40"
         title="Add Client"

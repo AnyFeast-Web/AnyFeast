@@ -8,6 +8,8 @@ class PersonalInfo(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     dob: Optional[datetime] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
 
 class Measurements(BaseModel):
     height_cm: Optional[float] = None
@@ -18,6 +20,7 @@ class ClientBase(BaseModel):
     status: str = "active"
     personal_info: PersonalInfo
     goals: List[str] = []
+    tags: List[str] = []
     measurements: Measurements = Measurements()
     
 class ClientCreate(ClientBase):

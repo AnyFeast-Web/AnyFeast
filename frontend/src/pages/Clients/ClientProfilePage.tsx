@@ -65,7 +65,12 @@ export function ClientProfilePage() {
   const clientPlans = allPlans.filter((p: any) => p.client_id === client.id);
   const clientConsultations = allConsultations.filter((c: any) => c.client_id === client.id);
   const clientForms = clientConsultations.filter((c: any) => c.plan || c.medical_history);
-  const bmr = calculateBMR(client.gender === 'other' ? 'male' : client.gender, client.weight_kg, client.height_cm, client.age);
+
+  const dob = client.personal_info.dob ? new Date(client.personal_info.dob) : null;
+  const age = dob ? Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null;
+  const weightKg = client.measurements?.weight_kg || 0;
+  const heightCm = client.measurements?.height_cm || 0;
+  const bmr = age && weightKg && heightCm ? calculateBMR('male', weightKg, heightCm, age) : 0;
   const tdee = calculateTDEE(bmr, 'moderate');
 
   // Filter consultation forms by search
@@ -101,17 +106,16 @@ export function ClientProfilePage() {
           className="bg-bg-surface border border-border-subtle rounded-lg p-6 mb-6"
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <Avatar name={client.name} size="lg" active={client.status === 'active'} />
+            <Avatar name={`${client.personal_info.first_name} ${client.personal_info.last_name}`} size="lg" active={client.status === 'active'} />
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-xl font-display font-bold text-text-primary">{client.name}</h2>
+                <h2 className="text-xl font-display font-bold text-text-primary">{client.personal_info.first_name} {client.personal_info.last_name}</h2>
                 <StatusBadge status={client.status} />
               </div>
-              <p className="text-sm text-text-secondary">{client.age} years · {client.gender}</p>
+              <p className="text-sm text-text-secondary">{age ? `${age} years` : 'Age unknown'}</p>
               <div className="flex flex-wrap gap-2 mt-2">
-                <GoalBadge goal={client.goal} />
-                {client.conditions.map((c) => (
-                  <Badge key={c} variant="gray">{c}</Badge>
+                {client.goals.map((g) => (
+                  <GoalBadge key={g} goal={g} />
                 ))}
               </div>
             </div>
