@@ -15,10 +15,11 @@ export const useCreateIngredient = () => {
   });
 };
 
-export const useUpdateIngredient = (id: string) => {
+export const useUpdateIngredient = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Partial<ingredientsApi.Ingredient>) => ingredientsApi.updateIngredient(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<ingredientsApi.Ingredient> }) => 
+      ingredientsApi.updateIngredient(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['ingredients'] }),
   });
 };

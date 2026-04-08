@@ -41,8 +41,8 @@ export function NutritionDBPage() {
     return matchSearch && matchCat;
   });
 
-  // Edit actions — use the hook at component level with the editing ID
-  const updateIngredientMutation = useUpdateIngredient(editingId || '');
+  // Mutations
+  const updateIngredientMutation = useUpdateIngredient();
 
   const startEdit = (ing: IngredientRow) => {
     setEditingId(ing.id);
@@ -52,13 +52,16 @@ export function NutritionDBPage() {
   const saveEdit = () => {
     if (!editingId || !editForm.name) return;
     updateIngredientMutation.mutate({
-      name: editForm.name,
-      category: editForm.category,
-      calories: Number(editForm.calories) || 0,
-      protein: Number(editForm.protein) || 0,
-      carbs: Number(editForm.carbs) || 0,
-      fat: Number(editForm.fat) || 0,
-      fiber: Number(editForm.fiber) || 0,
+      id: editingId,
+      data: {
+        name: editForm.name,
+        category: editForm.category,
+        calories: Number(editForm.calories) || 0,
+        protein: Number(editForm.protein) || 0,
+        carbs: Number(editForm.carbs) || 0,
+        fat: Number(editForm.fat) || 0,
+        fiber: Number(editForm.fiber) || 0,
+      }
     }, {
       onSuccess: () => {
         setEditingId(null);
