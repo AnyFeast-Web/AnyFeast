@@ -10,4 +10,4 @@ export interface DashboardStats {
 }
 
 export const getDashboardStats = (): Promise<DashboardStats> =>
-  api.get('/dashboard/stats').then((r) => r.data);
+  api.get('dashboard/stats/').then((r) => r.data);

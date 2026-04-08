@@ -12,10 +12,10 @@ export interface Ingredient {
 }
 
 export const getIngredients = (search?: string): Promise<Ingredient[]> =>
-  api.get('/ingredients', { params: { search } }).then((r) => r.data);
+  api.get('ingredients/', { params: { search } }).then((r) => r.data);
 
 export const createIngredient = (data: Partial<Ingredient>): Promise<Ingredient> =>
-  api.post('/ingredients', data).then((r) => r.data);
+  api.post('ingredients/', data).then((r) => r.data);
 
 export const updateIngredient = (id: string, data: Partial<Ingredient>): Promise<Ingredient> =>
-  api.put(`/ingredients/${id}`, data).then((r) => r.data);
+  api.put(`ingredients/${id}/`, data).then((r) => r.data);
