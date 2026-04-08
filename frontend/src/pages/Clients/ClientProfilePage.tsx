@@ -127,7 +127,14 @@ export function ClientProfilePage() {
               >
                 Start Consultation
               </Button>
-              <Button icon={<CalendarDays className="w-4 h-4" />} size="sm" variant="secondary">Create Plan</Button>
+              <Button 
+                icon={<CalendarDays className="w-4 h-4" />} 
+                size="sm" 
+                variant="secondary"
+                onClick={() => navigate('/meal-plans', { state: { openNew: true, clientId: client.id } })}
+              >
+                Create Plan
+              </Button>
             </div>
           </div>
         </motion.div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, CalendarDays, Copy, FileDown, Send } from 'lucide-react';
 import { TopBar } from '../../components/layout/TopBar';
@@ -18,9 +18,27 @@ export function MealPlanListPage() {
   const { data: clients = [] } = useClients();
   const createMutation = useCreateMealPlan();
 
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Handle deep-linking from Client Profile
+  useState(() => {
+    if (location.state?.openNew && location.state?.clientId) {
+      setFormData({ 
+        title: '', 
+        client_id: location.state.clientId, 
+        calories: 2000, 
+        protein: 150, 
+        carbs: 200, 
+        fat: 70 
+      });
+      setIsModalOpen(true);
+      // Clear state so it doesn't reopen on refresh
+      window.history.replaceState({}, document.title);
+    }
+  });
 
   const handleOpenNew = () => {
     setFormData({ title: '', client_id: '', calories: 2000, protein: 150, carbs: 200, fat: 70 });
