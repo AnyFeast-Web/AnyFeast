@@ -29,3 +29,11 @@ export const useUpdateMealPlan = (id: string) => {
     },
   });
 };
+
+export const useDeleteMealPlan = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: mealplansApi.deleteMealPlan,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['meal_plans'] }),
+  });
+};

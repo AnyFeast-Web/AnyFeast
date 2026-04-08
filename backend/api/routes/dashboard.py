@@ -27,6 +27,6 @@ def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         total_active_clients=total_clients,
         pending_consultations=pending_consults,
         active_meal_plans=total_plans,
-        compliance_rate=87.5,
+        compliance_rate=0.0,
         recent_activity=[]
     )

@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusCircle, CalendarDays, Copy, FileDown, Send } from 'lucide-react';
+import { PlusCircle, CalendarDays, Trash2, Copy, FileDown, Send } from 'lucide-react';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card, Button, Avatar, StatusBadge, Badge, Input } from '../../components/ui';
 import { MacroBar } from '../../components/nutrition/MacroBar';
-import { useMealPlans, useCreateMealPlan } from '../../hooks/useMealPlans';
+import { useMealPlans, useCreateMealPlan, useDeleteMealPlan } from '../../hooks/useMealPlans';
 import { useClients } from '../../hooks/useClients';
 import { formatDate, formatCalories } from '../../utils/formatters';
 import { DAYS_OF_WEEK, DAY_LABELS, MEAL_TYPES, MEAL_LABELS } from '../../utils/constants';
@@ -17,6 +17,7 @@ export function MealPlanListPage() {
   const { data: plans = [], isLoading, error } = useMealPlans();
   const { data: clients = [] } = useClients();
   const createMutation = useCreateMealPlan();
+  const deleteMutation = useDeleteMealPlan();
 
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -120,7 +121,21 @@ export function MealPlanListPage() {
                     <Avatar name={plan.client_name || "Unknown"} size="sm" active />
                     <span className="text-sm font-display font-medium text-text-primary">{plan.client_name || "Unknown Client"}</span>
                   </div>
-                  <StatusBadge status={plan.status || "draft"} />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={plan.status || "draft"} />
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this meal plan?')) {
+                          deleteMutation.mutate(plan.id);
+                        }
+                      }}
+                      className="p-1 text-text-muted hover:text-accent-rose transition-colors"
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </Card.Header>
                 <Card.Body>
                   <h3 className="text-md font-display font-semibold text-text-primary mb-1">{plan.title}</h3>

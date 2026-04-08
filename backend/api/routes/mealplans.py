@@ -80,3 +80,18 @@ def update_mealplan(plan_id: str, plan_data: MealPlanCreate, current_user: dict 
     
     doc_ref.update(update_data)
     return {**doc.to_dict(), **update_data, "id": doc.id}
+
+@router.delete("/{plan_id}")
+def delete_mealplan(plan_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a meal plan."""
+    doc_ref = db.collection(COLLECTION_NAME).document(plan_id)
+    doc = doc_ref.get()
+    
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Meal plan not found")
+        
+    if doc.to_dict().get("nutritionist_id") != current_user["uid"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    doc_ref.delete()
+    return {"message": "Meal plan deleted successfully"}

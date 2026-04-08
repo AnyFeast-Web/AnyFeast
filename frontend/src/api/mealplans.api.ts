@@ -11,3 +11,6 @@ export const createMealPlan = (data: any): Promise<any> =>
 
 export const updateMealPlan = (id: string, data: any): Promise<any> =>
   api.put(`mealplans/${id}/`, data).then((r) => r.data);
+
+export const deleteMealPlan = (id: string): Promise<any> =>
+  api.delete(`mealplans/${id}/`).then((r) => r.data);
