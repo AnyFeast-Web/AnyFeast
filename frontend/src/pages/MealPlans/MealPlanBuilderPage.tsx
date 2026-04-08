@@ -136,26 +136,72 @@ export function MealPlanBuilderPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            <Button variant="secondary" size="sm" icon={<History className="w-4 h-4" />}>History</Button>
-            <Button variant="secondary" size="sm" icon={<Copy className="w-4 h-4" />}>Duplicate</Button>
-            <Button variant="secondary" size="sm" icon={<FileDown className="w-4 h-4" />}>PDF</Button>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              icon={<History className="w-4 h-4" />}
+              onClick={() => navigate(`/clients/${existingPlan?.client_id}`)}
+            >
+              History
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              icon={<Copy className="w-4 h-4" />}
+              onClick={() => {
+                const { id, ...rest } = existingPlan;
+                createMutation.mutate({ ...rest, title: `${rest.title} (Copy)`, status: 'draft' }, {
+                  onSuccess: (res) => navigate(`/meal-plans/${res.id}`)
+                });
+              }}
+              disabled={!existingPlan || createMutation.isPending}
+            >
+              Duplicate
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              icon={<FileDown className="w-4 h-4" />}
+              onClick={() => window.print()}
+            >
+              PDF
+            </Button>
             <Button 
               size="sm" 
               onClick={() => {
+                // Remove IDs from meals before saving to match backend schema
+                const strippedGrid = JSON.parse(JSON.stringify(grid));
+                Object.keys(strippedGrid).forEach(day => {
+                  Object.keys(strippedGrid[day]).forEach(mealType => {
+                    strippedGrid[day][mealType] = strippedGrid[day][mealType].map(({ id, ...rest }: any) => rest);
+                  });
+                });
+
                 const payload = {
                   client_id: existingPlan?.client_id || 'new-client',
                   title: existingPlan?.title || 'New Meal Plan',
+                  status: existingPlan?.status || 'draft',
                   date_range: { 
                     start_date: existingPlan?.date_range?.start_date || new Date().toISOString(), 
                     end_date: existingPlan?.date_range?.end_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() 
                   },
-                  grid: grid,
-                  total_nutrition_targets: totals
+                  grid: strippedGrid,
+                  total_nutrition_targets: {
+                    calories: totals.calories,
+                    protein_g: totals.protein_g,
+                    carbs_g: totals.carbs_g,
+                    fat_g: totals.fat_g
+                  }
                 };
-                if (id) {
-                  updateMutation.mutate(payload, { onSuccess: () => alert('Saved!') });
+                
+                if (id && id !== 'new') {
+                  updateMutation.mutate(payload, { 
+                    onSuccess: () => alert('Plan saved successfully!') 
+                  });
                 } else {
-                  createMutation.mutate(payload, { onSuccess: (res) => navigate(`/meal-plans/${res.id}`) });
+                  createMutation.mutate(payload, { 
+                    onSuccess: (res) => navigate(`/meal-plans/${res.id}`) 
+                  });
                 }
               }}
               disabled={createMutation.isPending || updateMutation.isPending}
