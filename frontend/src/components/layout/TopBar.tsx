@@ -13,11 +13,10 @@ interface TopBarProps {
 export function TopBar({ title, subtitle, actions }: TopBarProps) {
   const { user } = useAuthStore();
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const mockNotifications = [
+  const [notifications, setNotifications] = useState([
     { id: 1, title: 'Upcoming Consultation', time: 'In 30 mins', type: 'urgent' },
     { id: 2, title: 'New Meal Plan Created', time: '2 hours ago', type: 'info' },
-  ];
+  ]);
 
   return (
     <header className="sticky top-0 z-30 bg-bg-base/80 backdrop-blur-xl border-b border-border-subtle px-8 py-4">
@@ -54,19 +53,32 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
                   <button onClick={() => setShowNotifications(false)}><X className="w-4 h-4 text-text-muted" /></button>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
-                  {mockNotifications.map(notif => (
-                    <div key={notif.id} className="p-4 border-b border-border-subtle last:border-0 hover:bg-bg-elevated/30 transition-colors">
-                      <div className="flex items-center gap-2 mb-1">
-                        {notif.type === 'urgent' && <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse" />}
-                        <p className="text-sm font-medium text-text-primary">{notif.title}</p>
+                  {notifications.length > 0 ? (
+                    notifications.map(notif => (
+                      <div key={notif.id} className="p-4 border-b border-border-subtle last:border-0 hover:bg-bg-elevated/30 transition-colors">
+                        <div className="flex items-center gap-2 mb-1">
+                          {notif.type === 'urgent' && <span className="w-2 h-2 rounded-full bg-accent-rose animate-pulse" />}
+                          <p className="text-sm font-medium text-text-primary">{notif.title}</p>
+                        </div>
+                        <p className="text-xs text-text-muted">{notif.time}</p>
                       </div>
-                      <p className="text-xs text-text-muted">{notif.time}</p>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center">
+                      <p className="text-sm text-text-muted italic">No new notifications</p>
                     </div>
-                  ))}
+                  )}
                 </div>
-                <div className="p-3 bg-bg-elevated/20 text-center">
-                  <button className="text-xs font-medium text-brand-primary hover:underline">Clear All</button>
-                </div>
+                {notifications.length > 0 && (
+                  <div className="p-3 bg-bg-elevated/20 text-center">
+                    <button 
+                      onClick={() => setNotifications([])}
+                      className="text-xs font-medium text-brand-primary hover:underline"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
