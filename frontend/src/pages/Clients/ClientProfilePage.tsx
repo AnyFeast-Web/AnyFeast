@@ -277,20 +277,34 @@ export function ClientProfilePage() {
                           <div>
                             <p className="text-sm font-display font-medium text-text-primary">{plan.title}</p>
                             <p className="text-xs text-text-secondary mt-1">
-                              v{plan.version} · {formatDate(plan.date_range.start)} — {formatDate(plan.date_range.end)}
+                              v{plan.version || 1} · {
+                                plan.date_range?.start_date 
+                                  ? formatDate(plan.date_range.start_date) 
+                                  : plan.date_range?.start 
+                                  ? formatDate(plan.date_range.start)
+                                  : 'N/A'
+                              } — {
+                                plan.date_range?.end_date 
+                                  ? formatDate(plan.date_range.end_date) 
+                                  : plan.date_range?.end 
+                                  ? formatDate(plan.date_range.end)
+                                  : 'N/A'
+                              }
                             </p>
                             <MacroBar
-                              protein={plan.total_nutrition.protein_g}
-                              carbs={plan.total_nutrition.carbs_g}
-                              fat={plan.total_nutrition.fat_g}
+                              protein={plan.total_nutrition?.protein_g || plan.total_nutrition_targets?.protein_g || 0}
+                              carbs={plan.total_nutrition?.carbs_g || plan.total_nutrition_targets?.carbs_g || 0}
+                              fat={plan.total_nutrition?.fat_g || plan.total_nutrition_targets?.fat_g || 0}
                               showLabels={false}
                               height={4}
                               className="mt-2 w-32"
                             />
                           </div>
                           <div className="text-right">
-                            <StatusBadge status={plan.status} />
-                            <p className="mono-number text-sm text-brand-primary mt-2">{plan.total_nutrition.calories} kcal</p>
+                            <StatusBadge status={plan.status || 'draft'} />
+                            <p className="mono-number text-sm text-brand-primary mt-2">
+                              {plan.total_nutrition?.calories || plan.total_nutrition_targets?.calories || 0} kcal
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -424,8 +438,8 @@ export function ClientProfilePage() {
                                     {formatDate(con.date)}
                                   </span>
                                 </div>
-                                <p className="text-xs text-text-muted">{con.notes.goals}</p>
-                                <p className="text-xs text-text-muted mt-1">{con.messages.length} messages</p>
+                                  <p className="text-xs text-text-muted">{con.notes?.goals || con.notes?.summary || 'No goals recorded'}</p>
+                                  <p className="text-xs text-text-muted mt-1">{(con.messages || []).length} messages</p>
                               </div>
                             </motion.div>
                           ))}
