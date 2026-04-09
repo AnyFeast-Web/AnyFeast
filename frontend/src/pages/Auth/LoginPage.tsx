@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
-import { Button, Input } from '../../components/ui';
 import { APP_NAME, APP_TAGLINE } from '../../utils/constants';
-import { signInWithEmailAndPassword, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { auth, googleProvider } from '../../lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -14,22 +13,6 @@ export function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Handle redirect result on mount
-  useEffect(() => {
-    const checkRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          navigate('/');
-        }
-      } catch (err: any) {
-        console.error('Redirect result error:', err);
-        setError(`Google sign-in failed: ${err.code || err.message}`);
-      }
-    };
-    checkRedirect();
-  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,19 +26,6 @@ export function LoginPage() {
       console.error('Login error:', err);
       setError('Invalid email or password. Please try again.');
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setError('');
-    setIsLoading(true);
-    try {
-      await signInWithRedirect(auth, googleProvider);
-      // User will be redirected away from the page
-    } catch (err: any) {
-      console.error('Google redirect error:', err);
-      setError(`Google sign-in failed: ${err.code || err.message}`);
       setIsLoading(false);
     }
   };
@@ -126,27 +96,6 @@ export function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="relative my-7">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-100"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">or continue with</span>
-            </div>
-          </div>
-
-          {/* Social Login */}
-          <button 
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            className="w-full bg-white border border-slate-200 text-slate-700 font-semibold py-3 rounded-xl hover:bg-slate-50 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-          >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
-            Google
-          </button>
         </div>
 
         <p className="text-[10px] text-slate-400 text-center mt-10 uppercase tracking-widest font-medium">
