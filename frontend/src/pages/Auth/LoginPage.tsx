@@ -37,12 +37,12 @@ export function LoginPage() {
         className="w-full max-w-md">
         
         {/* Logo Section */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 bg-brand-primary rounded-xl flex items-center justify-center mb-4 shadow-sm">
-            <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain brightness-0 invert" />
+        <div className="flex flex-col items-center mb-10">
+          <div className="mb-4">
+            <img src="/logo.png" alt="AnyFeast Logo" className="w-20 h-20 object-contain" />
           </div>
-          <h1 className="text-2xl font-display font-bold text-slate-900">{APP_NAME}</h1>
-          <p className="text-slate-500 text-sm mt-0.5">{APP_TAGLINE}</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">{APP_NAME}</h1>
+          <p className="text-slate-500 text-sm mt-1">{APP_TAGLINE}</p>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
