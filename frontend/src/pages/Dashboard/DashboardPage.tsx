@@ -71,7 +71,7 @@ export function DashboardPage() {
 
       <PageWrapper>
         {/* TOP STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="hover:shadow-md transition-shadow">
             <Card.Body className="p-5 flex items-center justify-between">
               <div>
@@ -102,20 +102,6 @@ export function DashboardPage() {
               </div>
             </Card.Body>
           </Card>
-
-          <Card className="hover:shadow-md transition-shadow">
-            <Card.Body className="p-5 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-display font-medium text-text-secondary">Active Meal Plans</p>
-                <div className="flex items-end gap-2 mt-1">
-                  <h3 className="text-2xl font-display font-bold text-text-primary">{stats?.active_meal_plans || 0}</h3>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
-            </Card.Body>
-          </Card>
         </div>
 
         {/* MAIN AREA */}
@@ -126,7 +112,7 @@ export function DashboardPage() {
               <Card.Title>Quick Actions</Card.Title>
             </Card.Header>
             <Card.Body className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <button 
                   onClick={() => navigate('/clients')} 
                   className="flex items-center gap-4 p-5 rounded-2xl border border-border-subtle bg-bg-surface hover:border-brand-primary hover:bg-brand-primary/5 transition-all group"
@@ -137,19 +123,6 @@ export function DashboardPage() {
                   <div className="text-left">
                     <span className="block text-base font-semibold text-text-primary">Add Client</span>
                     <p className="text-xs text-text-secondary mt-0.5">Register a new client profile</p>
-                  </div>
-                </button>
-
-                <button 
-                  onClick={() => navigate('/meal-plans')} 
-                  className="flex items-center gap-4 p-5 rounded-2xl border border-border-subtle bg-bg-surface hover:border-blue-500 hover:bg-blue-50 transition-all group"
-                >
-                  <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <FileText className="w-7 h-7 text-blue-600" />
-                  </div>
-                  <div className="text-left">
-                    <span className="block text-base font-semibold text-text-primary">New Meal Plan</span>
-                    <p className="text-xs text-text-secondary mt-0.5">Create a structured diet plan</p>
                   </div>
                 </button>
 

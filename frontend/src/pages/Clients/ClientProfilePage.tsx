@@ -18,7 +18,6 @@ import { calculateBMR, calculateTDEE } from '../../utils/nutritionCalc';
 
 const profileTabs = [
   { id: 'overview', label: 'Overview' },
-  { id: 'meal-plans', label: 'Meal Plans' },
   { id: 'consultations', label: 'Consultations' },
   { id: 'progress', label: 'Progress' },
 ];
@@ -126,14 +125,6 @@ export function ClientProfilePage() {
                 onClick={() => navigate(`/consultations/new/${client.id}`)}
               >
                 Start Consultation
-              </Button>
-              <Button 
-                icon={<CalendarDays className="w-4 h-4" />} 
-                size="sm" 
-                variant="secondary"
-                onClick={() => navigate('/meal-plans', { state: { openNew: true, clientId: client.id } })}
-              >
-                Create Plan
               </Button>
             </div>
           </div>
@@ -260,61 +251,7 @@ export function ClientProfilePage() {
               </>
             )}
 
-            {activeTab === 'meal-plans' && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Meal Plans</Card.Title>
-                </Card.Header>
-                <Card.Body>
-                  {clientPlans.length > 0 ? (
-                    <div className="space-y-3">
-                      {clientPlans.map((plan) => (
-                        <div
-                          key={plan.id}
-                          className="flex items-center justify-between p-4 bg-bg-elevated rounded-md border border-border-subtle hover:border-border-strong transition-colors cursor-pointer"
-                          onClick={() => navigate(`/meal-plans/${plan.id}`)}
-                        >
-                          <div>
-                            <p className="text-sm font-display font-medium text-text-primary">{plan.title}</p>
-                            <p className="text-xs text-text-secondary mt-1">
-                              v{plan.version || 1} · {
-                                plan.date_range?.start_date 
-                                  ? formatDate(plan.date_range.start_date) 
-                                  : plan.date_range?.start 
-                                  ? formatDate(plan.date_range.start)
-                                  : 'N/A'
-                              } — {
-                                plan.date_range?.end_date 
-                                  ? formatDate(plan.date_range.end_date) 
-                                  : plan.date_range?.end 
-                                  ? formatDate(plan.date_range.end)
-                                  : 'N/A'
-                              }
-                            </p>
-                            <MacroBar
-                              protein={plan.total_nutrition?.protein_g || plan.total_nutrition_targets?.protein_g || 0}
-                              carbs={plan.total_nutrition?.carbs_g || plan.total_nutrition_targets?.carbs_g || 0}
-                              fat={plan.total_nutrition?.fat_g || plan.total_nutrition_targets?.fat_g || 0}
-                              showLabels={false}
-                              height={4}
-                              className="mt-2 w-32"
-                            />
-                          </div>
-                          <div className="text-right">
-                            <StatusBadge status={plan.status || 'draft'} />
-                            <p className="mono-number text-sm text-brand-primary mt-2">
-                              {plan.total_nutrition?.calories || plan.total_nutrition_targets?.calories || 0} kcal
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-text-muted text-center py-8">No meal plans yet</p>
-                  )}
-                </Card.Body>
-              </Card>
-            )}
+            {/* Tab Content Removed for meal-plans manually or just skip it */}
 
             {activeTab === 'consultations' && (
               <div className="space-y-4">
@@ -493,10 +430,8 @@ export function ClientProfilePage() {
                     ...(clientForms.length > 0
                       ? [{ action: `Structured consultation (${clientForms[0].status})`, time: formatTimeAgo(clientForms[0].updated_at), type: 'consultation' }]
                       : []),
-                    { action: 'Meal plan updated', time: '2 hours ago', type: 'plan' },
                     { action: 'Consultation completed', time: '2 days ago', type: 'consultation' },
                     { action: 'Weight logged: 72 kg', time: '3 days ago', type: 'progress' },
-                    { action: 'New meal plan created', time: '1 week ago', type: 'plan' },
                   ].slice(0, 5).map((item, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-brand-primary mt-2 flex-shrink-0" />
@@ -516,10 +451,6 @@ export function ClientProfilePage() {
               </Card.Header>
               <Card.Body>
                 <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-text-secondary">Total Plans</span>
-                    <span className="mono-number text-sm text-text-primary">{clientPlans.length}</span>
-                  </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-text-secondary">Consultations</span>
                     <span className="mono-number text-sm text-text-primary">{clientForms.length + clientConsultations.length}</span>
