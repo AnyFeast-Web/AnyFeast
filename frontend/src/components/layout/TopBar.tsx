@@ -83,13 +83,16 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
             )}
           </div>
 
-          <div className="hidden lg:flex items-center gap-3 pl-4 border-l border-border-subtle">
+          <button 
+            onClick={() => window.location.href = '/settings'}
+            className="hidden lg:flex items-center gap-3 pl-4 border-l border-border-subtle hover:bg-bg-elevated transition-colors rounded-r-lg py-1 pr-2"
+          >
             <Avatar name={user?.name || 'User'} size="sm" active />
-            <div>
+            <div className="text-left">
               <p className="text-sm font-display font-medium text-text-primary">{user?.name}</p>
               <p className="text-xs text-text-secondary capitalize">{user?.role}</p>
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </header>

@@ -71,7 +71,7 @@ export function DashboardPage() {
 
       <PageWrapper>
         {/* TOP STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="hover:shadow-md transition-shadow">
             <Card.Body className="p-5 flex items-center justify-between">
               <div>
@@ -116,141 +116,84 @@ export function DashboardPage() {
               </div>
             </Card.Body>
           </Card>
+        </div>
 
-          <Card className="hover:shadow-md transition-shadow">
-            <Card.Body className="p-5 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-display font-medium text-text-secondary">Compliance Rate</p>
-                <div className="flex items-end gap-2 mt-1">
-                  <h3 className="text-2xl font-display font-bold text-text-primary">{stats?.compliance_rate || 0}%</h3>
-                  <span className="text-xs text-text-muted mb-1">Avg. across clients</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center">
-                <Activity className="w-6 h-6 text-teal-600" />
+        {/* MAIN AREA */}
+        <div className="space-y-8">
+          {/* Quick Actions */}
+          <Card>
+            <Card.Header>
+              <Card.Title>Quick Actions</Card.Title>
+            </Card.Header>
+            <Card.Body className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <button 
+                  onClick={() => navigate('/clients')} 
+                  className="flex items-center gap-4 p-5 rounded-2xl border border-border-subtle bg-bg-surface hover:border-brand-primary hover:bg-brand-primary/5 transition-all group"
+                >
+                  <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Users className="w-7 h-7 text-brand-primary" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-base font-semibold text-text-primary">Add Client</span>
+                    <p className="text-xs text-text-secondary mt-0.5">Register a new client profile</p>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => navigate('/meal-plans')} 
+                  className="flex items-center gap-4 p-5 rounded-2xl border border-border-subtle bg-bg-surface hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                >
+                  <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <FileText className="w-7 h-7 text-blue-600" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-base font-semibold text-text-primary">New Meal Plan</span>
+                    <p className="text-xs text-text-secondary mt-0.5">Create a structured diet plan</p>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => navigate('/consultations')} 
+                  className="flex items-center gap-4 p-5 rounded-2xl border border-border-subtle bg-bg-surface hover:border-teal-500 hover:bg-teal-50 transition-all group"
+                >
+                  <div className="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Activity className="w-7 h-7 text-teal-600" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-base font-semibold text-text-primary">Consultation</span>
+                    <p className="text-xs text-text-secondary mt-0.5">Start a new client session</p>
+                  </div>
+                </button>
               </div>
             </Card.Body>
           </Card>
-        </div>
 
-        {/* ALERTS SECTION */}
-        {urgentAlerts.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-base font-display font-semibold text-text-primary mb-3">Attention Needed</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {urgentAlerts.map((alert: any, idx: number) => (
-                <div key={alert.id || idx} className={`flex items-start gap-3 p-4 rounded-lg border ${
-                  alert.type === 'critical' 
-                    ? 'bg-accent-rose/5 border-accent-rose/20' 
-                    : 'bg-accent-amber/5 border-accent-amber/20'
-                }`}>
-                  <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                    alert.type === 'critical' ? 'text-accent-rose' : 'text-accent-amber'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <h4 className={`text-sm font-semibold ${
+          {/* ALERTS SECTION */}
+          {urgentAlerts.length > 0 && (
+            <div>
+              <h2 className="text-base font-display font-semibold text-text-primary mb-3">Attention Needed</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {urgentAlerts.map((alert: any, idx: number) => (
+                  <div key={alert.id || idx} className={`flex items-start gap-3 p-4 rounded-lg border ${
+                    alert.type === 'critical' 
+                      ? 'bg-accent-rose/5 border-accent-rose/20' 
+                      : 'bg-accent-amber/5 border-accent-amber/20'
+                  }`}>
+                    <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
                       alert.type === 'critical' ? 'text-accent-rose' : 'text-accent-amber'
-                    }`}>{alert.title}</h4>
-                    <p className="text-sm mt-0.5 opacity-80">{alert.desc || alert.description}</p>
+                    }`} />
+                    <div className="flex-1 min-w-0">
+                      <h4 className={`text-sm font-semibold ${
+                        alert.type === 'critical' ? 'text-accent-rose' : 'text-accent-amber'
+                      }`}>{alert.title}</h4>
+                      <p className="text-sm mt-0.5 opacity-80">{alert.desc || alert.description}</p>
+                    </div>
                   </div>
-                  <Button size="sm" variant="secondary" className="flex-shrink-0 bg-white shadow-sm border-border-subtle hover:bg-bg-surface text-xs h-7 py-0 px-3">
-                    Resolve
-                  </Button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* MAIN SPLIT */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* LEFT: Dashboard Columns */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Quick Actions */}
-            <Card>
-              <Card.Header>
-                <Card.Title>Quick Actions</Card.Title>
-              </Card.Header>
-              <Card.Body className="p-5">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <button onClick={() => navigate('/clients')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-border-subtle bg-bg-surface hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-center group">
-                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <Users className="w-5 h-5 text-brand-primary" />
-                    </div>
-                    <span className="text-sm font-medium text-text-primary">Add Client</span>
-                  </button>
-                  <button onClick={() => navigate('/meal-plans')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-border-subtle bg-bg-surface hover:border-blue-500 hover:bg-blue-50 transition-all text-center group">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <FileText className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <span className="text-sm font-medium text-text-primary">New Plan</span>
-                  </button>
-                  <button onClick={() => navigate('/consultations')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-border-subtle bg-bg-surface hover:border-teal-500 hover:bg-teal-50 transition-all text-center group">
-                    <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <Activity className="w-5 h-5 text-teal-600" />
-                    </div>
-                    <span className="text-sm font-medium text-text-primary">Consultation</span>
-                  </button>
-                  <button onClick={() => navigate('/nutrition-db')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-border-subtle bg-bg-surface hover:border-amber-500 hover:bg-amber-50 transition-all text-center group">
-                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <Plus className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <span className="text-sm font-medium text-text-primary">Add Food</span>
-                  </button>
-                </div>
-              </Card.Body>
-            </Card>
-
-          </div>
-
-          {/* RIGHT: Activity Feed */}
-          <div className="space-y-6">
-            <Card className="h-full">
-              <Card.Header>
-                <Card.Title>Recent Activity</Card.Title>
-              </Card.Header>
-              <Card.Body className="p-5">
-                {recentActivity.length > 0 ? (
-                  <div className="relative border-l border-border-subtle ml-3 space-y-6 pb-2">
-                    {recentActivity.map((activity: any, idx: number) => {
-                      const actType = activity.type || 'default';
-                      const Icon = fallbackIcons[actType] || fallbackIcons.default;
-                      const colors = fallbackColors[actType] || fallbackColors.default;
-                      return (
-                        <motion.div 
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          key={activity.id || idx} 
-                          className="relative pl-6"
-                        >
-                          <div className={`absolute -left-[1.1rem] top-0.5 w-8 h-8 rounded-full border-4 border-bg-base ${colors.bg} flex items-center justify-center`}>
-                            <Icon className={`w-3.5 h-3.5 ${colors.color}`} />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-text-primary">{activity.title}</p>
-                            <p className="text-sm text-brand-primary hover:underline cursor-pointer inline-block mt-0.5 font-medium">{activity.client || activity.client_name}</p>
-                            <p className="text-xs text-text-muted mt-1">{activity.time || activity.created_at}</p>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center text-text-muted text-sm py-8">
-                    No recent activity yet.
-                  </div>
-                )}
-                
-                <Button variant="ghost" className="w-full mt-4 text-text-secondary hover:text-text-primary">
-                  View Full History
-                </Button>
-              </Card.Body>
-            </Card>
-          </div>
-
+          )}
         </div>
       </PageWrapper>
     </>
