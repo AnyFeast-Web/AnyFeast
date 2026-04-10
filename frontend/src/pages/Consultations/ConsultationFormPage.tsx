@@ -101,7 +101,26 @@ export function ConsultationFormPage() {
   // Load backend data ONCE
   useEffect(() => {
     if (existingForm && id && !hasLoadedData) {
-      setForm(existingForm);
+      // Ensure all required sections exist to prevent 'undefined' crashes
+      const mergedForm = {
+        ...createEmptyConsultationForm(
+          existingForm.client_id || '',
+          existingForm.client_name || 'Client',
+          existingForm.nutritionist_id || '',
+          existingForm.nutritionist_name || 'Nutritionist'
+        ),
+        ...existingForm,
+        // Deep merge sub-sections manually to be safe
+        medical_history: { ...createEmptyConsultationForm('', '', '', '').medical_history, ...(existingForm.medical_history || {}) },
+        lifestyle: { ...createEmptyConsultationForm('', '', '', '').lifestyle, ...(existingForm.lifestyle || {}) },
+        nutrition_history: { ...createEmptyConsultationForm('', '', '', '').nutrition_history, ...(existingForm.nutrition_history || {}) },
+        supplements: { ...createEmptyConsultationForm('', '', '', '').supplements, ...(existingForm.supplements || {}) },
+        blood_reports: { ...createEmptyConsultationForm('', '', '', '').blood_reports, ...(existingForm.blood_reports || {}) },
+        goals: { ...createEmptyConsultationForm('', '', '', '').goals, ...(existingForm.goals || {}) },
+        plan: { ...createEmptyConsultationForm('', '', '', '').plan, ...(existingForm.plan || {}) },
+      };
+      
+      setForm(mergedForm);
       setHasLoadedData(true);
     }
   }, [existingForm, id, hasLoadedData]);
