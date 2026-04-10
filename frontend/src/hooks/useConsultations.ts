@@ -29,3 +29,13 @@ export const useUpdateConsultation = (id: string) => {
     },
   });
 };
+
+export const useSendMessage = (id: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) => consultationsApi.sendConsultationMessage(id, content),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['consultations', id] });
+    },
+  });
+};

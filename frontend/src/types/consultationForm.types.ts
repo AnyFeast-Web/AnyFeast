@@ -123,6 +123,7 @@ export interface FullConsultationForm {
   nutritionist_name: string;
   created_at: string;
   updated_at: string;
+  scheduled_at?: string;
   status: 'draft' | 'completed';
   consent_given: boolean;
   consent_timestamp?: string;
@@ -169,6 +170,7 @@ export function createEmptyConsultationForm(
     nutritionist_name: nutritionistName,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    scheduled_at: new Date().toISOString(),
     status: 'draft',
     consent_given: false,
 

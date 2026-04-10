@@ -4,7 +4,7 @@ import { Send, Paperclip } from 'lucide-react';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card, Avatar, Badge, Button, Input } from '../../components/ui';
-import { useConsultations } from '../../hooks/useConsultations';
+import { useConsultations, useSendMessage } from '../../hooks/useConsultations';
 import { formatDate, formatTimeAgo } from '../../utils/formatters';
 
 export function ConsultationPage() {
@@ -13,6 +13,21 @@ export function ConsultationPage() {
   const [message, setMessage] = useState('');
 
   const selectedSession = consultations.find((c: any) => c.id === selectedSessionId) || consultations[0];
+  const sendMutation = useSendMessage(selectedSession?.id || '');
+
+  const handleSend = () => {
+    if (!message.trim() || !selectedSession) return;
+    sendMutation.mutate(message, {
+      onSuccess: () => setMessage(''),
+    });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   if (isLoading) {
     return (
@@ -126,9 +141,21 @@ export function ConsultationPage() {
                   <button className="p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors">
                     <Paperclip className="w-5 h-5" />
                   </button>
-                  <input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..."
-                    className="flex-1 bg-bg-input border border-border-subtle rounded-md px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-brand-primary focus:outline-none transition-colors" />
-                  <Button size="sm" icon={<Send className="w-4 h-4" />} disabled={!message.trim()}>Send</Button>
+                  <input 
+                    value={message} 
+                    onChange={(e) => setMessage(e.target.value)} 
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type a message..."
+                    className="flex-1 bg-bg-input border border-border-subtle rounded-md px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-brand-primary focus:outline-none transition-colors" 
+                  />
+                  <Button 
+                    size="sm" 
+                    icon={<Send className="w-4 h-4" />} 
+                    disabled={!message.trim() || sendMutation.isPending}
+                    onClick={handleSend}
+                  >
+                    {sendMutation.isPending ? 'Sending...' : 'Send'}
+                  </Button>
                 </div>
               </div>
             </div>

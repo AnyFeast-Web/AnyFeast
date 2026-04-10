@@ -72,38 +72,39 @@ export function ConsultationFormPage() {
     );
   });
 
+  const [hasLoadedData, setHasLoadedData] = useState(false);
+
   // Update form with client name once loaded
   useEffect(() => {
-    if (clientData) {
+    if (clientData && !hasLoadedData && !id) {
       const name = `${clientData.personal_info.first_name} ${clientData.personal_info.last_name}`;
-      if (form.client_name !== name) {
-        setForm((prev: FullConsultationForm) => ({ ...prev, client_name: name }));
-      }
+      setForm((prev: FullConsultationForm) => ({ ...prev, client_name: name }));
     }
-  }, [clientData, form.client_name]);
+  }, [clientData, hasLoadedData, id]);
 
   // Sync nutritionist info from auth store
   useEffect(() => {
-    if (user && form.nutritionist_name === 'Nutritionist') {
+    if (user && !hasLoadedData) {
       setForm((prev: FullConsultationForm) => ({ 
         ...prev, 
         nutritionist_name: user.name,
         nutritionist_id: user.id
       }));
     }
-  }, [user, form.nutritionist_name]);
+  }, [user, hasLoadedData]);
 
   const createMutation = useCreateConsultation();
   const updateMutation = useUpdateConsultation(id || 'temp');
   
-  const { data: existingForm } = useConsultation(id || '');
+  const { data: existingForm, isLoading: isFormLoading } = useConsultation(id || '');
 
-  // Load backend data if it exists
+  // Load backend data ONCE
   useEffect(() => {
-    if (existingForm && id) {
-      setForm((prev) => ({ ...prev, ...existingForm }));
+    if (existingForm && id && !hasLoadedData) {
+      setForm(existingForm);
+      setHasLoadedData(true);
     }
-  }, [existingForm, id]);
+  }, [existingForm, id, hasLoadedData]);
 
   const client = clientData;
 
@@ -111,30 +112,24 @@ export function ConsultationFormPage() {
   const triggerAutoSave = useCallback(() => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
-      setSaveStatus('saving');
-      
-      const payload = { ...form, updated_at: new Date().toISOString() };
-      
-      if (id) {
-        updateMutation.mutate(payload, {
-          onSuccess: () => {
-            setLastSaved(new Date().toISOString());
-            setSaveStatus('saved');
-            setTimeout(() => setSaveStatus('idle'), 3000);
-          }
-        });
-      } else {
-        createMutation.mutate(payload, {
-          onSuccess: (newDoc) => {
-            navigate(`/consultations/${newDoc.id}/edit`, { replace: true });
-            setLastSaved(new Date().toISOString());
-            setSaveStatus('saved');
-            setTimeout(() => setSaveStatus('idle'), 3000);
-          }
-        });
-      }
+      // Use local state to avoid stale closure issues
+      setForm(currentForm => {
+        setSaveStatus('saving');
+        const payload = { ...currentForm, updated_at: new Date().toISOString() };
+        
+        if (id) {
+          updateMutation.mutate(payload, {
+            onSuccess: () => {
+              setLastSaved(new Date().toISOString());
+              setSaveStatus('saved');
+              setTimeout(() => setSaveStatus('idle'), 3000);
+            }
+          });
+        }
+        return currentForm;
+      });
     }, 2000);
-  }, [form, id, updateMutation, createMutation, navigate]);
+  }, [id, updateMutation]);
 
   // Generic update helpers
   const updateMedical = useCallback((field: keyof MedicalHistory, value: MedicalHistory[keyof MedicalHistory]) => {
@@ -253,6 +248,18 @@ export function ConsultationFormPage() {
         subtitle={client ? `${client.personal_info.first_name} ${client.personal_info.last_name}` : 'New Consultation'}
         actions={
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 mr-2 px-3 py-1.5 border border-border-subtle rounded-md bg-bg-surface shadow-sm">
+              <Calendar className="w-4 h-4 text-text-muted" />
+              <input
+                type="datetime-local"
+                value={form.scheduled_at ? new Date(form.scheduled_at).toISOString().slice(0, 16) : ''}
+                onChange={(e) => {
+                  setForm(prev => ({ ...prev, scheduled_at: e.target.value }));
+                  triggerAutoSave();
+                }}
+                className="bg-transparent border-none text-xs font-medium text-text-primary focus:ring-0 outline-none w-36"
+              />
+            </div>
             <AutoSaveIndicator status={saveStatus} lastSaved={lastSaved} />
             <Badge variant={form.status === 'completed' ? 'teal' : 'amber'}>
               {form.status === 'completed' ? 'Completed' : 'Draft'}

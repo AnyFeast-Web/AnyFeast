@@ -38,11 +38,11 @@ export function ConsultationHistoryPage() {
       id: c.id,
       clientId: c.client_id,
       clientName: clientName,
-      date: c.created_at || new Date().toISOString(),
+      date: c.scheduled_at || c.created_at || new Date().toISOString(),
       type: (c as any).type || 'structured',
       status: (c as any).status || 'draft',
       summary: (c as any).summary_notes || 'No summary notes recorded',
-      nutritionist: 'You', // In a real app we'd fetch the user's name
+      nutritionist: c.nutritionist_name || 'You',
     };
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

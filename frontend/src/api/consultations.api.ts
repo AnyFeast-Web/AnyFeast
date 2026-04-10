@@ -11,3 +11,6 @@ export const createConsultation = (data: any): Promise<any> =>
 
 export const updateConsultation = (id: string, data: any): Promise<any> =>
   api.put(`consultations/${id}/`, data).then((r) => r.data);
+
+export const sendConsultationMessage = (id: string, content: string): Promise<any> =>
+  api.post(`consultations/${id}/messages`, { content }).then((r) => r.data);

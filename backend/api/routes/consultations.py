@@ -55,8 +55,35 @@ def update_consultation(consultation_id: str, consult_data: ConsultationCreate, 
     if not doc.exists or doc.to_dict().get("nutritionist_id") != current_user["uid"]:
         raise HTTPException(status_code=403, detail="Not authorized")
         
-    update_data = consult_data.dict()
+    update_data = consult_data.dict(exclude_unset=True)
     update_data["updated_at"] = datetime.utcnow()
     
     doc_ref.update(update_data)
     return {**doc.to_dict(), **update_data, "id": doc.id}
+
+@router.post("/{consultation_id}/messages", response_model=Dict[str, Any])
+def add_consultation_message(consultation_id: str, message_data: Dict[str, Any], current_user: dict = Depends(get_current_user)):
+    """Add a message to a consultation session."""
+    doc_ref = db.collection(COLLECTION_NAME).document(consultation_id)
+    doc = doc_ref.get()
+    
+    if not doc.exists or doc.to_dict().get("nutritionist_id") != current_user["uid"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    from google.cloud import firestore
+    
+    new_message = {
+        "id": datetime.utcnow().strftime("%Y%m%d%H%M%S%f"),
+        "sender": "nutritionist",
+        "sender_id": current_user["uid"],
+        "content": message_data.get("content", ""),
+        "timestamp": datetime.utcnow().isoformat(),
+        "type": message_data.get("type", "text")
+    }
+    
+    doc_ref.update({
+        "messages": firestore.ArrayUnion([new_message]),
+        "updated_at": datetime.utcnow()
+    })
+    
+    return new_message
