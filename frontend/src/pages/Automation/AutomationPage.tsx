@@ -1,272 +1,282 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Zap, Send, CalendarClock, ShoppingCart, 
-  CheckCircle2, Clock, AlertTriangle, Play, Settings2,
-  RefreshCw, FileText
+  Zap, Send, CalendarClock, CheckCircle2, 
+  Clock, AlertTriangle, Play, Smartphone,
+  Info
 } from 'lucide-react';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
-import { Card, Button, Input } from '../../components/ui';
-import { useTriggerOrder, useDispatchEmail } from '../../hooks/useAutomations';
+import { Card, Button, Input, Badge } from '../../components/ui';
+import { useSendSmsMealPlan, useSendSmsReminder } from '../../hooks/useAutomations';
+import { useClients } from '../../hooks/useClients';
 import { useMealPlans } from '../../hooks/useMealPlans';
 
-interface Job {
-  id: string;
-  workflow: string;
-  client: string;
-  status: 'completed' | 'pending' | 'failed' | 'running';
-  time: string;
-}
-
 export function AutomationPage() {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<string>('');
+  const [sendClientId, setSendClientId] = useState<string>('');
+  const [sendPlanId, setSendPlanId] = useState<string>('');
+  const [reminderClientId, setReminderClientId] = useState<string>('');
+  const [remindersEnabled, setRemindersEnabled] = useState(true);
+  const [reminderDays, setReminderDays] = useState(14);
   
-  const triggerOrderMutation = useTriggerOrder();
-  const dispatchEmailMutation = useDispatchEmail();
-  const { data: mealPlans = [], isLoading: plansLoading } = useMealPlans();
+  const { data: clients = [], isLoading: clientsLoading } = useClients();
+  const { data: allPlans = [], isLoading: plansLoading } = useMealPlans();
+  
+  const sendSmsMutation = useSendSmsMealPlan();
+  const reminderSmsMutation = useSendSmsReminder();
 
-  const triggerOrderWebhook = () => {
-    triggerOrderMutation.mutate(undefined, {
-      onSuccess: () => {
-        const newJob: Job = {
-          id: Math.random().toString(),
-          workflow: 'Ingredient Order (n8n Webhook)',
-          client: 'Manual Trigger',
-          status: 'completed',
-          time: 'Just now'
-        };
-        setJobs([newJob, ...jobs]);
-      },
-      onError: () => {
-        const newJob: Job = {
-          id: Math.random().toString(),
-          workflow: 'Ingredient Order (n8n Webhook)',
-          client: 'Manual Trigger',
-          status: 'failed',
-          time: 'Just now'
-        };
-        setJobs([newJob, ...jobs]);
-      }
+  // Selected client for section 1
+  const selectedClient = useMemo(() => 
+    clients.find((c: any) => c.id === sendClientId), 
+    [clients, sendClientId]
+  );
+
+  // Filtered plans for section 1
+  const filteredPlans = useMemo(() => 
+    allPlans.filter((p: any) => p.client_id === sendClientId),
+    [allPlans, sendClientId]
+  );
+
+  const handleSendMealPlanSms = () => {
+    if (!sendClientId || !sendPlanId) return;
+    sendSmsMutation.mutate({ 
+      clientId: sendClientId, 
+      planId: sendPlanId,
+      phone: selectedClient?.personal_info?.phone 
     });
   };
 
-  const handleDispatchEmail = () => {
-    if (!selectedPlan) return;
-    dispatchEmailMutation.mutate({ plan: selectedPlan }, {
-      onSuccess: () => {
-        const plan = mealPlans.find((p: any) => p.id === selectedPlan);
-        const newJob: Job = {
-          id: Math.random().toString(),
-          workflow: 'Send Meal Plan PDF',
-          client: plan?.client_name || selectedPlan,
-          status: 'completed',
-          time: 'Just now'
-        };
-        setJobs([newJob, ...jobs]);
-      }
+  const handleSendTestReminder = () => {
+    if (!reminderClientId) return;
+    reminderSmsMutation.mutate({ 
+      clientId: reminderClientId 
     });
-  };
-
-  const statusColors = {
-    completed: 'text-teal-600 bg-teal-50 border-teal-200',
-    pending: 'text-amber-600 bg-amber-50 border-amber-200',
-    failed: 'text-rose-600 bg-rose-50 border-rose-200',
-    running: 'text-blue-600 bg-blue-50 border-blue-200 animate-pulse'
   };
 
   return (
     <>
-      <TopBar title="Automation Hub" subtitle="Configure workflows and monitor jobs" />
+      <TopBar 
+        title="Automation Hub" 
+        subtitle="Send meal plans and reminders directly to clients via SMS" 
+      />
       <PageWrapper>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="max-w-4xl mx-auto space-y-8">
           
-          {/* Left: Workflow Configuration Tools */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Section 1: Send Meal Plan to Client */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5 text-accent-amber" />
+              <h2 className="text-lg font-display font-semibold text-text-primary">Send Meal Plan to Client</h2>
+            </div>
             
-            {/* Quick Actions / Webhooks */}
             <Card>
-              <Card.Header>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-accent-amber" />
-                  <Card.Title>Quick Triggers</Card.Title>
-                </div>
-              </Card.Header>
-              <Card.Body className="p-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Order Webhook Trigger */}
-                  <div className="p-4 border border-border-subtle rounded-lg bg-bg-surface hover:border-brand-primary/50 transition-colors">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                        <ShoppingCart className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <h4 className="text-sm font-semibold text-text-primary">Trigger Ingredient Order</h4>
+              <Card.Body className="p-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-secondary">Select Client</label>
+                      <select 
+                        value={sendClientId}
+                        onChange={(e) => {
+                          setSendClientId(e.target.value);
+                          setSendPlanId(''); // Reset plan when client changes
+                        }}
+                        className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary transition-colors"
+                      >
+                        <option value="">{clientsLoading ? 'Loading clients...' : 'Choose a client...'}</option>
+                        {clients.map((c: any) => (
+                          <option key={c.id} value={c.id}>
+                            {c.personal_info.first_name} {c.personal_info.last_name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <p className="text-xs text-text-secondary mb-4">Fire n8n webhook to extract and dispatch meal plan ingredients for ordering.</p>
-                    <Button 
-                      size="sm" 
-                      onClick={triggerOrderWebhook} 
-                      disabled={triggerOrderMutation.isPending}
-                      className="w-full"
-                      icon={triggerOrderMutation.isSuccess ? <CheckCircle2 className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    >
-                      {triggerOrderMutation.isPending ? 'Firing Webhook...' : triggerOrderMutation.isSuccess ? 'Order Dispatched' : 'Run Automation'}
-                    </Button>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-secondary">Registered Phone Number</label>
+                      <div className="relative">
+                        <Input 
+                          value={selectedClient?.personal_info?.phone || 'No phone number found'} 
+                          readOnly 
+                          className="bg-bg-elevated/50 font-mono text-xs pl-10"
+                        />
+                        <Smartphone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Manual Meal Plan Sender */}
-                  <div className="p-4 border border-border-subtle rounded-lg bg-bg-surface hover:border-brand-primary/50 transition-colors">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-brand-primary" />
-                      </div>
-                      <h4 className="text-sm font-semibold text-text-primary">Send Meal Plan to Client</h4>
-                    </div>
-                    <p className="text-xs text-text-secondary mb-4">Generate PDF and email to associated client immediately via SendGrid.</p>
-                    <div className="flex gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-secondary">Select Active Meal Plan</label>
                       <select 
-                        value={selectedPlan}
-                        onChange={(e) => setSelectedPlan(e.target.value)}
-                        className="flex-1 bg-bg-input border border-border-subtle rounded-md px-2 py-1 text-sm focus:outline-none focus:border-brand-primary"
+                        value={sendPlanId}
+                        onChange={(e) => setSendPlanId(e.target.value)}
+                        disabled={!sendClientId}
+                        className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <option value="">{plansLoading ? 'Loading plans...' : 'Select Plan...'}</option>
-                        {mealPlans.map((plan: any) => (
-                          <option key={plan.id} value={plan.id}>
-                            {plan.title || plan.client_name || plan.id}
+                        <option value="">{plansLoading ? 'Loading plans...' : 'Select a plan...'}</option>
+                        {filteredPlans.map((p: any) => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                        {sendClientId && filteredPlans.length === 0 && (
+                          <option disabled>No active plans found for this client</option>
+                        )}
+                      </select>
+                    </div>
+
+                    <div className="flex items-end">
+                      <Button 
+                        onClick={handleSendMealPlanSms}
+                        disabled={!sendPlanId || sendSmsMutation.isPending}
+                        className="w-full"
+                        icon={sendSmsMutation.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                      >
+                        {sendSmsMutation.isPending ? 'Sending...' : 'Send via SMS'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {sendSmsMutation.isSuccess && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-3 bg-teal-50 border border-teal-200 rounded-md flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                      <p className="text-xs text-teal-700 font-medium">Meal plan successfully dispatched to n8n webhook!</p>
+                    </motion.div>
+                  )}
+
+                  <div className="flex items-start gap-2 pt-2 text-text-muted">
+                    <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    <p className="text-[11px] leading-relaxed">
+                      Triggers n8n webhook → formats plan → dispatches SMS to client number
+                    </p>
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          </section>
+
+          {/* Section 2: Follow-up Reminders */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <CalendarClock className="w-5 h-5 text-text-muted" />
+              <h2 className="text-lg font-display font-semibold text-text-primary">Follow-up Reminders</h2>
+            </div>
+
+            <Card>
+              <Card.Body className="p-6">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold text-text-primary">Automated Check-ins</h4>
+                      <p className="text-xs text-text-secondary">Triggers consultation follow-up SMS automatically.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={remindersEnabled}
+                        onChange={(e) => setRemindersEnabled(e.target.checked)}
+                      />
+                      <div className="w-11 h-6 bg-border-strong rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-subtle after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+                    </label>
+                  </div>
+
+                  <div className="bg-bg-elevated p-4 rounded-lg border border-border-subtle">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-text-primary">
+                      <span>Send a</span>
+                      <Badge variant="blue">SMS Text</Badge>
+                      <span>every</span>
+                      <Input 
+                        type="number" 
+                        value={reminderDays} 
+                        onChange={(e) => setReminderDays(parseInt(e.target.value) || 0)}
+                        className="w-20 text-center h-9" 
+                      />
+                      <span>days after active consultation.</span>
+                    </div>
+                  </div>
+
+                  {/* Test Reminders */}
+                  <div className="pt-4 border-t border-border-subtle">
+                    <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-3">Test Single Reminder</label>
+                    <div className="flex gap-4">
+                      <select 
+                        value={reminderClientId}
+                        onChange={(e) => setReminderClientId(e.target.value)}
+                        className="flex-1 bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm focus:outline-none focus:border-brand-primary"
+                      >
+                        <option value="">Choose client...</option>
+                        {clients.map((c: any) => (
+                          <option key={c.id} value={c.id}>
+                            {c.personal_info.first_name} {c.personal_info.last_name}
                           </option>
                         ))}
                       </select>
                       <Button 
-                        size="sm" 
-                        variant="secondary" 
-                        onClick={handleDispatchEmail}
-                        disabled={!selectedPlan || dispatchEmailMutation.isPending}
-                        icon={<Send className="w-4 h-4" />}
+                        variant="secondary"
+                        onClick={handleSendTestReminder}
+                        disabled={!reminderClientId || reminderSmsMutation.isPending}
+                        icon={<Play className="w-4 h-4" />}
                       >
-                        {dispatchEmailMutation.isPending ? 'Sending...' : 'Send'}
+                        {reminderSmsMutation.isPending ? 'Sending...' : 'Send Now'}
                       </Button>
                     </div>
                   </div>
-                </div>
-              </Card.Body>
-            </Card>
 
-            {/* Config: Email Sequences */}
-            <Card>
-              <Card.Header>
-                <div className="flex items-center gap-2">
-                  <Send className="w-5 h-5 text-text-muted" />
-                  <Card.Title>Email Sequences & Reminders</Card.Title>
-                </div>
-              </Card.Header>
-              <Card.Body className="p-0">
-                <div className="divide-y divide-border-subtle">
-                  
-                  {/* Sequence 1 */}
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h4 className="text-sm font-semibold text-text-primary">Client Onboarding Sequence</h4>
-                        <p className="text-xs text-text-secondary">Sent automatically when a new client profile is created.</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
-                        <div className="w-9 h-5 bg-border-strong rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-subtle after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"></div>
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="text-xs border border-border-subtle rounded px-3 py-2 bg-bg-elevated">
-                        <span className="font-semibold text-brand-primary block mb-1">Day 1</span>
-                        Welcome & Intake Form Link
-                      </div>
-                      <div className="text-xs border border-border-subtle rounded px-3 py-2 bg-bg-elevated">
-                        <span className="font-semibold text-brand-primary block mb-1">Day 3</span>
-                        How to use the Portal
-                      </div>
-                      <button className="flex items-center justify-center text-xs text-text-muted border border-dashed border-border-subtle rounded px-3 py-2 hover:border-brand-primary hover:text-brand-primary transition-colors">
-                        + Add Step
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Sequence 2 */}
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h4 className="text-sm font-semibold text-text-primary">Follow-up Reminders</h4>
-                        <p className="text-xs text-text-secondary">Check-in triggers for active clients on meal plans.</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
-                        <div className="w-9 h-5 bg-border-strong rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-subtle after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"></div>
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-3 bg-bg-elevated p-3 rounded-md border border-border-subtle">
-                      <CalendarClock className="w-5 h-5 text-text-muted flex-shrink-0" />
-                      <div className="flex-1 text-sm flex items-center gap-2">
-                        Send a
-                        <select className="bg-bg-input border border-border-subtle rounded px-2 py-1 text-xs outline-none focus:border-brand-primary">
-                          <option>SMS Text</option>
-                          <option>Email</option>
-                        </select>
-                        every
-                        <Input type="number" value={14} className="w-16 h-7 text-xs text-center p-0" />
-                        days after active consultation.
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </Card.Body>
-            </Card>
-
-          </div>
-
-          {/* Right: Job Status & History */}
-          <div className="space-y-6">
-            <Card className="h-full">
-              <Card.Header className="flex items-center justify-between pb-4 border-b border-border-subtle">
-                <div className="flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-text-muted" />
-                  <Card.Title>Job History</Card.Title>
-                </div>
-                <Button variant="ghost" size="sm" className="hidden sm:flex text-brand-primary hover:bg-brand-primary/10 -mr-2 px-2 h-7 text-xs">View Log</Button>
-              </Card.Header>
-              <Card.Body className="p-0">
-                <div className="divide-y divide-border-subtle">
-                  {jobs.map((job, idx) => (
+                  {(reminderSmsMutation.isSuccess || reminderSmsMutation.isError) && (
                     <motion.div 
-                      key={job.id} 
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="p-4 hover:bg-bg-surface/50 transition-colors"
+                      initial={{ opacity: 0, scale: 0.95 }} 
+                      animate={{ opacity: 1, scale: 1 }} 
+                      className={`p-3 rounded-md flex items-center gap-2 ${
+                        reminderSmsMutation.isSuccess ? 'bg-teal-50 border border-teal-200' : 'bg-rose-50 border border-rose-200'
+                      }`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-sm font-semibold text-text-primary pr-4">{job.workflow}</h4>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColors[job.status]}`}>
-                          {job.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-1 text-xs text-text-secondary">
-                        <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {job.time}</span>
-                        <span>{job.client}</span>
-                      </div>
+                      {reminderSmsMutation.isSuccess ? (
+                        <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 text-rose-600" />
+                      )}
+                      <p className={`text-xs font-medium ${reminderSmsMutation.isSuccess ? 'text-teal-700' : 'text-rose-700'}`}>
+                        {reminderSmsMutation.isSuccess ? 'Test reminder SMS dispatched successfully!' : 'Failed to send test reminder.'}
+                      </p>
                     </motion.div>
-                  ))}
-                </div>
-                {jobs.length === 0 && (
-                  <div className="p-8 text-center text-text-muted text-sm">
-                    No recent automation jobs.
+                  )}
+
+                  <div className="flex items-start gap-2 text-text-muted">
+                    <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    <p className="text-[11px] leading-relaxed">
+                      Triggers n8n webhook → sends consultation follow-up SMS to client's registered number
+                    </p>
                   </div>
-                )}
+                </div>
               </Card.Body>
             </Card>
-          </div>
+          </section>
 
         </div>
       </PageWrapper>
     </>
+  );
+}
+
+// Helper for loading icon
+function RefreshCw(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M3 21v-5h5" />
+    </svg>
   );
 }

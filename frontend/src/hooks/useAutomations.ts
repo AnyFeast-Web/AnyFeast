@@ -12,3 +12,15 @@ export const useDispatchEmail = () => {
     mutationFn: automationsApi.dispatchEmail,
   });
 };
+
+export const useSendSmsMealPlan = () => {
+  return useMutation({
+    mutationFn: automationsApi.sendSmsMealPlan,
+  });
+};
+
+export const useSendSmsReminder = () => {
+  return useMutation({
+    mutationFn: automationsApi.sendSmsReminder,
+  });
+};
