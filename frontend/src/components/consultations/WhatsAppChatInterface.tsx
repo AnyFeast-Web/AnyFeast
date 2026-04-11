@@ -1,77 +1,100 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, Send, Smartphone, Clock, 
-  User, CheckCheck, Check, MoreVertical,
-  MessageSquare
+  Search, Send, Smartphone, MoreVertical,
+  CheckCheck, Check, MessageCircle
 } from 'lucide-react';
 import { Avatar, Input, Button, Badge, Card } from '../ui';
-import { useMessages, useSendMessage, useThreads, useMarkRead } from '../../hooks/useMessages';
 import { useClients } from '../../hooks/useClients';
 import { useConsultations } from '../../hooks/useConsultations';
 import { formatTimeAgo, formatDate } from '../../utils/formatters';
 
-interface ThreadInfo {
+interface Message {
   id: string;
-  name: string;
-  phone: string;
-  lastMessage: any;
-  unreadCount: number;
+  direction: 'in' | 'out';
+  body: string;
   timestamp: string;
+  read: boolean;
 }
 
-export function SmsChatInterface() {
+export function WhatsAppChatInterface() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: threads = [], isLoading: threadsLoading } = useThreads();
   const { data: clients = [] } = useClients();
   const { data: consultations = [] } = useConsultations();
-  
-  const { data: activeMessages = [], isLoading: messagesLoading } = useMessages(selectedClientId || '');
-  const sendMessageMutation = useSendMessage();
-  const markReadMutation = useMarkRead();
-
-  // Mark as read when thread is opened
-  useEffect(() => {
-    if (selectedClientId) {
-      markReadMutation.mutate(selectedClientId);
-    }
-  }, [selectedClientId]);
-
-  // Scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeMessages]);
 
   const clientsWithConsultations = useMemo(() => {
     const consultationClientIds = new Set(consultations.map((c: any) => c.client_id));
     return clients.filter((c: any) => consultationClientIds.has(c.id));
   }, [clients, consultations]);
 
+  const [mockMessages, setMockMessages] = useState<Record<string, Message[]>>({});
+
+  useEffect(() => {
+    if (clientsWithConsultations.length > 0 && Object.keys(mockMessages).length === 0) {
+      const initialMockState: Record<string, Message[]> = {};
+      clientsWithConsultations.forEach((c: any) => {
+        initialMockState[c.id] = [
+          {
+            id: `1_${c.id}`,
+            direction: 'out',
+            body: 'Hello! Please find your updated meal plan attached. How has your protocol been going this week?',
+            timestamp: new Date(Date.now() - 86400000).toISOString(),
+            read: true
+          },
+          {
+            id: `2_${c.id}`,
+            direction: 'in',
+            body: 'Hi! Doing great. Is it possible to swap out the chicken for tofu for the lunches?',
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            read: false
+          }
+        ];
+      });
+      setMockMessages(initialMockState);
+    }
+  }, [clientsWithConsultations]);
+
+  // Mark all as read for selected client
+  useEffect(() => {
+    if (selectedClientId && mockMessages[selectedClientId]) {
+      setMockMessages(prev => {
+        const msgs = prev[selectedClientId].map(m => ({ ...m, read: true }));
+        return { ...prev, [selectedClientId]: msgs };
+      });
+    }
+  }, [selectedClientId]);
+
+  // Scroll to bottom
+  const activeMessages = selectedClientId ? (mockMessages[selectedClientId] || []) : [];
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeMessages]);
+
   const filteredThreads = useMemo(() => {
     const query = searchTerm.toLowerCase();
     
-    // Map existing threads to client info
-    const threadMap = new Map(threads.map((t: any) => [t.client_id, t]));
-    
     return clientsWithConsultations
       .map(client => {
-        const thread = threadMap.get(client.id) as any;
+        const msgs = mockMessages[client.id] || [];
+        const lastMessage = msgs[msgs.length - 1] || null;
+        const unreadCount = selectedClientId === client.id ? 0 : msgs.filter(m => m.direction === 'in' && !m.read).length;
+        
         return {
           id: client.id,
           name: `${client.personal_info.first_name} ${client.personal_info.last_name}`,
           phone: client.personal_info.phone,
-          lastMessage: thread?.last_message || null,
-          unreadCount: thread?.unread_count || 0,
-          timestamp: thread?.last_message?.timestamp || client.created_at
-        } as ThreadInfo;
+          lastMessage,
+          unreadCount,
+          timestamp: lastMessage?.timestamp || client.created_at
+        };
       })
       .filter(t => t.name.toLowerCase().includes(query))
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [threads, clientsWithConsultations, searchTerm]);
+  }, [clientsWithConsultations, searchTerm, mockMessages, selectedClientId]);
 
   const selectedClient = useMemo(() => 
     filteredThreads.find(t => t.id === selectedClientId),
@@ -79,12 +102,43 @@ export function SmsChatInterface() {
   );
 
   const handleSend = () => {
-    if (!selectedClientId || !messageBody.trim() || sendMessageMutation.isPending) return;
+    if (!selectedClientId || !messageBody.trim()) return;
     
-    sendMessageMutation.mutate(
-      { clientId: selectedClientId, body: messageBody },
-      { onSuccess: () => setMessageBody('') }
-    );
+    const newMsg: Message = {
+      id: Date.now().toString(),
+      direction: 'out',
+      body: messageBody,
+      timestamp: new Date().toISOString(),
+      read: true
+    };
+    
+    setMockMessages(prev => ({
+      ...prev,
+      [selectedClientId]: [...(prev[selectedClientId] || []), newMsg]
+    }));
+    
+    setMessageBody('');
+    
+    // Simulate auto-reply after 2 seconds
+    setTimeout(() => {
+      const replyMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        direction: 'in',
+        body: 'Noted! I will make those adjustments.',
+        timestamp: new Date().toISOString(),
+        read: false
+      };
+      setMockMessages(current => {
+        // Only if it hasn't somehow been deleted
+        if (current[selectedClientId]) {
+           return {
+             ...current,
+             [selectedClientId]: [...current[selectedClientId], replyMsg]
+           }
+        }
+        return current;
+      });
+    }, 2000);
   };
 
   return (
@@ -96,7 +150,7 @@ export function SmsChatInterface() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <Input
-              placeholder="Search chats..."
+              placeholder="Search WhatsApp chats..."
               className="pl-9 h-9 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -110,7 +164,7 @@ export function SmsChatInterface() {
               key={thread.id}
               onClick={() => setSelectedClientId(thread.id)}
               className={`w-full text-left p-4 flex gap-3 transition-colors hover:bg-bg-elevated/50 ${
-                selectedClientId === thread.id ? 'bg-brand-primary/5 border-l-4 border-brand-primary' : 'border-l-4 border-transparent'
+                selectedClientId === thread.id ? 'bg-[#25D366]/5 border-l-4 border-[#25D366]' : 'border-l-4 border-transparent'
               }`}
             >
               <Avatar name={thread.name} size="md" />
@@ -126,7 +180,9 @@ export function SmsChatInterface() {
                     {thread.lastMessage ? thread.lastMessage.body : 'No messages yet'}
                   </p>
                   {thread.unreadCount > 0 && (
-                    <span className="w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 animate-pulse" />
+                    <span className="w-4 h-4 rounded-full bg-[#25D366] text-white flex items-center justify-center text-[10px] font-bold">
+                      {thread.unreadCount}
+                    </span>
                   )}
                 </div>
               </div>
@@ -140,8 +196,8 @@ export function SmsChatInterface() {
         </div>
       </div>
 
-      {/* RIGHT PANEL: CHREAD VIEW */}
-      <div className="flex-1 flex flex-col bg-bg-base relative">
+      {/* RIGHT PANEL: THREAD VIEW */}
+      <div className="flex-1 flex flex-col bg-[#efeae2] relative">
         {selectedClient ? (
           <>
             {/* Header */}
@@ -152,7 +208,7 @@ export function SmsChatInterface() {
                   <h3 className="text-sm font-bold text-text-primary">{selectedClient.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono text-text-secondary">{selectedClient.phone}</span>
-                    <Badge variant="blue" size="sm" className="h-4 scale-75 origin-left">SMS via n8n</Badge>
+                    <Badge variant="green" size="sm" className="h-4 scale-75 origin-left bg-[#25D366] text-white">WhatsApp Integration</Badge>
                   </div>
                 </div>
               </div>
@@ -160,13 +216,13 @@ export function SmsChatInterface() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[url('/chat-bg-pattern.png')] bg-repeat">
-              {activeMessages.length === 0 && !messagesLoading && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {activeMessages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
-                  <div className="w-12 h-12 rounded-full bg-bg-elevated flex items-center justify-center mb-2">
-                    <Smartphone className="w-6 h-6 text-text-muted" />
+                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-2 shadow-sm">
+                    <MessageCircle className="w-6 h-6 text-[#25D366]" />
                   </div>
-                  <p className="text-sm font-medium text-text-secondary">Send a message to start the conversation</p>
+                  <p className="text-sm font-medium text-text-secondary">Send a message to start the WhatsApp conversation</p>
                   <p className="text-[10px] text-text-muted mt-1">Updates sent to {selectedClient.phone}</p>
                 </div>
               )}
@@ -180,19 +236,17 @@ export function SmsChatInterface() {
                     className={`flex ${msg.direction === 'out' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${
+                      className={`max-w-[75%] rounded-lg px-4 py-2 shadow-sm relative ${
                         msg.direction === 'out'
-                          ? 'bg-brand-primary text-white rounded-tr-none'
-                          : 'bg-bg-surface border border-border-subtle text-text-primary rounded-tl-none'
+                          ? 'bg-[#dcf8c6] text-gray-800 rounded-tr-none'
+                          : 'bg-white text-gray-800 rounded-tl-none'
                       }`}
                     >
-                      <p className="text-sm leading-relaxed">{msg.body}</p>
-                      <div className={`flex items-center justify-end gap-1 mt-1 ${msg.direction === 'out' ? 'text-white/60' : 'text-text-muted'}`}>
-                        <span className="text-[9px] font-medium">
-                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.body}</p>
+                      <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] font-medium text-gray-500`}>
+                        <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         {msg.direction === 'out' && (
-                          msg.read ? <CheckCheck className="w-3 h-3" /> : <Check className="w-3 h-3" />
+                          <CheckCheck className={`w-3 h-3 ${msg.read ? 'text-[#34B7F1]' : 'text-gray-400'}`} />
                         )}
                       </div>
                     </div>
@@ -203,13 +257,13 @@ export function SmsChatInterface() {
             </div>
 
             {/* Input Bar */}
-            <div className="p-4 bg-bg-surface border-t border-border-subtle">
+            <div className="p-4 bg-[#f0f2f5]">
               <div className="flex items-end gap-3 max-w-3xl mx-auto">
-                <div className="flex-1 bg-bg-input rounded-2xl border border-border-subtle focus-within:border-brand-primary transition-colors pr-2 flex items-end">
+                <div className="flex-1 bg-white rounded-2xl border border-transparent focus-within:border-[#25D366] transition-colors pr-2 flex items-end shadow-sm">
                   <textarea
                     rows={1}
                     placeholder="Type a message..."
-                    className="w-full bg-transparent border-none text-sm p-3 focus:ring-0 resize-none max-h-32"
+                    className="w-full bg-transparent border-none text-sm p-3 focus:ring-0 resize-none max-h-32 text-gray-800"
                     value={messageBody}
                     onChange={(e) => setMessageBody(e.target.value)}
                     onKeyDown={(e) => {
@@ -222,28 +276,25 @@ export function SmsChatInterface() {
                   <div className="pb-2">
                     <Button
                       size="sm"
-                      className="rounded-xl h-9 w-9 p-0 bg-brand-primary hover:bg-brand-primary/90 text-white"
-                      disabled={!messageBody.trim() || sendMessageMutation.isPending}
+                      className="rounded-full h-10 w-10 p-0 bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center border-none"
+                      disabled={!messageBody.trim()}
                       onClick={handleSend}
                     >
-                      <Send className="w-4 h-4" />
+                      <Send className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </div>
               </div>
-              <p className="text-[10px] text-center text-text-muted mt-2">
-                Triggers n8n webhook → Twilio SMS
-              </p>
             </div>
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-text-muted">
-            <div className="w-20 h-20 rounded-full bg-bg-elevated flex items-center justify-center mb-4">
-              <MessageSquare className="w-10 h-10 opacity-20" />
+            <div className="w-20 h-20 rounded-full bg-[#dcf8c6] flex items-center justify-center mb-4">
+              <MessageCircle className="w-10 h-10 text-[#25D366]" />
             </div>
-            <h3 className="text-lg font-display font-semibold text-text-primary">SMS Chat Dashboard</h3>
+            <h3 className="text-lg font-display font-semibold text-text-primary">WhatsApp Dashboard</h3>
             <p className="text-sm max-w-xs mt-2">
-              Select a client from the left to view their SMS history and send new messages via n8n & Twilio.
+              Select a client from the left to view their WhatsApp history and send new messages using mock data.
             </p>
           </div>
         )}

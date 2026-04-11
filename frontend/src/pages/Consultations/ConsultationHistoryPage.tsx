@@ -8,7 +8,7 @@ import { Avatar, Badge, StatusBadge, Button, Input, Card } from '../../component
 import { useConsultations } from '../../hooks/useConsultations';
 import { useClients } from '../../hooks/useClients';
 import { formatDate } from '../../utils/formatters';
-import { SmsChatInterface } from '../../components/consultations/SmsChatInterface';
+import { WhatsAppChatInterface } from '../../components/consultations/WhatsAppChatInterface';
 
 type ConsultationItem = {
   id: string;
@@ -75,7 +75,7 @@ export function ConsultationHistoryPage() {
               {[
                 { id: 'All', label: 'All Records' },
                 { id: 'structured', label: 'Structured' },
-                { id: 'chat', label: 'SMS Chat' }
+                { id: 'chat', label: 'WhatsApp' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -108,7 +108,7 @@ export function ConsultationHistoryPage() {
           </div>
 
           {typeFilter === 'chat' ? (
-            <SmsChatInterface />
+            <WhatsAppChatInterface />
           ) : (
             <Card>
               <div className="overflow-x-auto">
