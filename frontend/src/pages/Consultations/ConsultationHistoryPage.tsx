@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PlusCircle, Search, Eye, Filter, Calendar, ClipboardList, MessageSquare } from 'lucide-react';
+import { PlusCircle, Search, Eye, Filter, Calendar, ClipboardList, MessageSquare, Trash2 } from 'lucide-react';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Avatar, Badge, StatusBadge, Button, Input, Card } from '../../components/ui';
-import { useConsultations } from '../../hooks/useConsultations';
+import { useConsultations, useDeleteConsultation } from '../../hooks/useConsultations';
 import { useClients } from '../../hooks/useClients';
 import { formatDate } from '../../utils/formatters';
 import { WhatsAppChatInterface } from '../../components/consultations/WhatsAppChatInterface';
@@ -28,6 +28,14 @@ export function ConsultationHistoryPage() {
 
   const { data: rawConsultations = [], isLoading, error } = useConsultations();
   const { data: clients = [] } = useClients();
+  const deleteConsultationMutation = useDeleteConsultation();
+
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this consultation?')) {
+      deleteConsultationMutation.mutate(id);
+    }
+  };
 
   // Combine and format all consultations
   const allConsultations: ConsultationItem[] = (rawConsultations as any[]).map((c) => {
@@ -198,20 +206,29 @@ export function ConsultationHistoryPage() {
                           <p className="text-sm text-text-secondary">{consultation.nutritionist}</p>
                         </td>
                         <td className="px-5 py-4 text-right">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            icon={<Eye className="w-4 h-4" />}
-                            onClick={() => {
-                              if (consultation.type === 'structured') {
-                                navigate(`/consultations/${consultation.id}/edit`);
-                              } else {
-                                setTypeFilter('chat');
-                              }
-                            }}
-                          >
-                            View
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              icon={<Eye className="w-4 h-4" />}
+                              onClick={() => {
+                                if (consultation.type === 'structured') {
+                                  navigate(`/consultations/${consultation.id}/edit`);
+                                } else {
+                                  setTypeFilter('chat');
+                                }
+                              }}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<Trash2 className="w-4 h-4 text-text-muted hover:text-accent-rose transition-colors" />}
+                              onClick={(e) => handleDelete(consultation.id, e)}
+                              disabled={deleteConsultationMutation.isPending}
+                            />
+                          </div>
                         </td>
                       </motion.tr>
                     ))}

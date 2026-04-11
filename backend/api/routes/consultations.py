@@ -87,3 +87,19 @@ def add_consultation_message(consultation_id: str, message_data: Dict[str, Any],
     })
     
     return new_message
+
+@router.delete("/{consultation_id}")
+def delete_consultation(consultation_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a consultation session."""
+    doc_ref = db.collection(COLLECTION_NAME).document(consultation_id)
+    doc = doc_ref.get()
+    
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Consultation not found")
+        
+    doc_data = doc.to_dict()
+    if doc_data.get("nutritionist_id") != current_user["uid"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    doc_ref.delete()
+    return {"status": "success", "message": f"Consultation {consultation_id} deleted"}

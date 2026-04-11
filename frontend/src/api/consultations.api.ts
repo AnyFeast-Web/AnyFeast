@@ -14,3 +14,6 @@ export const updateConsultation = (id: string, data: any): Promise<any> =>
 
 export const sendConsultationMessage = (id: string, content: string): Promise<any> =>
   api.post(`consultations/${id}/messages`, { content }).then((r) => r.data);
+
+export const deleteConsultation = (id: string): Promise<any> =>
+  api.delete(`consultations/${id}/`).then((r) => r.data);

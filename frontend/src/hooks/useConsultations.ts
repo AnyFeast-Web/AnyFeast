@@ -39,3 +39,13 @@ export const useSendMessage = (id: string) => {
     },
   });
 };
+
+export const useDeleteConsultation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => consultationsApi.deleteConsultation(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['consultations'] });
+    },
+  });
+};
