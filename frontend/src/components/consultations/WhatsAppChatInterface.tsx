@@ -208,7 +208,7 @@ export function WhatsAppChatInterface() {
                   <h3 className="text-sm font-bold text-text-primary">{selectedClient.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono text-text-secondary">{selectedClient.phone}</span>
-                    <Badge variant="green" size="sm" className="h-4 scale-75 origin-left bg-[#25D366] text-white">WhatsApp Integration</Badge>
+                    <Badge variant="teal" size="sm" className="h-4 scale-75 origin-left bg-[#25D366] text-white">WhatsApp Integration</Badge>
                   </div>
                 </div>
               </div>
