@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Button, Input } from '../../components/ui';
+import { useMealPlan } from '../../hooks/useMealPlans';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
@@ -29,6 +30,8 @@ const emptyMeal = () => ({
 export function MealPlanBuilderPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { data: existingPlan } = useMealPlan(id || '');
 
   const [activeTab, setActiveTab] = useState<'schedule' | 'groceries'>('schedule');
   const [expandedDay, setExpandedDay] = useState<string>(DAYS[0]);
@@ -83,7 +86,7 @@ export function MealPlanBuilderPage() {
       <PageWrapper>
         <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-display font-bold text-text-primary">Weekly Meal Plan Formulation</h2>
+            <h2 className="text-xl font-display font-bold text-text-primary">{existingPlan?.title || "Weekly Meal Plan Formulation"}</h2>
             <p className="text-sm text-text-secondary mt-1">Design a comprehensive diet plan without database constraints.</p>
           </div>
           <div className="flex gap-2">
