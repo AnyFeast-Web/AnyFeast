@@ -21,6 +21,8 @@ import { APP_NAME } from '../../utils/constants';
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/clients', label: 'Clients', icon: Users },
+  { path: '/meal-plans', label: 'Meal Plans', icon: CalendarDays },
+  { path: '/nutrition', label: 'Nutrition DB', icon: Database },
   { path: '/consultations', label: 'Consultations', icon: MessageSquare },
   { path: '/automation', label: 'Automation', icon: Zap },
   { path: '/settings', label: 'Settings', icon: Settings2 },
