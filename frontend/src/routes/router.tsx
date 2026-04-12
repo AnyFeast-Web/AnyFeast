@@ -34,7 +34,6 @@ export const router = createBrowserRouter([
       { path: 'meal-plans', element: <MealPlanListPage /> },
       { path: 'meal-plans/new', element: <MealPlanBuilderPage /> },
           { path: 'meal-plans/:id/edit', element: <MealPlanBuilderPage /> },
-          { path: 'nutrition', element: <NutritionDBPage /> },
       { path: 'consultations', element: <ConsultationHistoryPage /> },
       { path: 'consultations/chat', element: <ConsultationPage /> },
       { path: 'consultations/new/:clientId', element: <ConsultationFormPage /> },
