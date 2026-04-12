@@ -83,21 +83,43 @@ export function MealPlanBuilderPage() {
 
   const handleSave = () => {
     const formattedGrid: any = {};
+    let totalCals = 0;
+    let totalP = 0;
+    let totalC = 0;
+    let totalF = 0;
+    let activeDaysCount = 0;
+
     Object.keys(mealPlan).forEach(day => {
       formattedGrid[day.toLowerCase()] = {};
+      let dayHasMeals = false;
       Object.keys(mealPlan[day]).forEach(mealType => {
-        // Ensure values correspond to integers for backend models if necessary
         const mealData = mealPlan[day][mealType];
+        const c = Number(mealData.calories) || 0;
+        const p = Number(mealData.protein_g) || 0;
+        const cb = Number(mealData.carbs_g) || 0;
+        const f = Number(mealData.fat_g) || 0;
+
+        if (c > 0 || p > 0 || cb > 0 || f > 0) {
+          totalCals += c;
+          totalP += p;
+          totalC += cb;
+          totalF += f;
+          dayHasMeals = true;
+        }
+
         const meal = {
           ...mealData,
-          calories: Number(mealData.calories) || 0,
-          protein_g: Number(mealData.protein_g) || 0,
-          carbs_g: Number(mealData.carbs_g) || 0,
-          fat_g: Number(mealData.fat_g) || 0,
+          calories: c,
+          protein_g: p,
+          carbs_g: cb,
+          fat_g: f,
         };
         formattedGrid[day.toLowerCase()][mealType.toLowerCase()] = [meal];
       });
+      if (dayHasMeals) activeDaysCount++;
     });
+
+    const divisor = activeDaysCount > 0 ? activeDaysCount : 1;
 
     const payload = {
       client_id: existingPlan?.client_id || 'new-client',
@@ -108,11 +130,11 @@ export function MealPlanBuilderPage() {
         end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() 
       },
       grid: formattedGrid,
-      total_nutrition_targets: existingPlan?.total_nutrition_targets || {
-        calories: 2000,
-        protein_g: 150,
-        carbs_g: 200,
-        fat_g: 70
+      total_nutrition_targets: {
+        calories: Math.round(totalCals / divisor),
+        protein_g: Math.round(totalP / divisor),
+        carbs_g: Math.round(totalC / divisor),
+        fat_g: Math.round(totalF / divisor)
       }
     };
     
