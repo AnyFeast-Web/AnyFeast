@@ -72,7 +72,7 @@ export function DashboardPage() {
       <PageWrapper>
         {/* TOP STATS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="hover:shadow-md transition-shadow">
+          <Card className="hover:shadow-md transition-shadow" onClick={() => navigate('/clients')}>
             <Card.Body className="p-5 flex items-center justify-between">
               <div>
                 <p className="text-sm font-display font-medium text-text-secondary">Active Clients</p>
@@ -88,7 +88,7 @@ export function DashboardPage() {
             </Card.Body>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow">
+          <Card className="hover:shadow-md transition-shadow" onClick={() => navigate('/consultations')}>
             <Card.Body className="p-5 flex items-center justify-between">
               <div>
                 <p className="text-sm font-display font-medium text-text-secondary">Pending Consults</p>
