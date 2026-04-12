@@ -250,13 +250,13 @@ export function ConsultationFormPage() {
   const goNext = () => {
     if (sectionIndex < CONSULTATION_SECTIONS.length - 1) {
       setActiveSection(CONSULTATION_SECTIONS[sectionIndex + 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
     }
   };
   const goPrev = () => {
     if (sectionIndex > 0) {
       setActiveSection(CONSULTATION_SECTIONS[sectionIndex - 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
     }
   };
 
