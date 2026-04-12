@@ -8,6 +8,11 @@ class MacroMeal(BaseModel):
     protein_g: int
     carbs_g: int
     fat_g: int
+    servingSize: Optional[str] = None
+    prepTime: Optional[str] = None
+    cookTime: Optional[str] = None
+    prepTips: Optional[str] = None
+    alternatives: Optional[str] = None
 
 class DateRange(BaseModel):
     start_date: datetime
@@ -27,6 +32,7 @@ class MealPlanBase(BaseModel):
     # grid: Dict[str, Dict[str, List[MacroMeal]]] # Day -> MealType -> Meals
     grid: Dict[str, Dict[str, List[MacroMeal]]]
     total_nutrition_targets: Optional[NutritionTargets] = None
+    grocery_list: Optional[List[Dict[str, str]]] = None
 
 class MealPlanCreate(MealPlanBase):
     pass

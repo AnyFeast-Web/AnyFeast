@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   PlusCircle, Save, FileDown, Trash2, ChevronDown, ChevronUp, 
@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Button, Input } from '../../components/ui';
-import { useMealPlan } from '../../hooks/useMealPlans';
+import { useMealPlan, useUpdateMealPlan, useCreateMealPlan } from '../../hooks/useMealPlans';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
@@ -32,6 +32,8 @@ export function MealPlanBuilderPage() {
   const navigate = useNavigate();
 
   const { data: existingPlan } = useMealPlan(id || '');
+  const updateMutation = useUpdateMealPlan(id || 'temp');
+  const createMutation = useCreateMealPlan();
 
   const [activeTab, setActiveTab] = useState<'schedule' | 'groceries'>('schedule');
   const [expandedDay, setExpandedDay] = useState<string>(DAYS[0]);
@@ -52,6 +54,29 @@ export function MealPlanBuilderPage() {
   const [groceries, setGroceries] = useState<{ id: string; name: string; category: string }[]>([]);
   const [newGroceryItem, setNewGroceryItem] = useState('');
   const [newGroceryCategory, setNewGroceryCategory] = useState(GROCERY_CATEGORIES[0]);
+
+  useEffect(() => {
+    if (existingPlan?.grid) {
+      const loaded: any = {};
+      DAYS.forEach(day => {
+        loaded[day] = {};
+        MEALS.forEach(meal => {
+          const backendDay = day.toLowerCase();
+          const backendMeal = meal.toLowerCase();
+          const mealArr = existingPlan.grid[backendDay]?.[backendMeal];
+          if (mealArr && mealArr.length > 0) {
+            loaded[day][meal] = { ...emptyMeal(), ...mealArr[0] };
+          } else {
+            loaded[day][meal] = emptyMeal();
+          }
+        });
+      });
+      setMealPlan(loaded);
+    }
+    if (existingPlan?.grocery_list) {
+      setGroceries(existingPlan.grocery_list);
+    }
+  }, [existingPlan]);
 
   const updateMeal = (day: string, meal: string, field: string, value: string | number) => {
     setMealPlan(prev => ({
@@ -77,7 +102,52 @@ export function MealPlanBuilderPage() {
   };
 
   const handleSave = () => {
-    alert("Meal plan saved successfully!");
+    const formattedGrid: any = {};
+    Object.keys(mealPlan).forEach(day => {
+      formattedGrid[day.toLowerCase()] = {};
+      Object.keys(mealPlan[day]).forEach(mealType => {
+        // Ensure values correspond to integers for backend models if necessary
+        const meal = {
+          ...mealPlan[day][mealType],
+          calories: Number(mealPlan[day][mealType].calories) || 0,
+          protein_g: Number(mealPlan[day][mealType].protein) || 0,
+          carbs_g: Number(mealPlan[day][mealType].carbs) || 0,
+          fat_g: Number(mealPlan[day][mealType].fats) || 0,
+        };
+        formattedGrid[day.toLowerCase()][mealType.toLowerCase()] = [meal];
+      });
+    });
+
+    const payload = {
+      client_id: existingPlan?.client_id || 'new-client',
+      title: existingPlan?.title || 'New Meal Plan',
+      status: existingPlan?.status || 'draft',
+      date_range: existingPlan?.date_range || { 
+        start_date: new Date().toISOString(), 
+        end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() 
+      },
+      grid: formattedGrid,
+      grocery_list: groceries,
+      total_nutrition_targets: existingPlan?.total_nutrition_targets || {
+        calories: 2000,
+        protein_g: 150,
+        carbs_g: 200,
+        fat_g: 70
+      }
+    };
+    
+    if (id && id !== 'new') {
+      updateMutation.mutate(payload, { 
+        onSuccess: () => alert('Meal plan saved successfully!') 
+      });
+    } else {
+      createMutation.mutate(payload, { 
+        onSuccess: (res) => {
+          alert('Meal plan created successfully!');
+          navigate(`/meal-plans/${res.id}`);
+        }
+      });
+    }
   };
 
   return (
@@ -93,8 +163,12 @@ export function MealPlanBuilderPage() {
             <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} onClick={() => window.print()}>
               Export PDF
             </Button>
-            <Button icon={<Save className="w-4 h-4" />} onClick={handleSave}>
-              Save Plan
+            <Button 
+              icon={<Save className="w-4 h-4" />} 
+              onClick={handleSave}
+              disabled={updateMutation.isPending || createMutation.isPending}
+            >
+              {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Save Plan"}
             </Button>
           </div>
         </div>
