@@ -42,7 +42,7 @@ export function formatHeight(cm: number | undefined | null): string {
 }
 
 export function formatCalories(cal: number): string {
-  return `${Math.round(cal)} kcal`;
+  return `${Math.round(cal)} cal`;
 }
 
 export function formatMacro(grams: number, unit = 'g'): string {
