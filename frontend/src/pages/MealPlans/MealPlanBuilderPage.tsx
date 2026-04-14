@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Save, FileDown, 
-  Clock, Info, Settings, CalendarDays, FileText
+  Clock, Info, Settings, CalendarDays, FileText, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from '../../components/layout/TopBar';
@@ -507,18 +507,42 @@ export function MealPlanBuilderPage() {
 
         {/* Bottom Actions Form */}
         <div className="mt-12 flex items-center justify-end gap-4 pt-6 border-t border-border-subtle print-hide">
-          <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} size="lg" onClick={executePrint}>
-            Download PDF
-          </Button>
-          <Button 
-            icon={<Save className="w-5 h-5" />} 
-            size="lg"
-            onClick={handleSave}
-            disabled={updateMutation.isPending || createMutation.isPending}
-            className="w-48"
-          >
-            {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Submit Routine"}
-          </Button>
+          {activeTab === 'profile' && (
+            <Button 
+              size="lg" 
+              onClick={() => setActiveTab('schedule')}
+              className="w-48"
+            >
+              Next: Diet Schedule <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+
+          {activeTab === 'schedule' && (
+            <Button 
+              size="lg" 
+              onClick={() => setActiveTab('guidelines')}
+              className="w-48"
+            >
+              Next: Guidelines <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+
+          {activeTab === 'guidelines' && (
+            <>
+              <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} size="lg" onClick={executePrint}>
+                Download PDF
+              </Button>
+              <Button 
+                icon={<Save className="w-5 h-5" />} 
+                size="lg"
+                onClick={handleSave}
+                disabled={updateMutation.isPending || createMutation.isPending}
+                className="w-48"
+              >
+                {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Submit Routine"}
+              </Button>
+            </>
+          )}
         </div>
 
       </PageWrapper>
