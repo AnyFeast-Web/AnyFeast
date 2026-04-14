@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Save, FileDown, ChevronDown, ChevronUp, 
+  Save, FileDown, 
   Clock, Info, Settings, CalendarDays, FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
-import { Button, Input } from '../../components/ui';
+import { Button } from '../../components/ui';
 import { useMealPlan, useUpdateMealPlan, useCreateMealPlan } from '../../hooks/useMealPlans';
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS = ['Daily'];
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
 const COMMON_MEALS = [
@@ -28,11 +28,36 @@ const COMMON_MEALS = [
   "Apple Slices with Peanut Butter"
 ];
 
+const DEFAULT_GUIDELINES = `General Dietary Instructions
+- Follow the meal plan as prescribed. Do not skip meals or substitute without consulting your nutritionist.
+- Eat at regular intervals (every 3–4 hours) to maintain metabolism and energy levels.
+- Chew food slowly and mindfully; avoid eating in a hurry.
+
+Hydration Goals
+- Drink a minimum of 8–10 glasses (2–3 litres) of water daily.
+- Avoid sugary drinks, sodas, and packaged juices.
+- Limit tea/coffee to 2 cups per day; avoid on an empty stomach.
+
+Supplement Protocols
+- Take prescribed supplements only as directed by your nutritionist.
+- Do not self-medicate or add supplements without approval.
+
+Lifestyle & Habits
+- Sleep 7–8 hours daily; poor sleep affects metabolism and hunger hormones.
+- Avoid alcohol and smoking as they interfere with nutrition absorption.
+- Pair your diet with the recommended physical activity level.
+
+Food Hygiene
+- Prefer home-cooked meals over outside/processed food.
+- Avoid reheating food multiple times.
+- Read food labels before consuming packaged items.`;
+
 const emptyMeal = () => ({
   name: '',
   servingSize: '',
   prepTime: '',
   cookTime: '',
+  intakeTime: '',
   calories: 0,
   protein_g: 0,
   carbs_g: 0,
@@ -50,7 +75,6 @@ export function MealPlanBuilderPage() {
   const createMutation = useCreateMealPlan();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'schedule' | 'guidelines'>('profile');
-  const [expandedDay, setExpandedDay] = useState<string>(DAYS[0]);
 
   // Profile State
   const [preferences, setPreferences] = useState({
@@ -61,7 +85,7 @@ export function MealPlanBuilderPage() {
   });
 
   // Guidelines State
-  const [guidelines, setGuidelines] = useState('');
+  const [guidelines, setGuidelines] = useState(DEFAULT_GUIDELINES);
 
   // Schedule State
   const [mealPlan, setMealPlan] = useState<Record<string, Record<string, ReturnType<typeof emptyMeal>>>>(() => {
@@ -102,6 +126,7 @@ export function MealPlanBuilderPage() {
           medicalConditions: existingPlan.preferences.medicalConditions || ''
         });
       }
+      // If it exists in DB, overwrite default, else keep default.
       if (existingPlan.guidelines) {
         setGuidelines(existingPlan.guidelines);
       }
@@ -195,7 +220,6 @@ export function MealPlanBuilderPage() {
   };
 
   const executePrint = () => {
-    // We can rely strictly on @media print styles injected here
     window.print();
   };
 
@@ -203,11 +227,9 @@ export function MealPlanBuilderPage() {
     <>
       <style>{`
         @media print {
-          /* Hide standard UI elements */
           header, .sidebar-class-if-exists, nav, .print-hide {
             display: none !important;
           }
-          /* Force tabs to all show during print */
           .print-block {
             display: block !important;
             opacity: 1 !important;
@@ -216,13 +238,6 @@ export function MealPlanBuilderPage() {
           .print-page-break {
             page-break-before: always;
           }
-          /* Expand all accordion days */
-          .print-expand {
-            height: auto !important;
-            overflow: visible !important;
-            display: block !important;
-          }
-          /* Clean up borders and backgrounds for paper */
           * {
             background-color: transparent !important;
             color: black !important;
@@ -231,6 +246,8 @@ export function MealPlanBuilderPage() {
           }
           .print-border {
             border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            margin-bottom: 20px !important;
           }
           input, textarea, select {
             border: 1px solid #ddd !important;
@@ -239,7 +256,7 @@ export function MealPlanBuilderPage() {
         }
       `}</style>
       
-      <TopBar className="print-hide" title="Interactive Diet Plan Builder" />
+      <TopBar className="print-hide" title="Interactive Diet Form" />
       <PageWrapper className="print-block">
         <datalist id="meal-suggestions">
           {COMMON_MEALS.map(meal => <option key={meal} value={meal} />)}
@@ -247,20 +264,8 @@ export function MealPlanBuilderPage() {
 
         <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 print-hide">
           <div>
-            <h2 className="text-xl font-display font-bold text-text-primary">{existingPlan?.title || "Weekly Diet Plan Formulation"}</h2>
-            <p className="text-sm text-text-secondary mt-1">Design a comprehensive diet plan tailored for your patient.</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} onClick={executePrint}>
-              Export PDF
-            </Button>
-            <Button 
-              icon={<Save className="w-4 h-4" />} 
-              onClick={handleSave}
-              disabled={updateMutation.isPending || createMutation.isPending}
-            >
-              {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Save Plan"}
-            </Button>
+            <h2 className="text-xl font-display font-bold text-text-primary">{existingPlan?.title || "Patient Diet Plan"}</h2>
+            <p className="text-sm text-text-secondary mt-1">Design a comprehensive single-day routine routine.</p>
           </div>
         </div>
 
@@ -291,7 +296,7 @@ export function MealPlanBuilderPage() {
 
         {/* Tab 1: Profile */}
         <div className={`${activeTab === 'profile' ? 'block' : 'hidden'} print-block mb-12`}>
-          <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Patient Diet Profile - {existingPlan?.client_name || "Unknown"}</h2>
+          <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Patient Diet Profile</h2>
           <div className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm print-border">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -348,140 +353,140 @@ export function MealPlanBuilderPage() {
 
         {/* Tab 2: Schedule */}
         <div className={`${activeTab === 'schedule' ? 'block' : 'hidden'} print-block print-page-break mb-12`}>
-          <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Daily Diet Schedule</h2>
-          <div className="space-y-4">
+          <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Master Daily Schedule</h2>
+          <div className="space-y-6">
             {DAYS.map(day => (
-              <div key={day} className="bg-bg-surface border border-border-subtle rounded-xl overflow-hidden shadow-sm print-border">
-                <button 
-                  onClick={() => setExpandedDay(expandedDay === day ? '' : day)}
-                  className="w-full flex items-center justify-between p-4 bg-bg-elevated/30 hover:bg-bg-elevated/50 transition-colors print-hide"
-                >
-                  <h3 className="font-display font-bold text-lg text-text-primary">{day}</h3>
-                  {expandedDay === day ? <ChevronUp className="w-5 h-5 text-text-secondary" /> : <ChevronDown className="w-5 h-5 text-text-secondary" />}
-                </button>
-                <h3 className="font-display font-bold text-lg text-text-primary p-4 bg-gray-100 hidden print:block">{day}</h3>
-                
-                <div className={`${expandedDay === day ? 'block' : 'hidden'} print-expand`}>
-                  <div className="p-4 space-y-6 border-t border-border-subtle">
-                    {MEALS.map(meal => {
-                      const data = mealPlan[day][meal];
-                      return (
-                        <div key={meal} className="bg-bg-elevated/20 rounded-lg p-5 border border-border-subtle print-border">
-                          <h4 className="font-display font-semibold text-brand-primary mb-4 text-base border-b border-border-subtle pb-2">{meal}</h4>
-                          
-                          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            {/* Basic Info */}
-                            <div className="lg:col-span-5 space-y-4">
+              <div key={day} className="bg-bg-surface overflow-hidden">
+                <div className="space-y-6">
+                  {MEALS.map(meal => {
+                    const data = mealPlan[day][meal];
+                    return (
+                      <div key={meal} className="bg-bg-elevated/20 rounded-xl p-6 border border-border-subtle shadow-sm print-border">
+                        <div className="flex items-center justify-between border-b border-border-subtle pb-3 mb-5">
+                          <h4 className="font-display font-bold text-brand-primary text-lg">{meal}</h4>
+                          <div className="flex items-center gap-2 bg-bg-input px-3 py-1.5 rounded-lg border border-border-subtle">
+                            <Clock className="w-4 h-4 text-text-muted print-hide" />
+                            <input 
+                              type="time"
+                              className="bg-transparent text-sm text-text-primary focus:outline-none font-semibold w-[100px]"
+                              value={data.intakeTime}
+                              onChange={(e) => updateMeal(day, meal, 'intakeTime', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                          {/* Basic Info */}
+                          <div className="lg:col-span-5 space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Meal Name</label>
+                              <input 
+                                list="meal-suggestions"
+                                className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
+                                placeholder="Start typing for suggestions..."
+                                value={data.name}
+                                onChange={(e) => updateMeal(day, meal, 'name', e.target.value)}
+                                autoComplete="off"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Meal Name</label>
+                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-accent-rose">Calories (kcal)</label>
                                 <input 
-                                  list="meal-suggestions"
-                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
-                                  placeholder="Start typing for suggestions..."
-                                  value={data.name}
-                                  onChange={(e) => updateMeal(day, meal, 'name', e.target.value)}
-                                  autoComplete="off"
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-accent-rose">Calories (kcal)</label>
-                                  <input 
-                                    type="number"
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
-                                    value={data.calories || ''}
-                                    onChange={(e) => updateMeal(day, meal, 'calories', parseInt(e.target.value) || 0)}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-brand-primary">Protein (g)</label>
-                                  <input 
-                                    type="number"
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
-                                    value={data.protein_g || ''}
-                                    onChange={(e) => updateMeal(day, meal, 'protein_g', parseInt(e.target.value) || 0)}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-teal-600">Carbs (g)</label>
-                                  <input 
-                                    type="number"
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
-                                    value={data.carbs_g || ''}
-                                    onChange={(e) => updateMeal(day, meal, 'carbs_g', parseInt(e.target.value) || 0)}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-accent-amber">Fats (g)</label>
-                                  <input 
-                                    type="number"
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
-                                    value={data.fat_g || ''}
-                                    onChange={(e) => updateMeal(day, meal, 'fat_g', parseInt(e.target.value) || 0)}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Logistics */}
-                            <div className="lg:col-span-3 space-y-4">
-                              <div>
-                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Serving Size</label>
-                                <div className="relative">
-                                  <Info className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2 print-hide" />
-                                  <input 
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md pl-9 print:pl-3 pr-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
-                                    placeholder="e.g. 1 bowl (200g)"
-                                    value={data.servingSize}
-                                    onChange={(e) => updateMeal(day, meal, 'servingSize', e.target.value)}
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Prep & Cook Time</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <input 
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
-                                    placeholder="Prep: 10m"
-                                    value={data.prepTime}
-                                    onChange={(e) => updateMeal(day, meal, 'prepTime', e.target.value)}
-                                  />
-                                  <input 
-                                    className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
-                                    placeholder="Cook: 20m"
-                                    value={data.cookTime}
-                                    onChange={(e) => updateMeal(day, meal, 'cookTime', e.target.value)}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Details */}
-                            <div className="lg:col-span-4 space-y-4">
-                              <div>
-                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Prep Tips & Instructions</label>
-                                <textarea 
-                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary resize-none h-[88px]"
-                                  placeholder="Any tips on making this ahead of time..."
-                                  value={data.prepTips}
-                                  onChange={(e) => updateMeal(day, meal, 'prepTips', e.target.value)}
+                                  type="number"
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
+                                  value={data.calories || ''}
+                                  onChange={(e) => updateMeal(day, meal, 'calories', parseInt(e.target.value) || 0)}
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Alternatives / Substitutions</label>
-                                <textarea 
-                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary resize-none h-[88px]"
-                                  placeholder="e.g. Swap oats for quinoa flakes..."
-                                  value={data.alternatives}
-                                  onChange={(e) => updateMeal(day, meal, 'alternatives', e.target.value)}
+                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-brand-primary">Protein (g)</label>
+                                <input 
+                                  type="number"
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
+                                  value={data.protein_g || ''}
+                                  onChange={(e) => updateMeal(day, meal, 'protein_g', parseInt(e.target.value) || 0)}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-teal-600">Carbs (g)</label>
+                                <input 
+                                  type="number"
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
+                                  value={data.carbs_g || ''}
+                                  onChange={(e) => updateMeal(day, meal, 'carbs_g', parseInt(e.target.value) || 0)}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-accent-amber">Fats (g)</label>
+                                <input 
+                                  type="number"
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
+                                  value={data.fat_g || ''}
+                                  onChange={(e) => updateMeal(day, meal, 'fat_g', parseInt(e.target.value) || 0)}
                                 />
                               </div>
                             </div>
                           </div>
+
+                          {/* Logistics */}
+                          <div className="lg:col-span-3 space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Serving Size</label>
+                              <div className="relative">
+                                <Info className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2 print-hide" />
+                                <input 
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md pl-9 print:pl-3 pr-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
+                                  placeholder="e.g. 1 bowl (200g)"
+                                  value={data.servingSize}
+                                  onChange={(e) => updateMeal(day, meal, 'servingSize', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Prep & Cook Time</label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <input 
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
+                                  placeholder="Prep: 10m"
+                                  value={data.prepTime}
+                                  onChange={(e) => updateMeal(day, meal, 'prepTime', e.target.value)}
+                                />
+                                <input 
+                                  className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary"
+                                  placeholder="Cook: 20m"
+                                  value={data.cookTime}
+                                  onChange={(e) => updateMeal(day, meal, 'cookTime', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Details */}
+                          <div className="lg:col-span-4 space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Instructions / Specifics</label>
+                              <textarea 
+                                className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary resize-none h-[88px]"
+                                placeholder="Any precise preparation notes..."
+                                value={data.prepTips}
+                                onChange={(e) => updateMeal(day, meal, 'prepTips', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-text-secondary uppercase mb-1">Alternatives / Substitutions</label>
+                              <textarea 
+                                className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary resize-none h-[88px]"
+                                placeholder="e.g. Swap oats for quinoa flakes..."
+                                value={data.alternatives}
+                                onChange={(e) => updateMeal(day, meal, 'alternatives', e.target.value)}
+                              />
+                            </div>
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -491,15 +496,29 @@ export function MealPlanBuilderPage() {
         {/* Tab 3: Guidelines */}
         <div className={`${activeTab === 'guidelines' ? 'block' : 'hidden'} print-block print-page-break`}>
           <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Dietary Guidelines & Protocols</h2>
-          <div className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm print-border flex flex-col h-[600px] print:h-auto">
-            <label className="block text-sm font-semibold text-text-secondary mb-2">Specific Guidelines for the Patient</label>
-            <textarea 
-              className="flex-1 w-full bg-bg-input border border-border-subtle rounded-md px-4 py-3 text-sm focus:outline-none focus:border-brand-primary resize-none"
-              placeholder="Enter comprehensive dietary instructions, hydration goals, supplement protocols, or anything else essential for the patient to follow this diet successfully..."
+          <div className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm print-border flex flex-col min-h-[500px]">
+             <textarea 
+              className="flex-1 w-full bg-transparent border-0 rounded-md py-3 text-sm focus:outline-none text-text-primary resize-y min-h-[600px] leading-relaxed"
               value={guidelines}
               onChange={(e) => setGuidelines(e.target.value)}
             />
           </div>
+        </div>
+
+        {/* Bottom Actions Form */}
+        <div className="mt-12 flex items-center justify-end gap-4 pt-6 border-t border-border-subtle print-hide">
+          <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} size="lg" onClick={executePrint}>
+            Download PDF
+          </Button>
+          <Button 
+            icon={<Save className="w-5 h-5" />} 
+            size="lg"
+            onClick={handleSave}
+            disabled={updateMutation.isPending || createMutation.isPending}
+            className="w-48"
+          >
+            {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Submit Routine"}
+          </Button>
         </div>
 
       </PageWrapper>

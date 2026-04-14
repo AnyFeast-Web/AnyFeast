@@ -11,6 +11,7 @@ class MacroMeal(BaseModel):
     servingSize: Optional[str] = None
     prepTime: Optional[str] = None
     cookTime: Optional[str] = None
+    intakeTime: Optional[str] = None
     prepTips: Optional[str] = None
     alternatives: Optional[str] = None
 
