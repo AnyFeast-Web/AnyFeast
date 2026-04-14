@@ -11,9 +11,10 @@ interface TopBarProps {
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  className?: string;
 }
 
-export function TopBar({ title, subtitle, actions }: TopBarProps) {
+export function TopBar({ title, subtitle, actions, className }: TopBarProps) {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +44,7 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
   );
 
   return (
-    <header className="sticky top-0 z-30 bg-bg-base/80 backdrop-blur-xl border-b border-border-subtle px-8 py-4">
+    <header className={`sticky top-0 z-30 bg-bg-base/80 backdrop-blur-xl border-b border-border-subtle px-8 py-4 ${className || ''}`}>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-display font-bold text-text-primary">{title}</h1>
