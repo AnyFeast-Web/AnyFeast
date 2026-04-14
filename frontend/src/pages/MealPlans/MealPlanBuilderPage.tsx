@@ -207,14 +207,16 @@ export function MealPlanBuilderPage() {
     
     if (id && id !== 'new') {
       updateMutation.mutate(payload, { 
-        onSuccess: () => alert('Diet plan saved successfully!') 
+        onSuccess: () => alert('Diet plan saved successfully!'),
+        onError: (err: any) => alert('Failed to save to database: ' + JSON.stringify(err.response?.data?.detail || err.message))
       });
     } else {
       createMutation.mutate(payload, { 
         onSuccess: (res) => {
           alert('Diet plan created successfully!');
           navigate(`/meal-plans/${res.id}`);
-        }
+        },
+        onError: (err: any) => alert('Failed to create in database: ' + JSON.stringify(err.response?.data?.detail || err.message))
       });
     }
   };
@@ -391,7 +393,7 @@ export function MealPlanBuilderPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-accent-rose">Calories (kcal)</label>
+                                <label className="block text-xs font-semibold text-text-secondary uppercase mb-1 text-accent-rose">Calories (cal)</label>
                                 <input 
                                   type="number"
                                   className="w-full bg-bg-input border border-border-subtle rounded-md px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-brand-primary font-mono"
