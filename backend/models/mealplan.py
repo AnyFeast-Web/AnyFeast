@@ -33,6 +33,8 @@ class MealPlanBase(BaseModel):
     grid: Dict[str, Dict[str, List[MacroMeal]]]
     total_nutrition_targets: Optional[NutritionTargets] = None
     grocery_list: Optional[List[Dict[str, str]]] = None
+    preferences: Optional[Dict[str, str]] = None
+    guidelines: Optional[str] = None
 
 class MealPlanCreate(MealPlanBase):
     pass

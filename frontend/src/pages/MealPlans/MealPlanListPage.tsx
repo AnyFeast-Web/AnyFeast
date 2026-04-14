@@ -97,7 +97,7 @@ export function MealPlanListPage() {
 
   return (
     <>
-      <TopBar title="Meal Plans" subtitle={`${plans.length} total plans`}
+      <TopBar title="Diet Plans" subtitle={`${plans.length} total plans`}
         actions={<Button icon={<PlusCircle className="w-4 h-4" />} size="sm" onClick={handleOpenNew}>Create Plan</Button>} />
       <PageWrapper>
         {isLoading && (
@@ -126,7 +126,7 @@ export function MealPlanListPage() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm('Are you sure you want to delete this meal plan?')) {
+                        if (confirm('Are you sure you want to delete this diet plan?')) {
                           deleteMutation.mutate(plan.id);
                         }
                       }}
@@ -203,7 +203,7 @@ export function MealPlanListPage() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-bg-surface border border-border-subtle rounded-xl p-6 w-full max-w-lg shadow-xl"
             >
-              <h3 className="text-lg font-display font-semibold text-text-primary mb-4">Add Meal Plan</h3>
+              <h3 className="text-lg font-display font-semibold text-text-primary mb-4">Add Diet Plan</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input 
                   label="Plan Title" 
@@ -267,7 +267,7 @@ export function MealPlanListPage() {
       <button 
         onClick={handleOpenNew}
         className="fixed bottom-6 right-6 w-14 h-14 bg-brand-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-brand-dim transition-colors z-40"
-        title="Add Meal Plan"
+        title="Add Diet Plan"
       >
         <PlusCircle className="w-6 h-6" />
       </button>
