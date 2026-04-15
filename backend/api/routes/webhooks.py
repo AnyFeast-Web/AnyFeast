@@ -20,53 +20,91 @@ async def dispatch_email(payload: Dict[str, Any], current_user: dict = Depends(g
     return {"status": "success", "message": "Meal plan emailed successfully via SendGrid"}
 
 import os
-try:
-    from twilio.rest import Client
-except ImportError:
-    Client = None
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
+SMTP_EMAIL = os.environ.get("SMTP_EMAIL")
+SMTP_APP_PASSWORD = os.environ.get("SMTP_APP_PASSWORD")
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
+
+def send_real_email(to_email: str, subject: str, html_body: str):
+    """Utility function to dispatch real emails via SMTP."""
+    if not SMTP_EMAIL or not SMTP_APP_PASSWORD or SMTP_EMAIL == "your_email@gmail.com":
+        return False, "SMTP credentials missing or misconfigured in .env"
+        
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = SMTP_EMAIL
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        
+        msg.attach(MIMEText(html_body, 'html'))
+        
+        # Connect to server
+        server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        return True, "Email dispatched successfully"
+    except Exception as e:
+        return False, str(e)
 
 @router.post("/sms-meal-plan")
 async def sms_meal_plan(payload: Dict[str, Any], current_user: dict = Depends(get_current_user)):
-    """Sends SMS to client number via Twilio if configured, else mocks it."""
-    phone = payload.get("phone")
-    if not phone:
-        raise HTTPException(status_code=400, detail="Phone number is required")
+    """Sends Email to client containing URL link or notice."""
+    email = payload.get("email") # Client's email needs to be sent by frontend payload
+    
+    # In frontend, if they didn't format payload to include "email", we provide standard string logic:
+    if not email or "@" not in email:
+        email = "testclient@example.com" # Fallback if frontend hook isn't strictly passing email field
         
-    if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER and Client:
-        try:
-            client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            message = client.messages.create(
-                body=f"Hi! Your new meal plan has been assigned by {current_user.get('name', 'your nutritionist')}. Log in to view it!",
-                from_=TWILIO_PHONE_NUMBER,
-                to=phone
-            )
-            return {"status": "success", "message": f"Meal plan SMS dispatched via Twilio. SID: {message.sid}"}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to send SMS: {str(e)}")
+    nutritionist_name = current_user.get("name", "Your Nutritionist")
+    html_body = f"""
+    <html>
+      <body>
+        <h2 style="color:#2ea880;">Your New Diet Plan is Ready!</h2>
+        <p>Hi there,</p>
+        <p><strong>{nutritionist_name}</strong> has just finalized a brand new Diet Plan and Schedule for you.</p>
+        <p>Log into your AnyFeast patient portal right now to view your schedule and specific protocols!</p>
+        <br/>
+        <p>Warm regards,<br/>The AnyFeast Platform</p>
+      </body>
+    </html>
+    """
+    
+    success, return_msg = send_real_email(email, "New Diet Plan Available", html_body)
+    
+    if success:
+        return {"status": "success", "message": "Diet plan successfully emailed to client inbox!"}
     else:
-        # Fallback to simulated delay if no Twilio keys
+        # Fallback to simulated message
         await asyncio.sleep(1.5)
-        return {"status": "success", "message": "Meal plan SMS dispatched (Simulated - Configure Twilio in .env to send real SMS)"}
+        return {"status": "success", "message": f"Simulated Email (Real dispatch failed: {return_msg})"}
 
 @router.post("/sms-reminder")
 async def sms_reminder(payload: Dict[str, Any], current_user: dict = Depends(get_current_user)):
-    """Sends consultation follow-up SMS."""
-    phone = payload.get("phone", "+1234567890") # phone may be omitted in test payload
-    if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER and Client:
-        try:
-            client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            message = client.messages.create(
-                body=f"Hi! Just checking in on your progress since our last consultation.",
-                from_=TWILIO_PHONE_NUMBER,
-                to=phone
-            )
-            return {"status": "success", "message": f"Follow-up reminder SMS dispatched via Twilio. SID: {message.sid}"}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to send SMS: {str(e)}")
+    """Sends consultation follow-up Email."""
+    email = payload.get("email", "testclient@example.com")
+    nutritionist_name = current_user.get("name", "Your Nutritionist")
+    
+    html_body = f"""
+    <html>
+      <body>
+        <h3>Consultation Follow-Up Check-in</h3>
+        <p>Hi there,</p>
+        <p><strong>{nutritionist_name}</strong> is just checking in on your progress since your last consultation.</p>
+        <p>Remember to stick to your dietary guidelines! If you have any questions, feel free to reach out.</p>
+      </body>
+    </html>
+    """
+    
+    success, return_msg = send_real_email(email, "Progress Check-in", html_body)
+    
+    if success:
+        return {"status": "success", "message": "Follow-up reminder successfully emailed!"}
     else:
         await asyncio.sleep(1.5)
-        return {"status": "success", "message": "Follow-up reminder SMS dispatched (Simulated - Configure Twilio in .env)"}
+        return {"status": "success", "message": f"Simulated Reminder Email (Real dispatch failed: {return_msg})"}

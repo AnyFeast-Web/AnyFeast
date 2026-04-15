@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Zap, Send, CalendarClock, CheckCircle2, 
-  Clock, AlertTriangle, Play, Smartphone,
+  Clock, AlertTriangle, Play, Mail,
   Info
 } from 'lucide-react';
 import { TopBar } from '../../components/layout/TopBar';
@@ -42,14 +42,15 @@ export function AutomationPage() {
     sendSmsMutation.mutate({ 
       clientId: sendClientId, 
       planId: sendPlanId,
-      phone: selectedClient?.personal_info?.phone 
+      email: selectedClient?.personal_info?.email 
     });
   };
 
   const handleSendTestReminder = () => {
     if (!reminderClientId) return;
     reminderSmsMutation.mutate({ 
-      clientId: reminderClientId 
+      clientId: reminderClientId,
+      email: selectedClient?.personal_info?.email
     });
   };
 
@@ -57,7 +58,7 @@ export function AutomationPage() {
     <>
       <TopBar 
         title="Automation Hub" 
-        subtitle="Send meal plans and reminders directly to clients via SMS" 
+        subtitle="Send meal plans and reminders directly to clients via Email" 
       />
       <PageWrapper>
         <div className="max-w-4xl mx-auto space-y-8">
@@ -93,14 +94,14 @@ export function AutomationPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-text-secondary">Registered Phone Number</label>
+                      <label className="text-sm font-medium text-text-secondary">Registered Email Address</label>
                       <div className="relative">
                         <Input 
-                          value={selectedClient?.personal_info?.phone || 'No phone number found'} 
+                          value={selectedClient?.personal_info?.email || 'No email address found'} 
                           readOnly 
                           className="bg-bg-elevated/50 font-mono text-xs pl-10"
                         />
-                        <Smartphone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                       </div>
                     </div>
                   </div>
@@ -131,7 +132,7 @@ export function AutomationPage() {
                         className="w-full"
                         icon={sendSmsMutation.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       >
-                        {sendSmsMutation.isPending ? 'Sending...' : 'Send via SMS'}
+                        {sendSmsMutation.isPending ? 'Sending...' : 'Send via Email'}
                       </Button>
                     </div>
                   </div>
@@ -146,7 +147,7 @@ export function AutomationPage() {
                   <div className="flex items-start gap-2 pt-2 text-text-muted">
                     <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                     <p className="text-[11px] leading-relaxed">
-                      Triggers n8n webhook → formats plan → dispatches SMS to client number
+                      Triggers n8n webhook → formats plan → dispatches Email to client
                     </p>
                   </div>
                 </div>
@@ -167,7 +168,7 @@ export function AutomationPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-sm font-semibold text-text-primary">Automated Check-ins</h4>
-                      <p className="text-xs text-text-secondary">Triggers consultation follow-up SMS automatically.</p>
+                      <p className="text-xs text-text-secondary">Triggers consultation follow-up Email automatically.</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input 
@@ -183,7 +184,7 @@ export function AutomationPage() {
                   <div className="bg-bg-elevated p-4 rounded-lg border border-border-subtle">
                     <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-text-primary">
                       <span>Send a</span>
-                      <Badge variant="blue">SMS Text</Badge>
+                      <Badge variant="blue">Email</Badge>
                       <span>every</span>
                       <Input 
                         type="number" 
@@ -236,7 +237,7 @@ export function AutomationPage() {
                         <AlertTriangle className="w-4 h-4 text-rose-600" />
                       )}
                       <p className={`text-xs font-medium ${reminderSmsMutation.isSuccess ? 'text-teal-700' : 'text-rose-700'}`}>
-                        {reminderSmsMutation.isSuccess ? 'Test reminder SMS dispatched successfully!' : 'Failed to send test reminder.'}
+                        {reminderSmsMutation.isSuccess ? 'Test reminder Email dispatched successfully!' : 'Failed to send test reminder.'}
                       </p>
                     </motion.div>
                   )}
@@ -244,7 +245,7 @@ export function AutomationPage() {
                   <div className="flex items-start gap-2 text-text-muted">
                     <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                     <p className="text-[11px] leading-relaxed">
-                      Triggers n8n webhook → sends consultation follow-up SMS to client's registered number
+                      Triggers n8n webhook → sends consultation follow-up Email to client's registered address
                     </p>
                   </div>
                 </div>
