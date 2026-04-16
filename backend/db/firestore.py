@@ -1,13 +1,39 @@
+import json
 import os
 import firebase_admin
 from firebase_admin import credentials, firestore
+from core.config import settings
 
 def init_firebase():
     if not firebase_admin._apps:
         try:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "..", "serviceAccountKey.json")
-            cred = credentials.Certificate(os.path.normpath(json_path))
+            firebase_creds = None
+            try:
+                firebase_creds = settings.firebase_credentials
+            except ValueError:
+                firebase_creds = None
+
+            env_private_key = os.environ.get("FIREBASE_PRIVATE_KEY", "").replace("\\n", "\n")
+            if env_private_key:
+                if firebase_creds is None:
+                    base_dir = os.path.dirname(os.path.abspath(__file__))
+                    json_path = os.path.join(base_dir, "..", "serviceAccountKey.json")
+                    if os.path.exists(os.path.normpath(json_path)):
+                        with open(os.path.normpath(json_path), "r", encoding="utf-8") as f:
+                            firebase_creds = json.load(f)
+                    else:
+                        raise ValueError(
+                            "FIREBASE_PRIVATE_KEY is set, but no service account credential source is available."
+                        )
+                firebase_creds["private_key"] = env_private_key
+
+            if firebase_creds is not None:
+                cred = credentials.Certificate(firebase_creds)
+            else:
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                json_path = os.path.join(base_dir, "..", "serviceAccountKey.json")
+                cred = credentials.Certificate(os.path.normpath(json_path))
+
             firebase_admin.initialize_app(cred)
             print("Firebase initialized successfully!")
         except Exception as e:
