@@ -228,17 +228,62 @@ export function MealPlanBuilderPage() {
   return (
     <>
       <style>{`
+        .screen-only {
+          display: block;
+        }
+        .print-only {
+          display: none;
+        }
+
         @media print {
-          header, .sidebar-class-if-exists, nav, .print-hide {
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+          header, .sidebar-class-if-exists, nav, .print-hide, .screen-only {
             display: none !important;
           }
-          .print-block {
+          .print-only {
             display: block !important;
-            opacity: 1 !important;
-            page-break-inside: avoid;
           }
-          .print-page-break {
-            page-break-before: always;
+          html, body {
+            width: 100%;
+            min-height: auto;
+            background: transparent !important;
+          }
+          .print-plan-sheet {
+            width: 100%;
+            color: black !important;
+            font-size: 11px;
+            line-height: 1.3;
+          }
+          .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+          }
+          .print-table th,
+          .print-table td {
+            border: 1px solid #999 !important;
+            padding: 6px 8px !important;
+            vertical-align: top !important;
+          }
+          .print-table th {
+            background: #f3f4f6 !important;
+            font-weight: 700 !important;
+            text-align: left !important;
+          }
+          .print-guidelines pre {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+            font-size: 10.5px !important;
+            margin: 0 !important;
+          }
+          .print-card,
+          .print-plan-sheet,
+          .print-row {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
           * {
             background-color: transparent !important;
@@ -264,12 +309,79 @@ export function MealPlanBuilderPage() {
           {COMMON_MEALS.map(meal => <option key={meal} value={meal} />)}
         </datalist>
 
-        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 print-hide">
-          <div>
-            <h2 className="text-xl font-display font-bold text-text-primary">{existingPlan?.title || "Patient Diet Plan"}</h2>
-            <p className="text-sm text-text-secondary mt-1">Design a comprehensive single-day routine routine.</p>
+        <div className="print-only hidden">
+          <div className="print-plan-sheet">
+            <div className="mb-6">
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <h1 className="text-2xl font-display font-bold">AnyFeast Diet Plan</h1>
+                  <p className="text-sm text-text-secondary mt-1">{existingPlan?.title || 'Patient Diet Plan'}</p>
+                </div>
+                <div className="text-right text-xs">
+                  <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
+                  <p><strong>Goal:</strong> {preferences.primaryGoal}</p>
+                  <p><strong>Diet:</strong> {preferences.dietType}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4 text-xs">
+                <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
+                <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
+              </div>
+            </div>
+
+            <table className="print-table">
+              <thead>
+                <tr>
+                  <th>Meal</th>
+                  <th>Time</th>
+                  <th>Menu</th>
+                  <th>Serving</th>
+                  <th>Nutrition</th>
+                  <th>Prep / Cook</th>
+                </tr>
+              </thead>
+              <tbody>
+                {DAYS.map(day => (
+                  MEALS.map(meal => {
+                    const data = mealPlan[day][meal];
+                    return (
+                      <tr key={`${day}-${meal}`} className="print-row">
+                        <td className="px-2 py-2 align-top font-semibold">{meal}</td>
+                        <td className="px-2 py-2 align-top">{data.intakeTime || '-'}</td>
+                        <td className="px-2 py-2 align-top">{data.name || '-'}</td>
+                        <td className="px-2 py-2 align-top">{data.servingSize || '-'}</td>
+                        <td className="px-2 py-2 align-top">
+                          {data.calories ? `${data.calories} cal` : '-'}
+                          {data.protein_g ? `, ${data.protein_g}g P` : ''}
+                          {data.carbs_g ? `, ${data.carbs_g}g C` : ''}
+                          {data.fat_g ? `, ${data.fat_g}g F` : ''}
+                        </td>
+                        <td className="px-2 py-2 align-top">
+                          {data.prepTime || '-'} / {data.cookTime || '-'}
+                          {data.prepTips && <div className="mt-1 text-xs">Notes: {data.prepTips}</div>}
+                          {data.alternatives && <div className="mt-1 text-xs">Alt: {data.alternatives}</div>}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ))}
+              </tbody>
+            </table>
+
+            <div className="print-guidelines">
+              <h2 className="text-lg font-semibold mb-2">Diet Guidelines</h2>
+              <pre>{guidelines}</pre>
+            </div>
           </div>
         </div>
+
+        <div className="screen-only">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 print-hide">
+            <div>
+              <h2 className="text-xl font-display font-bold text-text-primary">{existingPlan?.title || "Patient Diet Plan"}</h2>
+              <p className="text-sm text-text-secondary mt-1">Design a comprehensive single-day routine routine.</p>
+            </div>
+          </div>
 
         {/* Custom Tabs Navigation */}
         <div className="flex gap-4 mb-6 border-b border-border-subtle pb-2 print-hide">
@@ -354,7 +466,7 @@ export function MealPlanBuilderPage() {
         </div>
 
         {/* Tab 2: Schedule */}
-        <div className={`${activeTab === 'schedule' ? 'block' : 'hidden'} print-block print-page-break mb-12`}>
+        <div className={`${activeTab === 'schedule' ? 'block' : 'hidden'} print-block print-schedule-page mb-12`}>
           <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Master Daily Schedule</h2>
           <div className="space-y-6">
             {DAYS.map(day => (
@@ -548,6 +660,7 @@ export function MealPlanBuilderPage() {
           </Button>
         </div>
 
+        </div>
       </PageWrapper>
     </>
   );
