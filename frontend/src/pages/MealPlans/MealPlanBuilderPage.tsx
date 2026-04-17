@@ -508,43 +508,44 @@ export function MealPlanBuilderPage() {
         </div>
 
         {/* Bottom Actions Form */}
-        <div className="mt-12 flex items-center justify-end gap-4 pt-6 border-t border-border-subtle print-hide">
-          {activeTab === 'profile' && (
-            <Button 
-              size="lg" 
-              onClick={() => setActiveTab('schedule')}
-              className="w-48"
-            >
-              Next: Diet Schedule <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
+        <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-6 border-t border-border-subtle print-hide">
+          <div className="flex gap-4">
+            {activeTab === 'profile' && (
+              <Button 
+                size="lg" 
+                onClick={() => setActiveTab('schedule')}
+                className="w-48"
+              >
+                Next: Diet Schedule <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
 
-          {activeTab === 'schedule' && (
-            <Button 
-              size="lg" 
-              onClick={() => setActiveTab('guidelines')}
-              className="w-48"
-            >
-              Next: Guidelines <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
+            {activeTab === 'schedule' && (
+              <Button 
+                size="lg" 
+                onClick={() => setActiveTab('guidelines')}
+                className="w-48"
+              >
+                Next: Guidelines <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
 
-          {activeTab === 'guidelines' && (
-            <>
+            {activeTab === 'guidelines' && (
               <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} size="lg" onClick={executePrint}>
                 Download PDF
               </Button>
-              <Button 
-                icon={<Save className="w-5 h-5" />} 
-                size="lg"
-                onClick={handleSave}
-                disabled={updateMutation.isPending || createMutation.isPending}
-                className="w-48"
-              >
-                {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Submit Routine"}
-              </Button>
-            </>
-          )}
+            )}
+          </div>
+
+          <Button 
+            icon={<Save className="w-5 h-5" />} 
+            size="lg"
+            onClick={handleSave}
+            disabled={updateMutation.isPending || createMutation.isPending}
+            className="w-48"
+          >
+            {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Save Routine"}
+          </Button>
         </div>
 
       </PageWrapper>
