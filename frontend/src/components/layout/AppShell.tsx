@@ -7,13 +7,13 @@ export function AppShell() {
   const { sidebarCollapsed } = useUIStore();
 
   return (
-    <div className="flex min-h-screen bg-bg-base">
+    <div className="flex min-h-screen bg-bg-base print:bg-white">
       <Sidebar />
       <motion.main
         initial={false}
         animate={{ marginLeft: sidebarCollapsed ? 72 : 256 }}
         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="flex-1 min-w-0"
+        className="flex-1 min-w-0 print:!m-0"
       >
         <Outlet />
       </motion.main>
