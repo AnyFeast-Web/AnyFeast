@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any
 from core.security import get_current_user
+from db.firestore import db
+from utils.mailer import send_meal_plan_email
 import asyncio
 
 router = APIRouter()
@@ -108,3 +110,55 @@ async def sms_reminder(payload: Dict[str, Any], current_user: dict = Depends(get
     else:
         await asyncio.sleep(1.5)
         return {"status": "success", "message": f"Simulated Reminder Email (Real dispatch failed: {return_msg})"}
+
+@router.post("/send-meal-plan-email")
+async def send_meal_plan_email_endpoint(payload: Dict[str, Any], current_user: dict = Depends(get_current_user)):
+    """
+    Send meal plan email to client.
+
+    Request body:
+    {
+        "client_id": str,
+        "meal_plan_id": str,
+        "message": str
+    }
+    """
+    client_id = payload.get("client_id")
+    meal_plan_id = payload.get("meal_plan_id")
+    message = payload.get("message", "")
+
+    if not client_id or not meal_plan_id:
+        raise HTTPException(status_code=400, detail="client_id and meal_plan_id are required")
+
+    try:
+        # Fetch client data from Firestore
+        client_doc = db.collection("clients").document(client_id).get()
+        if not client_doc.exists:
+            raise HTTPException(status_code=404, detail="Client not found")
+
+        client_data = client_doc.to_dict()
+        client_email = client_data.get("personal_info", {}).get("email")
+        client_name = f"{client_data.get('personal_info', {}).get('first_name', '')} {client_data.get('personal_info', {}).get('last_name', '')}".strip()
+
+        if not client_email:
+            raise HTTPException(status_code=400, detail="Client email not found")
+
+        # Fetch meal plan data from Firestore
+        meal_plan_doc = db.collection("meal_plans").document(meal_plan_id).get()
+        if not meal_plan_doc.exists:
+            raise HTTPException(status_code=404, detail="Meal plan not found")
+
+        meal_plan_data = meal_plan_doc.to_dict()
+
+        # Send email
+        await send_meal_plan_email(
+            to_email=client_email,
+            client_name=client_name,
+            meal_plan=meal_plan_data,
+            message=message
+        )
+
+        return {"success": True, "message": "Email sent successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")

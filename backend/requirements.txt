@@ -7,3 +7,5 @@ python-dotenv
 python-multipart
 pydantic[email]>=2.0.0
 email-validator>=2.0.0
+aiosmtplib
+jinja2
