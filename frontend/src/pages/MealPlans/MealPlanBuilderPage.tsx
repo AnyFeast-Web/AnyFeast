@@ -263,23 +263,31 @@ export function MealPlanBuilderPage() {
           .print-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             page-break-inside: avoid;
+            height: 550px;
           }
           .print-table th,
           .print-table td {
             border: 1px solid #333 !important;
-            padding: 4px 6px !important;
-            vertical-align: top !important;
+            padding: 8px 6px !important;
+            vertical-align: middle !important;
             text-align: left !important;
+            height: auto !important;
+          }
+          .print-table tbody tr {
+            height: 60px !important;
           }
           .print-table th {
             background: #e5e7eb !important;
             font-weight: 700 !important;
             font-size: 9px !important;
+            height: auto !important;
           }
           .print-table td {
             font-size: 9px !important;
+            overflow: hidden;
+            word-wrap: break-word;
           }
           .print-guidelines {
             page-break-before: always;
@@ -324,20 +332,20 @@ export function MealPlanBuilderPage() {
 
         <div className="print-only hidden">
           <div className="print-plan-sheet">
-            <div className="mb-8 text-center border-b-2 border-brand-primary pb-6">
-              <div className="flex justify-center items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white font-bold text-lg">🏠</div>
-                <h1 className="text-3xl font-display font-bold text-brand-primary">ANYFEAST</h1>
+            <div className="text-center border-b-2 border-red-600 pb-3 mb-4">
+              <div className="flex justify-center items-center gap-2 mb-1">
+                <img src="/logo.png" alt="AnyFeast" className="w-7 h-7" />
+                <h1 className="text-2xl font-display font-bold text-red-600">ANYFEAST</h1>
               </div>
-              <p className="text-sm text-text-secondary">Healthy sustainable cooking powered by AI</p>
-              <p className="text-xs text-text-muted mt-2">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
+              <p className="text-xs text-gray-600">Healthy sustainable cooking powered by AI</p>
+              <p className="text-xs text-gray-500 mt-0.5">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
             </div>
 
-            <div className="mb-6">
-              <div className="flex justify-between items-start gap-4 mb-4">
+            <div className="mb-3">
+              <div className="flex justify-between items-start gap-4 mb-2">
                 <div>
-                  <h2 className="text-xl font-display font-bold">Personalized Diet Plan</h2>
-                  <p className="text-sm text-text-secondary mt-1">{existingPlan?.title || 'Patient Diet Plan'}</p>
+                  <h2 className="text-base font-display font-bold">Personalized Diet Plan</h2>
+                  <p className="text-xs text-gray-600">{existingPlan?.title || 'Patient Diet Plan'}</p>
                 </div>
                 <div className="text-right text-xs">
                   <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
@@ -345,7 +353,7 @@ export function MealPlanBuilderPage() {
                   <p><strong>Diet:</strong> {preferences.dietType}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-xs bg-gray-50 p-3 rounded">
+              <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2 rounded">
                 <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
                 <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
               </div>
@@ -655,20 +663,20 @@ export function MealPlanBuilderPage() {
           <h2 className="text-xl font-display font-bold text-text-primary mb-4">PDF Preview</h2>
           <div className="bg-white border border-border-subtle rounded-xl p-8 shadow-sm print-border">
             <div className="print-plan-sheet text-black">
-              <div className="mb-8 text-center border-b-2 border-brand-primary pb-6">
-                <div className="flex justify-center items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white font-bold text-lg">🏠</div>
-                  <h1 className="text-3xl font-display font-bold text-red-600">ANYFEAST</h1>
+              <div className="text-center border-b-2 border-red-600 pb-3 mb-4">
+                <div className="flex justify-center items-center gap-2 mb-1">
+                  <img src="/logo.png" alt="AnyFeast" className="w-7 h-7" />
+                  <h1 className="text-2xl font-display font-bold text-red-600">ANYFEAST</h1>
                 </div>
-                <p className="text-sm text-gray-600">Healthy sustainable cooking powered by AI</p>
-                <p className="text-xs text-gray-500 mt-2">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
+                <p className="text-xs text-gray-600">Healthy sustainable cooking powered by AI</p>
+                <p className="text-xs text-gray-500 mt-0.5">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
               </div>
 
-              <div className="mb-6">
-                <div className="flex justify-between items-start gap-4 mb-4">
+              <div className="mb-3">
+                <div className="flex justify-between items-start gap-4 mb-2">
                   <div>
-                    <h2 className="text-xl font-display font-bold">Personalized Diet Plan</h2>
-                    <p className="text-sm text-gray-600 mt-1">{existingPlan?.title || 'Patient Diet Plan'}</p>
+                    <h2 className="text-base font-display font-bold">Personalized Diet Plan</h2>
+                    <p className="text-xs text-gray-600">{existingPlan?.title || 'Patient Diet Plan'}</p>
                   </div>
                   <div className="text-right text-xs">
                     <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
@@ -676,21 +684,21 @@ export function MealPlanBuilderPage() {
                     <p><strong>Diet:</strong> {preferences.dietType}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-xs bg-gray-50 p-3 rounded">
+                <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2 rounded">
                   <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
                   <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
                 </div>
               </div>
 
-              <table className="w-full border-collapse text-xs">
+              <table className="w-full border-collapse text-xs" style={{ tableLayout: 'fixed' }}>
                 <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border border-gray-400 p-2 text-left font-bold">Meal</th>
-                    <th className="border border-gray-400 p-2 text-left font-bold">Time</th>
-                    <th className="border border-gray-400 p-2 text-left font-bold">Menu</th>
-                    <th className="border border-gray-400 p-2 text-left font-bold">Serving</th>
-                    <th className="border border-gray-400 p-2 text-left font-bold">Nutrition</th>
-                    <th className="border border-gray-400 p-2 text-left font-bold">Prep / Cook</th>
+                  <tr className="bg-gray-200 h-8">
+                    <th className="border border-gray-400 p-1.5 text-left font-bold">Meal</th>
+                    <th className="border border-gray-400 p-1.5 text-left font-bold">Time</th>
+                    <th className="border border-gray-400 p-1.5 text-left font-bold">Menu</th>
+                    <th className="border border-gray-400 p-1.5 text-left font-bold">Serving</th>
+                    <th className="border border-gray-400 p-1.5 text-left font-bold">Nutrition</th>
+                    <th className="border border-gray-400 p-1.5 text-left font-bold">Prep / Cook</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -698,21 +706,27 @@ export function MealPlanBuilderPage() {
                     MEALS.map(meal => {
                       const data = mealPlan[day][meal];
                       return (
-                        <tr key={`${day}-${meal}`}>
-                          <td className="border border-gray-400 p-2 font-semibold">{meal}</td>
-                          <td className="border border-gray-400 p-2">{data.intakeTime || '-'}</td>
-                          <td className="border border-gray-400 p-2">{data.name || '-'}</td>
-                          <td className="border border-gray-400 p-2">{data.servingSize || '-'}</td>
-                          <td className="border border-gray-400 p-2">
-                            {data.calories ? `${data.calories} cal` : '-'}
-                            {data.protein_g ? `, ${data.protein_g}g P` : ''}
-                            {data.carbs_g ? `, ${data.carbs_g}g C` : ''}
-                            {data.fat_g ? `, ${data.fat_g}g F` : ''}
+                        <tr key={`${day}-${meal}`} className="h-12 align-middle">
+                          <td className="border border-gray-400 p-1.5 font-semibold align-middle">{meal}</td>
+                          <td className="border border-gray-400 p-1.5 align-middle text-xs">{data.intakeTime || '-'}</td>
+                          <td className="border border-gray-400 p-1.5 align-middle text-xs">{data.name || '-'}</td>
+                          <td className="border border-gray-400 p-1.5 align-middle text-xs">{data.servingSize || '-'}</td>
+                          <td className="border border-gray-400 p-1.5 align-middle text-xs">
+                            <div>
+                              {data.calories ? `${data.calories} cal` : '-'}
+                              {data.protein_g ? `, ${data.protein_g}g P` : ''}
+                            </div>
+                            <div>
+                              {data.carbs_g ? `${data.carbs_g}g C` : ''}
+                              {data.fat_g ? `, ${data.fat_g}g F` : ''}
+                            </div>
                           </td>
-                          <td className="border border-gray-400 p-2">
-                            {data.prepTime || '-'} / {data.cookTime || '-'}
-                            {data.prepTips && <div className="mt-1 text-xs">Notes: {data.prepTips}</div>}
-                            {data.alternatives && <div className="mt-1 text-xs">Alt: {data.alternatives}</div>}
+                          <td className="border border-gray-400 p-1.5 align-middle text-xs">
+                            <div>
+                              {data.prepTime || '-'} / {data.cookTime || '-'}
+                            </div>
+                            {data.prepTips && <div className="mt-0.5 text-xs">Notes: {data.prepTips}</div>}
+                            {data.alternatives && <div className="mt-0.5 text-xs">Alt: {data.alternatives}</div>}
                           </td>
                         </tr>
                       );
@@ -721,11 +735,11 @@ export function MealPlanBuilderPage() {
                 </tbody>
               </table>
 
-              <div className="mt-8 pt-8 border-t-2 border-brand-primary print-guidelines">
-                <div className="text-center mb-4">
-                  <h2 className="text-xl font-display font-bold text-red-600">DIETARY GUIDELINES</h2>
+              <div className="mt-6 pt-6 border-t-2 border-red-600 print-guidelines">
+                <div className="text-center mb-3">
+                  <h2 className="text-lg font-display font-bold text-red-600">DIETARY GUIDELINES</h2>
                 </div>
-                <pre className="text-xs whitespace-pre-wrap break-words font-sans leading-relaxed">{guidelines}</pre>
+                <pre className="text-xs whitespace-pre-wrap break-words font-sans leading-relaxed bg-gray-50 p-3 rounded">{guidelines}</pre>
               </div>
             </div>
           </div>
