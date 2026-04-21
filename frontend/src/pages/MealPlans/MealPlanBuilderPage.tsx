@@ -335,7 +335,7 @@ export function MealPlanBuilderPage() {
             <div className="text-center border-b-2 border-red-600 pb-3 mb-4">
               <div className="flex justify-center items-center gap-2 mb-1">
                 <img src="/logo.png" alt="AnyFeast" className="w-7 h-7" />
-                <h1 className="text-2xl font-display font-bold text-red-600">ANYFEAST</h1>
+                <h1 className="text-2xl font-display font-bold text-red-600">AnyFeast</h1>
               </div>
               <p className="text-xs text-gray-600">Healthy sustainable cooking powered by AI</p>
               <p className="text-xs text-gray-500 mt-0.5">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
@@ -666,7 +666,7 @@ export function MealPlanBuilderPage() {
               <div className="text-center border-b-2 border-red-600 pb-3 mb-4">
                 <div className="flex justify-center items-center gap-2 mb-1">
                   <img src="/logo.png" alt="AnyFeast" className="w-7 h-7" />
-                  <h1 className="text-2xl font-display font-bold text-red-600">ANYFEAST</h1>
+                  <h1 className="text-2xl font-display font-bold text-red-600">AnyFeast</h1>
                 </div>
                 <p className="text-xs text-gray-600">Healthy sustainable cooking powered by AI</p>
                 <p className="text-xs text-gray-500 mt-0.5">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
