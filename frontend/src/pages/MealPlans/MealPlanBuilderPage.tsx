@@ -28,29 +28,32 @@ const COMMON_MEALS = [
   "Apple Slices with Peanut Butter"
 ];
 
-const DEFAULT_GUIDELINES = `General Dietary Instructions
-- Follow the meal plan as prescribed. Do not skip meals or substitute without consulting your nutritionist.
-- Eat at regular intervals (every 3–4 hours) to maintain metabolism and energy levels.
-- Chew food slowly and mindfully; avoid eating in a hurry.
+const DEFAULT_GUIDELINES = `Do's
+1. Drink 3 litres water daily
+2. Eat every 3–4 hours
+3. Walk 10–15 minutes after meals
+4. Keep dinner light
+5. Maintain regular meal timing
+6. Use only 3 teaspoons oil daily
+7. Continue gym consistently
+8. Track waist every 2 weeks
 
-Hydration Goals
-- Drink a minimum of 8–10 glasses (2–3 litres) of water daily.
-- Avoid sugary drinks, sodas, and packaged juices.
-- Limit tea/coffee to 2 cups per day; avoid on an empty stomach.
+Avoid
+1. Sugary tea or coffee
+2. Frequent outside food
+3. Fried foods
+4. Heavy late dinners
+5. Excess nuts
+6. Bakery foods
+7. Cheat meals more than once weekly
 
-Supplement Protocols
-- Take prescribed supplements only as directed by your nutritionist.
-- Do not self-medicate or add supplements without approval.
-
-Lifestyle & Habits
-- Sleep 7–8 hours daily; poor sleep affects metabolism and hunger hormones.
-- Avoid alcohol and smoking as they interfere with nutrition absorption.
-- Pair your diet with the recommended physical activity level.
-
-Food Hygiene
-- Prefer home-cooked meals over outside/processed food.
-- Avoid reheating food multiple times.
-- Read food labels before consuming packaged items.`;
+Additional Notes
+1. Start morning with 1 glass warm water
+2. Take 1 tsp chia seeds soaked overnight, 20–30 min before breakfast
+3. Pre-workout fruit should be taken 30 minutes before gym
+4. Post-workout whey should be taken within 20 minutes after workout
+5. Recheck Vitamin D and B12
+6. Focus on waist reduction, not only scale weight`;
 
 const emptyMeal = () => ({
   name: '',
@@ -74,7 +77,7 @@ export function MealPlanBuilderPage() {
   const updateMutation = useUpdateMealPlan(id || 'temp');
   const createMutation = useCreateMealPlan();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'schedule' | 'guidelines'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'schedule' | 'guidelines' | 'preview'>('profile');
 
   // Profile State
   const [preferences, setPreferences] = useState({
@@ -238,7 +241,7 @@ export function MealPlanBuilderPage() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 8mm;
           }
           header, .sidebar-class-if-exists, nav, .print-hide, .screen-only {
             display: none !important;
@@ -254,30 +257,40 @@ export function MealPlanBuilderPage() {
           .print-plan-sheet {
             width: 100%;
             color: black !important;
-            font-size: 11px;
-            line-height: 1.3;
+            font-size: 10px;
+            line-height: 1.4;
           }
           .print-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
           }
           .print-table th,
           .print-table td {
-            border: 1px solid #999 !important;
-            padding: 6px 8px !important;
+            border: 1px solid #333 !important;
+            padding: 4px 6px !important;
             vertical-align: top !important;
+            text-align: left !important;
           }
           .print-table th {
-            background: #f3f4f6 !important;
+            background: #e5e7eb !important;
             font-weight: 700 !important;
-            text-align: left !important;
+            font-size: 9px !important;
+          }
+          .print-table td {
+            font-size: 9px !important;
+          }
+          .print-guidelines {
+            page-break-before: always;
           }
           .print-guidelines pre {
             white-space: pre-wrap !important;
             word-break: break-word !important;
-            font-size: 10.5px !important;
+            font-size: 10px !important;
             margin: 0 !important;
+            font-family: 'Courier New', monospace !important;
+            line-height: 1.5 !important;
           }
           .print-card,
           .print-plan-sheet,
@@ -311,10 +324,19 @@ export function MealPlanBuilderPage() {
 
         <div className="print-only hidden">
           <div className="print-plan-sheet">
+            <div className="mb-8 text-center border-b-2 border-brand-primary pb-6">
+              <div className="flex justify-center items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white font-bold text-lg">🏠</div>
+                <h1 className="text-3xl font-display font-bold text-brand-primary">ANYFEAST</h1>
+              </div>
+              <p className="text-sm text-text-secondary">Healthy sustainable cooking powered by AI</p>
+              <p className="text-xs text-text-muted mt-2">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
+            </div>
+
             <div className="mb-6">
-              <div className="flex justify-between items-start gap-4">
+              <div className="flex justify-between items-start gap-4 mb-4">
                 <div>
-                  <h1 className="text-2xl font-display font-bold">AnyFeast Diet Plan</h1>
+                  <h2 className="text-xl font-display font-bold">Personalized Diet Plan</h2>
                   <p className="text-sm text-text-secondary mt-1">{existingPlan?.title || 'Patient Diet Plan'}</p>
                 </div>
                 <div className="text-right text-xs">
@@ -323,7 +345,7 @@ export function MealPlanBuilderPage() {
                   <p><strong>Diet:</strong> {preferences.dietType}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 mt-4 text-xs">
+              <div className="grid grid-cols-2 gap-4 text-xs bg-gray-50 p-3 rounded">
                 <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
                 <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
               </div>
@@ -368,9 +390,11 @@ export function MealPlanBuilderPage() {
               </tbody>
             </table>
 
-            <div className="print-guidelines">
-              <h2 className="text-lg font-semibold mb-2">Diet Guidelines</h2>
-              <pre>{guidelines}</pre>
+            <div style={{ pageBreakBefore: 'always', marginTop: '30px' }} className="print-guidelines">
+              <div className="text-center border-b-2 border-brand-primary pb-4 mb-4">
+                <h2 className="text-2xl font-display font-bold text-brand-primary">DIETARY GUIDELINES</h2>
+              </div>
+              <pre className="text-xs whitespace-pre-wrap break-words">{guidelines}</pre>
             </div>
           </div>
         </div>
@@ -384,27 +408,34 @@ export function MealPlanBuilderPage() {
           </div>
 
         {/* Custom Tabs Navigation */}
-        <div className="flex gap-4 mb-6 border-b border-border-subtle pb-2 print-hide">
+        <div className="flex gap-4 mb-6 border-b border-border-subtle pb-2 print-hide overflow-x-auto">
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 ${activeTab === 'profile' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'profile' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
           >
             <Settings className="w-4 h-4" />
             Patient Profile
           </button>
           <button 
             onClick={() => setActiveTab('schedule')}
-            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 ${activeTab === 'schedule' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'schedule' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
           >
             <CalendarDays className="w-4 h-4" />
             Diet Schedule
           </button>
           <button 
             onClick={() => setActiveTab('guidelines')}
-            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 ${activeTab === 'guidelines' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'guidelines' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
           >
             <FileText className="w-4 h-4" />
             Guidelines
+          </button>
+          <button 
+            onClick={() => setActiveTab('preview')}
+            className={`flex items-center gap-2 px-4 py-2 bg-transparent text-sm font-semibold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'preview' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+          >
+            <FileDown className="w-4 h-4" />
+            Download PDF
           </button>
         </div>
 
@@ -619,6 +650,87 @@ export function MealPlanBuilderPage() {
           </div>
         </div>
 
+        {/* Tab 4: PDF Preview */}
+        <div className={`${activeTab === 'preview' ? 'block' : 'hidden'} print-block`}>
+          <h2 className="text-xl font-display font-bold text-text-primary mb-4">PDF Preview</h2>
+          <div className="bg-white border border-border-subtle rounded-xl p-8 shadow-sm print-border">
+            <div className="print-plan-sheet text-black">
+              <div className="mb-8 text-center border-b-2 border-brand-primary pb-6">
+                <div className="flex justify-center items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white font-bold text-lg">🏠</div>
+                  <h1 className="text-3xl font-display font-bold text-red-600">ANYFEAST</h1>
+                </div>
+                <p className="text-sm text-gray-600">Healthy sustainable cooking powered by AI</p>
+                <p className="text-xs text-gray-500 mt-2">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex justify-between items-start gap-4 mb-4">
+                  <div>
+                    <h2 className="text-xl font-display font-bold">Personalized Diet Plan</h2>
+                    <p className="text-sm text-gray-600 mt-1">{existingPlan?.title || 'Patient Diet Plan'}</p>
+                  </div>
+                  <div className="text-right text-xs">
+                    <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
+                    <p><strong>Goal:</strong> {preferences.primaryGoal}</p>
+                    <p><strong>Diet:</strong> {preferences.dietType}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-xs bg-gray-50 p-3 rounded">
+                  <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
+                  <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
+                </div>
+              </div>
+
+              <table className="w-full border-collapse text-xs">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-400 p-2 text-left font-bold">Meal</th>
+                    <th className="border border-gray-400 p-2 text-left font-bold">Time</th>
+                    <th className="border border-gray-400 p-2 text-left font-bold">Menu</th>
+                    <th className="border border-gray-400 p-2 text-left font-bold">Serving</th>
+                    <th className="border border-gray-400 p-2 text-left font-bold">Nutrition</th>
+                    <th className="border border-gray-400 p-2 text-left font-bold">Prep / Cook</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DAYS.map(day => (
+                    MEALS.map(meal => {
+                      const data = mealPlan[day][meal];
+                      return (
+                        <tr key={`${day}-${meal}`}>
+                          <td className="border border-gray-400 p-2 font-semibold">{meal}</td>
+                          <td className="border border-gray-400 p-2">{data.intakeTime || '-'}</td>
+                          <td className="border border-gray-400 p-2">{data.name || '-'}</td>
+                          <td className="border border-gray-400 p-2">{data.servingSize || '-'}</td>
+                          <td className="border border-gray-400 p-2">
+                            {data.calories ? `${data.calories} cal` : '-'}
+                            {data.protein_g ? `, ${data.protein_g}g P` : ''}
+                            {data.carbs_g ? `, ${data.carbs_g}g C` : ''}
+                            {data.fat_g ? `, ${data.fat_g}g F` : ''}
+                          </td>
+                          <td className="border border-gray-400 p-2">
+                            {data.prepTime || '-'} / {data.cookTime || '-'}
+                            {data.prepTips && <div className="mt-1 text-xs">Notes: {data.prepTips}</div>}
+                            {data.alternatives && <div className="mt-1 text-xs">Alt: {data.alternatives}</div>}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="mt-8 pt-8 border-t-2 border-brand-primary print-guidelines">
+                <div className="text-center mb-4">
+                  <h2 className="text-xl font-display font-bold text-red-600">DIETARY GUIDELINES</h2>
+                </div>
+                <pre className="text-xs whitespace-pre-wrap break-words font-sans leading-relaxed">{guidelines}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Actions Form */}
         <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-6 border-t border-border-subtle print-hide">
           <div className="flex gap-4">
@@ -643,7 +755,33 @@ export function MealPlanBuilderPage() {
             )}
 
             {activeTab === 'guidelines' && (
-              <Button variant="secondary" icon={<FileDown className="w-4 h-4" />} size="lg" onClick={executePrint}>
+              <Button 
+                size="lg" 
+                onClick={() => setActiveTab('preview')}
+                className="w-48"
+              >
+                Next: PDF Preview <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+
+            {activeTab === 'preview' && (
+              <Button 
+                variant="secondary"
+                size="lg" 
+                onClick={() => setActiveTab('guidelines')}
+                className="w-48"
+              >
+                Back to Guidelines
+              </Button>
+            )}
+
+            {activeTab === 'preview' && (
+              <Button 
+                variant="secondary" 
+                icon={<FileDown className="w-4 h-4" />} 
+                size="lg" 
+                onClick={executePrint}
+              >
                 Download PDF
               </Button>
             )}
