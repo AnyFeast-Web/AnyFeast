@@ -55,6 +55,144 @@ Additional Notes
 5. Recheck Vitamin D and B12
 6. Focus on waist reduction, not only scale weight`;
 
+const DISEASE_GUIDELINES = {
+  general: DEFAULT_GUIDELINES,
+  diabetic: `Do's for Diabetic Patients
+1. Drink 3–4 litres water daily
+2. Eat meals at fixed times (every 3–4 hours)
+3. Walk 30 minutes after meals
+4. Keep dinner very light and early (by 7 PM)
+5. Maintain consistent meal timing
+6. Use minimal oil (2–3 teaspoons daily)
+7. Focus on high-fiber foods
+8. Track blood sugar levels regularly
+
+Avoid
+1. All sugary foods and beverages
+2. Refined carbohydrates (white rice, white bread)
+3. Fried and processed foods
+4. Frequent outside/street food
+5. High-glycemic fruits (mango, banana in excess)
+6. Excess salt and oil
+7. Alcohol and sugary tea/coffee
+
+Additional Notes
+1. Include cinnamon in diet for blood sugar control
+2. Consume methi (fenugreek) seeds soaked overnight
+3. Take fasting blood sugar levels every 2 weeks
+4. Include bitter gourd and bottle gourd regularly
+5. Take prescribed medications on schedule
+6. Monitor HbA1c levels every 3 months`,
+
+  hypertension: `Do's for Hypertension Patients
+1. Drink 2–3 litres water daily
+2. Eat every 3–4 hours in small portions
+3. Walk 30–45 minutes daily
+4. Keep dinner light and at least 2 hours before sleep
+5. Maintain regular meal timing
+6. Use minimal salt (reduce to 1/2 teaspoon daily)
+7. Include potassium-rich foods
+8. Monitor BP regularly
+
+Avoid
+1. High-sodium foods (pickles, canned items, processed meats)
+2. Fried and deep-fried foods
+3. Heavy, spicy foods
+4. Frequent outside food
+5. Excess sugar and salt
+6. Alcohol and tobacco
+7. High-fat foods and red meat
+
+Additional Notes
+1. Start morning with 1 glass warm water with lemon
+2. Include garlic and onion in meals
+3. Consume high-fiber foods (oats, whole grains)
+4. Check blood pressure twice daily (morning and evening)
+5. Practice yoga and breathing exercises daily
+6. Reduce stress through meditation`,
+
+  pcod: `Do's for PCOD/PCOS Patients
+1. Drink 3–4 litres water daily
+2. Eat every 3–4 hours to maintain insulin levels
+3. Walk 30 minutes after each meal
+4. Keep dinner light and early
+5. Maintain consistent meal timing
+6. Use minimal oil (2–3 teaspoons)
+7. Exercise regularly (cardio + strength training)
+8. Track menstrual cycle and weight
+
+Avoid
+1. Sugary and processed foods
+2. Refined carbohydrates
+3. Fried foods
+4. Frequent outside food
+5. Excess nuts (limit to 10–12 daily)
+6. Bakery items and sugar
+7. Cheat meals more than once monthly
+
+Additional Notes
+1. Include inositol-rich foods (chickpeas, lentils, nuts)
+2. Take Vitamin D and B12 supplements if prescribed
+3. Include cinnamon in diet for PCOD management
+4. Maintain regular exercise (especially resistance training)
+5. Get hormonal levels checked quarterly
+6. Focus on waist circumference reduction`,
+
+  thyroid: `Do's for Thyroid Patients
+1. Drink 2–3 litres water daily
+2. Eat every 3–4 hours
+3. Walk 20–30 minutes daily
+4. Keep dinner light and at least 2 hours before sleep
+5. Take medicines with proper gap from food
+6. Maintain consistent meal timing
+7. Get adequate sleep (7–8 hours)
+8. Check TSH levels regularly
+
+Avoid
+1. Cruciferous vegetables in excess (cabbage, cauliflower, broccoli)
+2. Soy products (unless advised)
+3. Excess iodine or no iodine
+4. Fried and processed foods
+5. Caffeine in excess (more than 1–2 cups daily)
+6. Frequent outside food
+7. Stress and irregular sleep
+
+Additional Notes
+1. Take thyroid medicines 1 hour before breakfast or 3 hours after dinner
+2. Include selenium and zinc-rich foods
+3. Consume iodized salt in appropriate quantities
+4. Practice yoga and stress management
+5. Check TSH levels every 6–8 weeks after medicine adjustment
+6. Maintain stable weight`,
+
+  cholesterol: `Do's for High Cholesterol Patients
+1. Drink 3 litres water daily
+2. Eat every 3–4 hours
+3. Walk 45 minutes daily
+4. Keep dinner light and early
+5. Maintain regular meal timing
+6. Use minimal oil (use olive oil when possible)
+7. Include fiber-rich foods
+8. Monitor cholesterol levels regularly
+
+Avoid
+1. High-fat and saturated fats
+2. Red meat and full-fat dairy
+3. Fried and processed foods
+4. Trans fats (bakery items, packed snacks)
+5. Egg yolk in excess (limit to 2–3 weekly)
+6. Sugary foods and beverages
+7. Alcohol and smoking
+
+Additional Notes
+1. Start morning with 1 glass warm water with lemon
+2. Include oats and whole grains daily
+3. Consume fatty fish (salmon, mackerel) 2–3 times weekly
+4. Include nuts (almonds, walnuts) in moderation
+5. Check lipid profile every 3 months
+6. Maintain regular aerobic exercise`
+};
+
 const emptyMeal = () => ({
   name: '',
   servingSize: '',
@@ -89,6 +227,7 @@ export function MealPlanBuilderPage() {
 
   // Guidelines State
   const [guidelines, setGuidelines] = useState(DEFAULT_GUIDELINES);
+  const [selectedDisease, setSelectedDisease] = useState<keyof typeof DISEASE_GUIDELINES>('general');
 
   // Schedule State
   const [mealPlan, setMealPlan] = useState<Record<string, Record<string, ReturnType<typeof emptyMeal>>>>(() => {
@@ -147,6 +286,11 @@ export function MealPlanBuilderPage() {
         }
       }
     }));
+  };
+
+  const handleDiseaseChange = (disease: keyof typeof DISEASE_GUIDELINES) => {
+    setSelectedDisease(disease);
+    setGuidelines(DISEASE_GUIDELINES[disease]);
   };
 
   const handleSave = () => {
@@ -650,7 +794,23 @@ export function MealPlanBuilderPage() {
         <div className={`${activeTab === 'guidelines' ? 'block' : 'hidden'} print-block print-page-break`}>
           <h2 className="text-xl font-display font-bold text-text-primary mb-4 hidden print:block">Dietary Guidelines & Protocols</h2>
           <div className="bg-bg-surface border border-border-subtle rounded-xl p-6 shadow-sm print-border flex flex-col min-h-[500px]">
-             <textarea 
+            <div className="mb-4 pb-4 border-b border-border-subtle screen-only">
+              <label className="block text-sm font-semibold text-text-secondary mb-3">Select Medical Condition (Auto-generate Guidelines)</label>
+              <select 
+                className="w-full bg-bg-input border border-border-subtle rounded-md px-4 py-2 text-sm focus:outline-none focus:border-brand-primary"
+                value={selectedDisease}
+                onChange={(e) => handleDiseaseChange(e.target.value as keyof typeof DISEASE_GUIDELINES)}
+              >
+                <option value="general">General Health Guidelines</option>
+                <option value="diabetic">Diabetic Patient Guidelines</option>
+                <option value="hypertension">Hypertension Patient Guidelines</option>
+                <option value="pcod">PCOD/PCOS Patient Guidelines</option>
+                <option value="thyroid">Thyroid Patient Guidelines</option>
+                <option value="cholesterol">High Cholesterol Patient Guidelines</option>
+              </select>
+              <p className="text-xs text-text-muted mt-2">Selecting a condition will auto-populate the guidelines below. You can still edit them manually.</p>
+            </div>
+            <textarea 
               className="flex-1 w-full bg-transparent border-0 rounded-md py-3 text-sm focus:outline-none text-text-primary resize-y min-h-[600px] leading-relaxed"
               value={guidelines}
               onChange={(e) => setGuidelines(e.target.value)}
