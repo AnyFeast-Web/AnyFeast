@@ -12,6 +12,7 @@ import { Card, Button, Input, Badge } from '../../components/ui';
 import { useSendSmsMealPlan, useSendSmsReminder } from '../../hooks/useAutomations';
 import { useClients } from '../../hooks/useClients';
 import { useClientMealPlans } from '../../hooks/useMealPlans';
+import { auth } from '../../lib/firebase';
 
 export function AutomationPage() {
   const [sendClientId, setSendClientId] = useState<string>('');
@@ -61,9 +62,13 @@ export function AutomationPage() {
     if (!sendClientId || !sendPlanId) return;
     setIsSending(true);
     try {
+      const token = await auth.currentUser?.getIdToken();
       const response = await fetch('https://anyfeast.onrender.com/api/v1/webhooks/send-meal-plan-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           client_id: sendClientId,
           meal_plan_id: sendPlanId,
