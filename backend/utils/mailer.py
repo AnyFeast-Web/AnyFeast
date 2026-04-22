@@ -100,14 +100,14 @@ EMAIL_TEMPLATE = """
 </html>
 """
 
-async def send_meal_plan_email(to_email: str, client_name: str, meal_plan: Dict[str, Any], message: str):
+async def send_meal_plan_email(to_email: str, client_name: str, meal_plan_data: Dict[str, Any], message: str):
     """
     Send meal plan email asynchronously using SMTP.
 
     Args:
         to_email: Recipient email address
         client_name: Client's name for personalization
-        meal_plan: Meal plan data with grid, preferences, and guidelines
+        meal_plan_data: Meal plan data with grid, preferences, and guidelines
         message: Custom message from nutritionist
     """
     smtp_email = os.environ.get("SMTP_EMAIL")
@@ -123,27 +123,32 @@ async def send_meal_plan_email(to_email: str, client_name: str, meal_plan: Dict[
     html_content = template.render(
         client_name=client_name,
         message=message,
-        meal_plan=meal_plan.get("grid", {}),
-        guidelines=meal_plan.get("guidelines", "")
+        meal_plan=meal_plan_data.get("grid", {}),
+        guidelines=meal_plan_data.get("guidelines", "")
     )
 
     # Create message
     msg = MIMEMultipart()
     msg['From'] = smtp_email
     msg['To'] = to_email
-    msg['Subject'] = f"Your Personalized Meal Plan - {meal_plan.get('title', 'AnyFeast')}"
+    msg['Subject'] = f"Your Personalized Meal Plan - {meal_plan_data.get('title', 'AnyFeast')}"
 
     msg.attach(MIMEText(html_content, 'html'))
 
     # Send email
     try:
+        
+        use_tls = smtp_port == 465
+        start_tls = smtp_port == 587
+
         await aiosmtplib.send(
             msg,
             hostname=smtp_host,
             port=smtp_port,
             username=smtp_email,
             password=smtp_app_password,
-            use_tls=True
+            use_tls=use_tls,
+            start_tls=start_tls
         )
         return True
     except Exception as e:

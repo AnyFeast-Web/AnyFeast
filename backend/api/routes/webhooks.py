@@ -154,11 +154,11 @@ async def send_meal_plan_email_endpoint(payload: Dict[str, Any], current_user: d
         await send_meal_plan_email(
             to_email=client_email,
             client_name=client_name,
-            meal_plan=meal_plan_data,
+            meal_plan_data=meal_plan_data,
             message=message
         )
 
-        return {"success": True, "message": "Email sent successfully"}
+        return {"success": True, "message": "Email sent"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
