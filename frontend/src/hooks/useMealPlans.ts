@@ -2,7 +2,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as mealplansApi from '../api/mealplans.api';
 
 export const useMealPlans = () =>
-  useQuery({ queryKey: ['meal_plans'], queryFn: mealplansApi.getMealPlans });
+  useQuery({ queryKey: ['meal_plans'], queryFn: () => mealplansApi.getMealPlans() });
+
+export const useClientMealPlans = (clientId: string) =>
+  useQuery({
+    queryKey: ['meal_plans', 'client', clientId],
+    queryFn: () => mealplansApi.getMealPlans(clientId),
+    enabled: !!clientId,
+  });
 
 export const useMealPlan = (id: string) =>
   useQuery({

@@ -11,7 +11,7 @@ import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card, Button, Input, Badge } from '../../components/ui';
 import { useSendSmsMealPlan, useSendSmsReminder } from '../../hooks/useAutomations';
 import { useClients } from '../../hooks/useClients';
-import { useMealPlans } from '../../hooks/useMealPlans';
+import { useClientMealPlans } from '../../hooks/useMealPlans';
 
 export function AutomationPage() {
   const [sendClientId, setSendClientId] = useState<string>('');
@@ -25,7 +25,7 @@ export function AutomationPage() {
   const [isSending, setIsSending] = useState(false);
   
   const { data: clients = [], isLoading: clientsLoading } = useClients();
-  const { data: allPlans = [], isLoading: plansLoading } = useMealPlans();
+  const { data: clientPlans = [], isLoading: plansLoading } = useClientMealPlans(sendClientId);
   
   const reminderSmsMutation = useSendSmsReminder();
 
@@ -35,10 +35,10 @@ export function AutomationPage() {
     [clients, sendClientId]
   );
 
-  // Filtered plans for section 1
+  // Filtered plans for section 1 (only show active/draft plans if needed, but the prompt says active plan should appear)
   const filteredPlans = useMemo(() => 
-    allPlans.filter((p: any) => p.client_id === sendClientId),
-    [allPlans, sendClientId]
+    clientPlans.filter((p: any) => !p.status || p.status.toLowerCase() === 'active' || p.status.toLowerCase() === 'draft'),
+    [clientPlans]
   );
 
   // Effect to auto-fill custom message when template or client changes
