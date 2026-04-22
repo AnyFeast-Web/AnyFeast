@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Zap, Send, CalendarClock, CheckCircle2, 
   Clock, AlertTriangle, Play, Mail,
   Info
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card, Button, Input, Badge } from '../../components/ui';
@@ -19,10 +20,13 @@ export function AutomationPage() {
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [reminderDays, setReminderDays] = useState(14);
   
+  const [messageTemplate, setMessageTemplate] = useState<string>('');
+  const [customMessage, setCustomMessage] = useState<string>('');
+  const [isSending, setIsSending] = useState(false);
+  
   const { data: clients = [], isLoading: clientsLoading } = useClients();
   const { data: allPlans = [], isLoading: plansLoading } = useMealPlans();
   
-  const sendSmsMutation = useSendSmsMealPlan();
   const reminderSmsMutation = useSendSmsReminder();
 
   // Selected client for section 1
@@ -37,13 +41,42 @@ export function AutomationPage() {
     [allPlans, sendClientId]
   );
 
-  const handleSendMealPlanSms = () => {
+  // Effect to auto-fill custom message when template or client changes
+  useEffect(() => {
+    if (!messageTemplate) {
+      if (!customMessage) setCustomMessage(''); // Only clear if it was empty initially, or we could just leave it. Let's reset for simplicity.
+      return;
+    }
+    const name = selectedClient?.personal_info?.first_name || 'Client';
+    const templates: Record<string, string> = {
+      'Weekly Check-in': `Hi ${name}, just checking in to see how your week is going with the new meal plan!`,
+      'New Plan Assigned': `Hello ${name}, your new meal plan has been assigned. Please check it out in your portal.`,
+      'Motivation Boost': `Hey ${name}, you're doing great! Keep up the good work and stick to your meal plan.`,
+      'Follow-up': `Hi ${name}, I'd like to follow up on your progress. Let me know if you have any questions.`
+    };
+    setCustomMessage(templates[messageTemplate] || '');
+  }, [messageTemplate, selectedClient]);
+
+  const handleSendMealPlanEmail = async () => {
     if (!sendClientId || !sendPlanId) return;
-    sendSmsMutation.mutate({ 
-      clientId: sendClientId, 
-      planId: sendPlanId,
-      email: selectedClient?.personal_info?.email 
-    });
+    setIsSending(true);
+    try {
+      const response = await fetch('https://anyfeast.onrender.com/api/v1/webhooks/send-meal-plan-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: sendClientId,
+          meal_plan_id: sendPlanId,
+          message: customMessage
+        })
+      });
+      if (!response.ok) throw new Error('Failed to send');
+      toast.success('Meal plan sent! ✅');
+    } catch (error) {
+      toast.error('Failed to send meal plan ❌');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleSendTestReminder = () => {
@@ -125,24 +158,42 @@ export function AutomationPage() {
                       </select>
                     </div>
 
-                    <div className="flex items-end">
-                      <Button 
-                        onClick={handleSendMealPlanSms}
-                        disabled={!sendPlanId || sendSmsMutation.isPending}
-                        className="w-full"
-                        icon={sendSmsMutation.isPending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-secondary">Message Template</label>
+                      <select
+                        value={messageTemplate}
+                        onChange={(e) => setMessageTemplate(e.target.value)}
+                        className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary transition-colors"
                       >
-                        {sendSmsMutation.isPending ? 'Sending...' : 'Send via Email'}
-                      </Button>
+                        <option value="">Select a template...</option>
+                        <option value="Weekly Check-in">Weekly Check-in</option>
+                        <option value="New Plan Assigned">New Plan Assigned</option>
+                        <option value="Motivation Boost">Motivation Boost</option>
+                        <option value="Follow-up">Follow-up</option>
+                      </select>
                     </div>
                   </div>
 
-                  {sendSmsMutation.isSuccess && (
-                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-3 bg-teal-50 border border-teal-200 rounded-md flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-600" />
-                      <p className="text-xs text-teal-700 font-medium">Meal plan successfully dispatched to n8n webhook!</p>
-                    </motion.div>
-                  )}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-secondary">Custom Message</label>
+                    <textarea
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      className="w-full bg-bg-input border border-border-subtle rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-primary transition-colors h-24 resize-none"
+                      placeholder="Write your message here..."
+                    />
+                  </div>
+
+                  <div className="flex items-end justify-end">
+                    <Button 
+                      onClick={handleSendMealPlanEmail}
+                      disabled={!sendPlanId || isSending}
+                      className="w-full md:w-auto"
+                      icon={isSending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    >
+                      {isSending ? 'Sending...' : 'Send via Email'}
+                    </Button>
+                  </div>
 
                   <div className="flex items-start gap-2 pt-2 text-text-muted">
                     <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
