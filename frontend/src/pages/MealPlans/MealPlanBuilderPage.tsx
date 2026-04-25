@@ -811,7 +811,7 @@ export function MealPlanBuilderPage() {
               <p className="text-xs text-text-muted mt-2">Selecting a condition will auto-populate the guidelines below. You can still edit them manually.</p>
             </div>
             <textarea 
-              className="flex-1 w-full bg-transparent border-0 rounded-md py-3 text-sm focus:outline-none text-text-primary resize-y min-h-[600px] leading-relaxed"
+              className="flex-1 w-full bg-bg-input border border-border-subtle rounded-md p-4 text-sm focus:outline-none focus:border-brand-primary text-text-primary resize-y min-h-[600px] leading-relaxed shadow-sm"
               value={guidelines}
               onChange={(e) => setGuidelines(e.target.value)}
             />
