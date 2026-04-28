@@ -10,7 +10,7 @@ from api.routes import dashboard
 from api.routes import ingredients
 from api.routes import webhooks
 from api.routes import messages
-
+from api.routes import auth
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS Middleware (crucial for React frontend)
@@ -30,6 +30,7 @@ app.include_router(dashboard.router, prefix=f"{settings.API_V1_STR}/dashboard", 
 app.include_router(ingredients.router, prefix=f"{settings.API_V1_STR}/ingredients", tags=["Ingredients"])
 app.include_router(webhooks.router, prefix=f"{settings.API_V1_STR}/webhooks", tags=["Automations"])
 app.include_router(messages.router, prefix=f"{settings.API_V1_STR}/messages", tags=["SMS Chat"])
+app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Auth"])
 
 @app.get("/")
 def root():
