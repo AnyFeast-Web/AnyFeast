@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from typing import Optional
+
 router = APIRouter()
 
 class LoginRequest(BaseModel):
@@ -13,7 +15,7 @@ class AuthUser(BaseModel):
     name: str
     role: str
     status: str
-    emailVerifiedAt: str | None = None
+    emailVerifiedAt: Optional[str] = None
     createdAt: str
 
 class LoginResponse(BaseModel):
