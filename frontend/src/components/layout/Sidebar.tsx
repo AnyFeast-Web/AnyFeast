@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Avatar } from '../ui';
 import { useAuthStore } from '../../store/authStore';
+import { logout } from '../../hooks/useAuth';
 import { useUIStore } from '../../store/uiStore';
 import { APP_NAME } from '../../utils/constants';
 
@@ -28,7 +29,7 @@ const navItems = [
 ];
 
 export function Sidebar() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { sidebarCollapsed, setSidebarCollapsed } = useUIStore();
   const location = useLocation();
 

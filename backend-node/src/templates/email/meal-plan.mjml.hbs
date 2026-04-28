@@ -1,0 +1,42 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{title}}</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text font-size="14px" line-height="1.5" color="#333" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f5f7fa">
+    <mj-section background-color="#16a34a" padding="24px">
+      <mj-column>
+        <mj-text color="#ffffff" font-size="20px" font-weight="700">AnyFeast meal plan</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding="24px">
+      <mj-column>
+        <mj-text font-size="18px" font-weight="600">{{title}}</mj-text>
+        <mj-text>Hi {{clientName}},</mj-text>
+        <mj-text>Your nutritionist {{nutritionistName}} prepared this plan for {{startDate}} – {{endDate}}.</mj-text>
+        {{#if guidelines}}<mj-text><strong>Guidelines:</strong> {{guidelines}}</mj-text>{{/if}}
+      </mj-column>
+    </mj-section>
+
+    {{#each days}}
+    <mj-section background-color="#ffffff" padding="0 24px 24px 24px">
+      <mj-column>
+        <mj-text font-size="16px" font-weight="600">Day {{add dayIndex 1}}{{#if date}} — {{date}}{{/if}}</mj-text>
+        {{#each meals}}
+          <mj-text><strong>{{mealType}}:</strong> {{title}}</mj-text>
+        {{/each}}
+      </mj-column>
+    </mj-section>
+    {{/each}}
+
+    <mj-section background-color="#ffffff" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-text color="#666">— AnyFeast</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -1,39 +1,52 @@
 import { create } from 'zustand';
-import { auth } from '../lib/firebase';
-import { signOut } from 'firebase/auth';
+import { persist } from 'zustand/middleware';
+import type { AuthUser } from '../api/auth.api';
 
-export interface NutritionistUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  avatar_url?: string;
-  created_at: string;
-}
+export type NutritionistUser = AuthUser & { avatar_url?: string };
 
 interface AuthState {
   user: NutritionistUser | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setUser: (user: NutritionistUser, token: string) => void;
+  setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void;
+  setUser: (user: AuthUser) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   setLoading: (loading: boolean) => void;
-  logout: () => Promise<void>;
+  clear: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  isLoading: true, // starts loading while firebase checks status
-  setUser: (user, token) => set({ user, token, isAuthenticated: true, isLoading: false }),
-  setLoading: (loading) => set({ isLoading: loading }),
-  logout: async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-  },
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      isLoading: true,
+      setAuth: (user, accessToken, refreshToken) =>
+        set({ user, accessToken, refreshToken, isAuthenticated: true, isLoading: false }),
+      setUser: (user) => set({ user }),
+      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
+      setLoading: (isLoading) => set({ isLoading }),
+      clear: () =>
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          isLoading: false,
+        }),
+    }),
+    {
+      name: 'anyfeast.auth',
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    },
+  ),
+);

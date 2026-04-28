@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { APP_NAME, APP_TAGLINE } from '../../utils/constants';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { authApi } from '../../api/auth.api';
+import { useAuthStore } from '../../store/authStore';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -20,10 +20,10 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await authApi.login(email, password);
+      useAuthStore.getState().setAuth(result.user, result.accessToken, result.refreshToken);
       navigate('/');
-    } catch (err: any) {
-      console.error('Login error:', err);
+    } catch {
       setError('Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
