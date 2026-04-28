@@ -1,0 +1,31 @@
+name: backend-node CI
+
+on:
+  push:
+    paths:
+      - 'backend-node/**'
+      - '.github/workflows/backend-node-ci.yml'
+  pull_request:
+    paths:
+      - 'backend-node/**'
+      - '.github/workflows/backend-node-ci.yml'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-node
+    env:
+      JWT_ACCESS_SECRET: test_access_secret_must_be_at_least_32_chars
+      JWT_REFRESH_SECRET: test_refresh_secret_must_be_at_least_32_chars
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend-node/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
