@@ -1,0 +1,5 @@
+$kind: http-request
+description: Retrieve a single client by their ID.
+url: "{{baseUrl}}/clients/{{clientId}}"
+method: GET
+order: 2000

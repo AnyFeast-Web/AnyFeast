@@ -9,6 +9,7 @@ import { TopBar } from '../../components/layout/TopBar';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Button } from '../../components/ui';
 import { useMealPlan, useUpdateMealPlan, useCreateMealPlan } from '../../hooks/useMealPlans';
+import { DietPlanPrintView } from '../../components/print/DietPlanPrintView';
 
 const DAYS = ['Daily'];
 const MEALS = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
@@ -375,96 +376,11 @@ export function MealPlanBuilderPage() {
   return (
     <>
       <style>{`
-        .screen-only {
-          display: block;
-        }
-        .print-only {
-          display: none;
-        }
-
+        .screen-only { display: block; }
+        .print-only  { display: none; }
         @media print {
-          @page {
-            size: A4 portrait;
-            margin: 8mm;
-          }
-          header, .sidebar-class-if-exists, nav, .print-hide, .screen-only {
-            display: none !important;
-          }
-          .print-only {
-            display: block !important;
-          }
-          html, body {
-            width: 100%;
-            min-height: auto;
-            background: transparent !important;
-          }
-          .print-plan-sheet {
-            width: 100%;
-            color: black !important;
-            font-size: 10px;
-            line-height: 1.4;
-          }
-          .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 8px;
-            page-break-inside: avoid;
-            height: 550px;
-          }
-          .print-table th,
-          .print-table td {
-            border: 1px solid #333 !important;
-            padding: 8px 6px !important;
-            vertical-align: middle !important;
-            text-align: left !important;
-            height: auto !important;
-          }
-          .print-table tbody tr {
-            height: 60px !important;
-          }
-          .print-table th {
-            background: #e5e7eb !important;
-            font-weight: 700 !important;
-            font-size: 9px !important;
-            height: auto !important;
-          }
-          .print-table td {
-            font-size: 9px !important;
-            overflow: hidden;
-            word-wrap: break-word;
-          }
-          .print-guidelines {
-            page-break-before: always;
-          }
-          .print-guidelines pre {
-            white-space: pre-wrap !important;
-            word-break: break-word !important;
-            font-size: 10px !important;
-            margin: 0 !important;
-            font-family: 'Courier New', monospace !important;
-            line-height: 1.5 !important;
-          }
-          .print-card,
-          .print-plan-sheet,
-          .print-row {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-          * {
-            background-color: transparent !important;
-            color: black !important;
-            box-shadow: none !important;
-            text-shadow: none !important;
-          }
-          .print-border {
-            border: 1px solid #ccc !important;
-            border-radius: 4px !important;
-            margin-bottom: 20px !important;
-          }
-          input, textarea, select {
-            border: 1px solid #ddd !important;
-            background: #fff !important;
-          }
+          header, nav, aside, .sidebar, .print-hide, .screen-only { display: none !important; }
+          .print-only { display: block !important; }
         }
       `}</style>
       
@@ -474,81 +390,14 @@ export function MealPlanBuilderPage() {
           {COMMON_MEALS.map(meal => <option key={meal} value={meal} />)}
         </datalist>
 
+        {/* Hidden print-only view — rendered by window.print() */}
         <div className="print-only hidden">
-          <div className="print-plan-sheet">
-            <div className="text-center border-b-2 border-red-600 pb-3 mb-4">
-              <div className="flex justify-center items-center gap-2 mb-1">
-                <img src="/logo.png" alt="AnyFeast" className="w-7 h-7" />
-                <h1 className="text-2xl font-display font-bold text-red-600">AnyFeast</h1>
-              </div>
-              <p className="text-xs text-gray-600">Healthy sustainable cooking powered by AI</p>
-              <p className="text-xs text-gray-500 mt-0.5">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
-            </div>
-
-            <div className="mb-3">
-              <div className="flex justify-between items-start gap-4 mb-2">
-                <div>
-                  <h2 className="text-base font-display font-bold">Personalized Diet Plan</h2>
-                  <p className="text-xs text-gray-600">{existingPlan?.title || 'Patient Diet Plan'}</p>
-                </div>
-                <div className="text-right text-xs">
-                  <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
-                  <p><strong>Goal:</strong> {preferences.primaryGoal}</p>
-                  <p><strong>Diet:</strong> {preferences.dietType}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2 rounded">
-                <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
-                <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
-              </div>
-            </div>
-
-            <table className="print-table">
-              <thead>
-                <tr>
-                  <th>Meal</th>
-                  <th>Time</th>
-                  <th>Menu</th>
-                  <th>Serving</th>
-                  <th>Nutrition</th>
-                  <th>Prep / Cook</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DAYS.map(day => (
-                  MEALS.map(meal => {
-                    const data = mealPlan[day][meal];
-                    return (
-                      <tr key={`${day}-${meal}`} className="print-row">
-                        <td className="px-2 py-2 align-top font-semibold">{meal}</td>
-                        <td className="px-2 py-2 align-top">{data.intakeTime || '-'}</td>
-                        <td className="px-2 py-2 align-top">{data.name || '-'}</td>
-                        <td className="px-2 py-2 align-top">{data.servingSize || '-'}</td>
-                        <td className="px-2 py-2 align-top">
-                          {data.calories ? `${data.calories} cal` : '-'}
-                          {data.protein_g ? `, ${data.protein_g}g P` : ''}
-                          {data.carbs_g ? `, ${data.carbs_g}g C` : ''}
-                          {data.fat_g ? `, ${data.fat_g}g F` : ''}
-                        </td>
-                        <td className="px-2 py-2 align-top">
-                          {data.prepTime || '-'} / {data.cookTime || '-'}
-                          {data.prepTips && <div className="mt-1 text-xs">Notes: {data.prepTips}</div>}
-                          {data.alternatives && <div className="mt-1 text-xs">Alt: {data.alternatives}</div>}
-                        </td>
-                      </tr>
-                    );
-                  })
-                ))}
-              </tbody>
-            </table>
-
-            <div style={{ pageBreakBefore: 'always', marginTop: '30px' }} className="print-guidelines">
-              <div className="text-center border-b-2 border-brand-primary pb-4 mb-4">
-                <h2 className="text-2xl font-display font-bold text-brand-primary">DIETARY GUIDELINES</h2>
-              </div>
-              <pre className="text-xs whitespace-pre-wrap break-words">{guidelines}</pre>
-            </div>
-          </div>
+          <DietPlanPrintView
+            mealPlan={mealPlan}
+            preferences={preferences}
+            guidelines={guidelines}
+            title={existingPlan?.title}
+          />
         </div>
 
         <div className="screen-only">
@@ -821,88 +670,12 @@ export function MealPlanBuilderPage() {
         {/* Tab 4: PDF Preview */}
         <div className={`${activeTab === 'preview' ? 'block' : 'hidden'} print-block`}>
           <h2 className="text-xl font-display font-bold text-text-primary mb-4">PDF Preview</h2>
-          <div className="bg-white border border-border-subtle rounded-xl p-8 shadow-sm print-border">
-            <div className="print-plan-sheet text-black">
-              <div className="text-center border-b-2 border-red-600 pb-3 mb-4">
-                <div className="flex justify-center items-center gap-2 mb-1">
-                  <img src="/logo.png" alt="AnyFeast" className="w-7 h-7" />
-                  <h1 className="text-2xl font-display font-bold text-red-600">AnyFeast</h1>
-                </div>
-                <p className="text-xs text-gray-600">Healthy sustainable cooking powered by AI</p>
-                <p className="text-xs text-gray-500 mt-0.5">www.anyfeast.com | pankaj@anyfeast.com | +44 9116 76 9116</p>
-              </div>
-
-              <div className="mb-3">
-                <div className="flex justify-between items-start gap-4 mb-2">
-                  <div>
-                    <h2 className="text-base font-display font-bold">Personalized Diet Plan</h2>
-                    <p className="text-xs text-gray-600">{existingPlan?.title || 'Patient Diet Plan'}</p>
-                  </div>
-                  <div className="text-right text-xs">
-                    <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
-                    <p><strong>Goal:</strong> {preferences.primaryGoal}</p>
-                    <p><strong>Diet:</strong> {preferences.dietType}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2 rounded">
-                  <div><strong>Allergies:</strong> {preferences.allergies || 'None'}</div>
-                  <div><strong>Medical Conditions:</strong> {preferences.medicalConditions || 'None'}</div>
-                </div>
-              </div>
-
-              <table className="w-full border-collapse text-xs" style={{ tableLayout: 'fixed' }}>
-                <thead>
-                  <tr className="bg-gray-200 h-8">
-                    <th className="border border-gray-400 p-1.5 text-left font-bold">Meal</th>
-                    <th className="border border-gray-400 p-1.5 text-left font-bold">Time</th>
-                    <th className="border border-gray-400 p-1.5 text-left font-bold">Menu</th>
-                    <th className="border border-gray-400 p-1.5 text-left font-bold">Serving</th>
-                    <th className="border border-gray-400 p-1.5 text-left font-bold">Nutrition</th>
-                    <th className="border border-gray-400 p-1.5 text-left font-bold">Prep / Cook</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {DAYS.map(day => (
-                    MEALS.map(meal => {
-                      const data = mealPlan[day][meal];
-                      return (
-                        <tr key={`${day}-${meal}`} className="h-12 align-middle">
-                          <td className="border border-gray-400 p-1.5 font-semibold align-middle">{meal}</td>
-                          <td className="border border-gray-400 p-1.5 align-middle text-xs">{data.intakeTime || '-'}</td>
-                          <td className="border border-gray-400 p-1.5 align-middle text-xs">{data.name || '-'}</td>
-                          <td className="border border-gray-400 p-1.5 align-middle text-xs">{data.servingSize || '-'}</td>
-                          <td className="border border-gray-400 p-1.5 align-middle text-xs">
-                            <div>
-                              {data.calories ? `${data.calories} cal` : '-'}
-                              {data.protein_g ? `, ${data.protein_g}g P` : ''}
-                            </div>
-                            <div>
-                              {data.carbs_g ? `${data.carbs_g}g C` : ''}
-                              {data.fat_g ? `, ${data.fat_g}g F` : ''}
-                            </div>
-                          </td>
-                          <td className="border border-gray-400 p-1.5 align-middle text-xs">
-                            <div>
-                              {data.prepTime || '-'} / {data.cookTime || '-'}
-                            </div>
-                            {data.prepTips && <div className="mt-0.5 text-xs">Notes: {data.prepTips}</div>}
-                            {data.alternatives && <div className="mt-0.5 text-xs">Alt: {data.alternatives}</div>}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="mt-6 pt-6 border-t-2 border-red-600 print-guidelines">
-                <div className="text-center mb-3">
-                  <h2 className="text-lg font-display font-bold text-red-600">DIETARY GUIDELINES</h2>
-                </div>
-                <pre className="text-xs whitespace-pre-wrap break-words font-sans leading-relaxed bg-gray-50 p-3 rounded">{guidelines}</pre>
-              </div>
-            </div>
-          </div>
+          <DietPlanPrintView
+            mealPlan={mealPlan}
+            preferences={preferences}
+            guidelines={guidelines}
+            title={existingPlan?.title}
+          />
         </div>
 
         {/* Bottom Actions Form */}

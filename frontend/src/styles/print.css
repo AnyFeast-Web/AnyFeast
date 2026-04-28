@@ -1,0 +1,573 @@
+/* =============================================================
+   DIET PLAN – PRINT VIEW STYLES
+   Professional PDF output for AnyFeast Nutritionist Platform
+   ============================================================= */
+
+/* ── Base ──────────────────────────────────────────────────────── */
+.pv-root {
+  font-family: 'Inter', 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #1e293b;
+}
+
+.pv-page {
+  background: #fff;
+  position: relative;
+  padding: 32px;
+}
+
+/* For screen preview, show pages with shadow */
+@media screen {
+  .pv-page {
+    max-width: 210mm;
+    margin: 0 auto 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+}
+
+/* ── Letterhead ────────────────────────────────────────────────── */
+.pv-letterhead {
+  text-align: center;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #dc2626;
+}
+
+.pv-letterhead__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pv-letterhead__logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.pv-letterhead__logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.pv-letterhead__wordmark {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #dc2626;
+  line-height: 1;
+  margin: 0;
+}
+
+.pv-letterhead__tagline {
+  font-size: 10px;
+  color: #4b5563;
+  margin: 0;
+}
+
+.pv-letterhead__contact {
+  font-size: 10px;
+  color: #6b7280;
+  margin: 2px 0 0;
+}
+
+/* ── Client Info Card ──────────────────────────────────────────── */
+.pv-client-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.pv-client-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pv-client-card__title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px;
+}
+
+.pv-client-card__subtitle {
+  font-size: 11px;
+  color: #64748b;
+  margin: 0;
+}
+
+.pv-client-card__meta {
+  display: flex;
+  gap: 20px;
+  text-align: right;
+}
+
+.pv-client-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pv-client-card__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pv-client-card__detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pv-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pv-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* ── Section title ─────────────────────────────────────────────── */
+.pv-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.pv-section-title__text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #16a34a;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.pv-section-title__rule {
+  flex: 1;
+  height: 2px;
+  background: #16a34a;
+  border-radius: 2px;
+  opacity: 0.35;
+}
+
+/* ── Meal table ────────────────────────────────────────────────── */
+.pv-meal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  table-layout: fixed;
+}
+
+.pv-meal-table thead th {
+  background: #16a34a;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 10px;
+  text-align: left;
+  border: 1px solid #15803d;
+}
+
+.pv-meal-table thead th:first-child {
+  border-radius: 6px 0 0 0;
+}
+
+.pv-meal-table thead th:last-child {
+  border-radius: 0 6px 0 0;
+}
+
+.pv-meal-table tbody td {
+    padding: 7px 8px;
+    font-size: 10px;
+  vertical-align: middle;
+  color: #1e293b;
+}
+
+.pv-meal-table tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 6px;
+}
+
+.pv-meal-table tbody tr:last-child td:last-child {
+  border-radius: 0 0 6px 0;
+}
+
+.pv-row-alt td {
+  background: #f8fafc;
+}
+
+.pv-meal-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pv-meal-icon {
+  color: #16a34a;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.pv-menu-name {
+  font-weight: 500;
+}
+
+.pv-alt-text {
+  font-size: 9px;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 3px;
+}
+
+/* ── Macro pills ───────────────────────────────────────────────── */
+.pv-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pv-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.pv-pill--cal {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pv-pill--p {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.pv-pill--c {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pv-pill--f {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+
+/* ── Guidelines ────────────────────────────────────────────────── */
+.pv-guidelines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pv-guide-card {
+  border-radius: 8px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.pv-guide-card--do {
+  border-left: 4px solid #16a34a;
+}
+
+.pv-guide-card--avoid {
+  border-left: 4px solid #dc2626;
+}
+
+.pv-guide-card--note {
+  border-left: 4px solid #2563eb;
+}
+
+.pv-guide-card__title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: #0f172a;
+}
+
+.pv-guide-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pv-guide-card__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.pv-guide-card__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pv-guide-card--do .pv-guide-card__icon {
+  color: #16a34a;
+}
+
+.pv-guide-card--avoid .pv-guide-card__icon {
+  color: #dc2626;
+}
+
+.pv-guide-card--note .pv-guide-card__icon {
+  color: #2563eb;
+}
+
+/* ── Signature block ───────────────────────────────────────────── */
+.pv-signature {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin-top: 20px;
+  padding-top: 12px;
+}
+
+.pv-signature__block {
+  flex: 1;
+  max-width: 220px;
+}
+
+.pv-signature__line {
+  height: 1px;
+  background: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.pv-signature__label {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.pv-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 32px;
+  right: 32px;
+}
+
+.pv-footer__rule {
+  height: 1px;
+  background: #e2e8f0;
+  margin-bottom: 6px;
+}
+
+.pv-footer__text {
+  text-align: center;
+  font-size: 9px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* =============================================================
+   PRINT-SPECIFIC OVERRIDES
+   ============================================================= */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 16mm 14mm;
+  }
+
+  /* Force background colors/graphics to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Hide everything except print view */
+  body > *:not(#root),
+  header,
+  nav,
+  aside,
+  .sidebar,
+  .print-hide,
+  .screen-only {
+    display: none !important;
+  }
+
+  /* Reset page styles for print */
+  .pv-page {
+    max-width: none;
+    margin: 0;
+    padding: 20px 16px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .pv-page--two {
+    page-break-before: always;
+  }
+
+  /* Prevent rows & cards from splitting across pages */
+  .pv-meal-table tbody tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .pv-meal-table tbody td {
+    padding: 7px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .pv-guide-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .pv-client-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Footer positioning in print */
+  .pv-footer {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    margin-top: 24px;
+    padding-top: 0;
+  }
+
+  /* Force colors through */
+  .pv-letterhead__wordmark {
+    color: #dc2626 !important;
+  }
+
+  .pv-section-title {
+    margin: 0 0 12px !important;
+    gap: 10px !important;
+  }
+
+  .pv-section-title__text {
+    color: #16a34a !important;
+  }
+
+  .pv-meal-table thead th {
+    background: #16a34a !important;
+    color: #fff !important;
+  }
+
+  .pv-pill--cal {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+  }
+
+  .pv-pill--p {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+  }
+
+  .pv-pill--c {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+  }
+
+  .pv-pill--f {
+    background: #ffe4e6 !important;
+    color: #9f1239 !important;
+  }
+
+  .pv-row-alt td {
+    background: #f8fafc !important;
+  }
+
+  .pv-guide-card {
+    background: #f8fafc !important;
+    break-inside: avoid !important;
+  }
+
+  .pv-guide-card--do {
+    border-left-color: #16a34a !important;
+  }
+
+  .pv-guide-card--avoid {
+    border-left-color: #dc2626 !important;
+  }
+
+  .pv-guide-card--note {
+    border-left-color: #2563eb !important;
+  }
+
+  .pv-guide-card--do .pv-guide-card__icon {
+    color: #16a34a !important;
+  }
+
+  .pv-guide-card--avoid .pv-guide-card__icon {
+    color: #dc2626 !important;
+  }
+
+  .pv-guide-card--note .pv-guide-card__icon {
+    color: #2563eb !important;
+  }
+
+  .pv-client-card {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    margin-bottom: 16px !important;
+    padding: 12px 16px !important;
+  }
+
+  .pv-meal-table {
+    margin-bottom: 12px !important;
+  }
+
+  .pv-meal-icon {
+    color: #16a34a !important;
+  }
+
+  .pv-letterhead {
+    border-bottom-color: #dc2626 !important;
+    margin-bottom: 14px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .pv-guidelines {
+    gap: 12px !important;
+  }
+
+  .pv-signature {
+    margin-top: 20px !important;
+    padding-top: 12px !important;
+  }
+}

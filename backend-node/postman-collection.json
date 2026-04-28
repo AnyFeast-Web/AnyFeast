@@ -1,0 +1,503 @@
+ {
+	"info": {
+		"_postman_id": "anyfeast-node-api-collection",
+		"name": "AnyFeast Node.js Backend API",
+		"description": "Complete API test collection for the AnyFeast Nutritionist App Node.js backend.\n\nBase URL: http://localhost:5000/api/v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "clientId",
+			"value": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
+			"type": "string"
+		},
+		{
+			"key": "mealplanId",
+			"value": "mp-a1b2c3d4-e5f6-7890-abcd-111111111111",
+			"type": "string"
+		},
+		{
+			"key": "consultationId",
+			"value": "con-a1b2c3d4-e5f6-7890-abcd-222222222222",
+			"type": "string"
+		},
+		{
+			"key": "ingredientId",
+			"value": "ing-a1b2c3d4-e5f6-7890-abcd-333333333333",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Clients",
+			"description": "CRUD operations for managing client profiles.",
+			"item": [
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/clients",
+							"host": ["{{baseUrl}}"],
+							"path": ["clients"]
+						},
+						"description": "Retrieve all clients, ordered by created_at descending."
+					}
+				},
+				{
+					"name": "Get Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/clients/{{clientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["clients", "{{clientId}}"]
+						},
+						"description": "Retrieve a single client by their ID."
+					}
+				},
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nutritionist_id\": \"nutr_dr_sharma_001\",\n  \"status\": \"active\",\n  \"personal_info\": {\n    \"first_name\": \"Priya\",\n    \"last_name\": \"Mehta\",\n    \"email\": \"priya.mehta@example.com\",\n    \"phone\": \"+919876543210\",\n    \"age\": 28,\n    \"gender\": \"female\",\n    \"city\": \"Mumbai\"\n  },\n  \"goals\": [\n    \"Weight loss\",\n    \"Improve gut health\",\n    \"Reduce sugar intake\"\n  ],\n  \"tags\": [\n    \"vegetarian\",\n    \"lactose-intolerant\",\n    \"PCOS\"\n  ],\n  \"measurements\": {\n    \"height_cm\": 162,\n    \"weight_kg\": 72.5,\n    \"bmi\": 27.6,\n    \"body_fat_pct\": 32.1,\n    \"waist_cm\": 84\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/clients",
+							"host": ["{{baseUrl}}"],
+							"path": ["clients"]
+						},
+						"description": "Create a new client with personal info, goals, tags, and measurements."
+					}
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"active\",\n  \"personal_info\": {\n    \"first_name\": \"Priya\",\n    \"last_name\": \"Mehta\",\n    \"email\": \"priya.mehta@example.com\",\n    \"phone\": \"+919876543210\",\n    \"age\": 29,\n    \"gender\": \"female\",\n    \"city\": \"Mumbai\"\n  },\n  \"goals\": [\n    \"Weight loss\",\n    \"Improve gut health\",\n    \"Reduce sugar intake\",\n    \"Better sleep quality\"\n  ],\n  \"tags\": [\n    \"vegetarian\",\n    \"lactose-intolerant\",\n    \"PCOS\",\n    \"thyroid\"\n  ],\n  \"measurements\": {\n    \"height_cm\": 162,\n    \"weight_kg\": 70.0,\n    \"bmi\": 26.7,\n    \"body_fat_pct\": 30.5,\n    \"waist_cm\": 82\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/clients/{{clientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["clients", "{{clientId}}"]
+						},
+						"description": "Update an existing client's profile data."
+					}
+				},
+				{
+					"name": "Delete Client",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/clients/{{clientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["clients", "{{clientId}}"]
+						},
+						"description": "Delete a client by their ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "Mealplans",
+			"description": "CRUD operations for managing meal plans.",
+			"item": [
+				{
+					"name": "Get All Mealplans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mealplans",
+							"host": ["{{baseUrl}}"],
+							"path": ["mealplans"]
+						},
+						"description": "Retrieve all meal plans, ordered by created_at descending."
+					}
+				},
+				{
+					"name": "Get Mealplan by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mealplans/{{mealplanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["mealplans", "{{mealplanId}}"]
+						},
+						"description": "Retrieve a single meal plan by its ID."
+					}
+				},
+				{
+					"name": "Create Mealplan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": \"c1a2b3c4-d5e6-7890-abcd-ef1234567890\",\n  \"nutritionist_id\": \"nutr_dr_sharma_001\",\n  \"title\": \"PCOS Weight Management — Week 1\",\n  \"status\": \"draft\",\n  \"date_range\": {\n    \"start\": \"2026-04-21\",\n    \"end\": \"2026-04-27\"\n  },\n  \"grid\": {\n    \"early_morning\": {\n      \"time\": \"6:30 AM\",\n      \"items\": [\"Warm lemon water\", \"5 soaked almonds\"]\n    },\n    \"breakfast\": {\n      \"time\": \"8:00 AM\",\n      \"items\": [\"Moong dal chilla (2 pcs)\", \"Mint chutney\", \"1 cup green tea\"]\n    },\n    \"mid_morning\": {\n      \"time\": \"10:30 AM\",\n      \"items\": [\"1 small apple\", \"10 walnuts\"]\n    },\n    \"lunch\": {\n      \"time\": \"1:00 PM\",\n      \"items\": [\"1 cup brown rice\", \"Palak dal (1 bowl)\", \"Cucumber raita\", \"Mixed salad\"]\n    },\n    \"evening_snack\": {\n      \"time\": \"4:30 PM\",\n      \"items\": [\"Roasted makhana (1 cup)\", \"Herbal tea\"]\n    },\n    \"dinner\": {\n      \"time\": \"7:30 PM\",\n      \"items\": [\"2 bajra roti\", \"Lauki sabzi\", \"Small bowl curd\"]\n    }\n  },\n  \"total_nutrition_targets\": {\n    \"calories\": 1450,\n    \"protein_g\": 60,\n    \"carbs_g\": 180,\n    \"fat_g\": 50,\n    \"fiber_g\": 28\n  },\n  \"grocery_list\": [\n    \"Moong dal — 500g\",\n    \"Brown rice — 1 kg\",\n    \"Bajra flour — 500g\",\n    \"Palak — 2 bunches\",\n    \"Lauki — 1 medium\",\n    \"Makhana — 200g\",\n    \"Walnuts — 100g\",\n    \"Almonds — 100g\",\n    \"Lemons — 6\",\n    \"Curd — 500ml\",\n    \"Green tea bags — 1 box\"\n  ],\n  \"preferences\": {\n    \"diet_type\": \"vegetarian\",\n    \"allergies\": [\"lactose\"],\n    \"cuisine\": \"Indian\",\n    \"cooking_level\": \"intermediate\"\n  },\n  \"guidelines\": \"Drink at least 2.5L of water daily. Avoid processed sugar and maida-based products. Take a 20 min walk after dinner. Finish last meal by 8 PM.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mealplans",
+							"host": ["{{baseUrl}}"],
+							"path": ["mealplans"]
+						},
+						"description": "Create a new meal plan with grid, nutrition targets, grocery list, and guidelines."
+					}
+				},
+				{
+					"name": "Update Mealplan",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"PCOS Weight Management — Week 1 (Revised)\",\n  \"status\": \"active\",\n  \"total_nutrition_targets\": {\n    \"calories\": 1500,\n    \"protein_g\": 65,\n    \"carbs_g\": 175,\n    \"fat_g\": 52,\n    \"fiber_g\": 30\n  },\n  \"guidelines\": \"Drink at least 3L of water daily. Avoid processed sugar, maida, and fried foods. Take a 30 min walk after dinner. Finish last meal by 7:30 PM. Add 10 mins morning yoga.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mealplans/{{mealplanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["mealplans", "{{mealplanId}}"]
+						},
+						"description": "Update an existing meal plan. Supports partial updates via COALESCE."
+					}
+				},
+				{
+					"name": "Delete Mealplan",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/mealplans/{{mealplanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["mealplans", "{{mealplanId}}"]
+						},
+						"description": "Delete a meal plan by its ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "Consultations",
+			"description": "CRUD operations for managing consultations. Creating a consultation also triggers an email notification to the client.",
+			"item": [
+				{
+					"name": "Get All Consultations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/consultations",
+							"host": ["{{baseUrl}}"],
+							"path": ["consultations"]
+						},
+						"description": "Retrieve all consultations, ordered by created_at descending."
+					}
+				},
+				{
+					"name": "Get Consultation by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/consultations/{{consultationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["consultations", "{{consultationId}}"]
+						},
+						"description": "Retrieve a single consultation by its ID."
+					}
+				},
+				{
+					"name": "Create Consultation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": \"c1a2b3c4-d5e6-7890-abcd-ef1234567890\",\n  \"client_name\": \"Priya Mehta\",\n  \"nutritionist_id\": \"nutr_dr_sharma_001\",\n  \"nutritionist_name\": \"Dr. Anjali Sharma\",\n  \"type\": \"structured\",\n  \"status\": \"scheduled\",\n  \"scheduled_at\": \"2026-04-22T10:30:00.000Z\",\n  \"medical_history\": {\n    \"conditions\": [\"PCOS\", \"Hypothyroidism\"],\n    \"medications\": [\"Metformin 500mg\", \"Thyroxine 50mcg\"],\n    \"surgeries\": [],\n    \"family_history\": \"Diabetes (maternal)\"\n  },\n  \"lifestyle\": {\n    \"activity_level\": \"sedentary\",\n    \"sleep_hours\": 6,\n    \"stress_level\": \"high\",\n    \"water_intake_litres\": 1.5,\n    \"smoking\": false,\n    \"alcohol\": \"occasional\"\n  },\n  \"nutrition_history\": {\n    \"current_diet\": \"Irregular meals, heavy on carbs\",\n    \"breakfast_habit\": \"Skips frequently\",\n    \"eating_out_frequency\": \"3-4 times/week\",\n    \"sugar_cravings\": true\n  },\n  \"supplements\": {\n    \"current\": [\"Vitamin D3 — 60000 IU weekly\", \"Iron — 1 tab daily\"],\n    \"recommended\": [\"Omega-3 Fish Oil\", \"Chromium Picolinate\", \"Inositol\"]\n  },\n  \"blood_reports\": {\n    \"hba1c\": 5.8,\n    \"fasting_glucose\": 102,\n    \"tsh\": 6.2,\n    \"vitamin_d\": 18,\n    \"hemoglobin\": 11.2,\n    \"report_date\": \"2026-04-10\"\n  },\n  \"goals\": {\n    \"primary\": \"Lose 8 kg in 3 months\",\n    \"secondary\": [\"Regulate menstrual cycle\", \"Improve energy levels\", \"Better skin health\"]\n  },\n  \"plan\": {\n    \"diet_approach\": \"Low GI, anti-inflammatory\",\n    \"meal_frequency\": 5,\n    \"exercise\": \"30 min brisk walk daily + yoga 3x/week\",\n    \"follow_up\": \"Bi-weekly check-in\",\n    \"notes\": \"Start with 1400 cal/day, reassess after 2 weeks.\"\n  },\n  \"consent_given\": true,\n  \"consent_timestamp\": \"2026-04-20T09:00:00.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/consultations",
+							"host": ["{{baseUrl}}"],
+							"path": ["consultations"]
+						},
+						"description": "Create a new consultation record. This will also send an email notification to the client if their email is on file."
+					}
+				},
+				{
+					"name": "Update Consultation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"completed\",\n  \"plan\": {\n    \"diet_approach\": \"Low GI, anti-inflammatory\",\n    \"meal_frequency\": 5,\n    \"exercise\": \"30 min brisk walk daily + yoga 3x/week + strength training 2x/week\",\n    \"follow_up\": \"Weekly check-in for first month\",\n    \"notes\": \"Patient responded well to initial plan. Increase protein to 65g/day. Add probiotics.\"\n  },\n  \"goals\": {\n    \"primary\": \"Lose 8 kg in 3 months\",\n    \"secondary\": [\"Regulate menstrual cycle\", \"Improve energy levels\", \"Better skin health\", \"Reduce bloating\"]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/consultations/{{consultationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["consultations", "{{consultationId}}"]
+						},
+						"description": "Update an existing consultation. Supports partial updates via COALESCE."
+					}
+				},
+				{
+					"name": "Delete Consultation",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/consultations/{{consultationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["consultations", "{{consultationId}}"]
+						},
+						"description": "Delete a consultation by its ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "Ingredients",
+			"description": "CRUD operations for the nutrition ingredient database.",
+			"item": [
+				{
+					"name": "Get All Ingredients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ingredients",
+							"host": ["{{baseUrl}}"],
+							"path": ["ingredients"]
+						},
+						"description": "Retrieve all ingredients, ordered by created_at descending."
+					}
+				},
+				{
+					"name": "Get Ingredient by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ingredients/{{ingredientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["ingredients", "{{ingredientId}}"]
+						},
+						"description": "Retrieve a single ingredient by its ID."
+					}
+				},
+				{
+					"name": "Create Ingredient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Quinoa (cooked)\",\n  \"calories\": 120,\n  \"protein_g\": 4.4,\n  \"carbs_g\": 21.3,\n  \"fat_g\": 1.9,\n  \"created_by\": \"nutr_dr_sharma_001\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ingredients",
+							"host": ["{{baseUrl}}"],
+							"path": ["ingredients"]
+						},
+						"description": "Add a new ingredient to the nutrition database."
+					}
+				},
+				{
+					"name": "Update Ingredient",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Quinoa (cooked, 100g serving)\",\n  \"calories\": 120,\n  \"protein_g\": 4.4,\n  \"carbs_g\": 21.3,\n  \"fat_g\": 1.9,\n  \"updated_by\": \"nutr_dr_sharma_001\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ingredients/{{ingredientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["ingredients", "{{ingredientId}}"]
+						},
+						"description": "Update an existing ingredient's nutritional data."
+					}
+				},
+				{
+					"name": "Delete Ingredient",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ingredients/{{ingredientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["ingredients", "{{ingredientId}}"]
+						},
+						"description": "Delete an ingredient by its ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"description": "Dashboard summary endpoint.",
+			"item": [
+				{
+					"name": "Get Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["dashboard"]
+						},
+						"description": "Retrieve aggregated dashboard statistics (client count, mealplan count, etc.)."
+					}
+				}
+			]
+		},
+		{
+			"name": "Messages",
+			"description": "SMS message operations powered by Twilio.",
+			"item": [
+				{
+					"name": "Get Messages by Client ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/messages/{{clientId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["messages", "{{clientId}}"]
+						},
+						"description": "Retrieve all messages for a specific client, ordered by timestamp ascending."
+					}
+				},
+				{
+					"name": "Send SMS Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": \"c1a2b3c4-d5e6-7890-abcd-ef1234567890\",\n  \"to_phone_number\": \"+919876543210\",\n  \"body\": \"Hi Priya! This is a reminder for your consultation tomorrow at 10:30 AM. Please keep your recent blood reports handy. — Dr. Sharma\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/messages/send",
+							"host": ["{{baseUrl}}"],
+							"path": ["messages", "send"]
+						},
+						"description": "Send an SMS message to a client via Twilio and store it in the database."
+					}
+				}
+			]
+		},
+		{
+			"name": "Webhooks",
+			"description": "Webhook ingestion and FCM push notification endpoints.",
+			"item": [
+				{
+					"name": "Store Webhook",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event_type\": \"twilio.message.received\",\n  \"payload\": {\n    \"MessageSid\": \"SM1234567890abcdef1234567890abcdef\",\n    \"From\": \"+919876543210\",\n    \"To\": \"+14155551234\",\n    \"Body\": \"Thank you doctor, I will follow the diet plan.\",\n    \"NumMedia\": \"0\",\n    \"AccountSid\": \"AC_EXAMPLE_SID\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhooks",
+							"host": ["{{baseUrl}}"],
+							"path": ["webhooks"]
+						},
+						"description": "Ingest and store an incoming webhook event (e.g., from Twilio)."
+					}
+				},
+				{
+					"name": "Send FCM Push Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"exampleFCMdeviceToken1234567890abcdefghijklmnop\",\n  \"title\": \"New Message from Dr. Sharma\",\n  \"body\": \"Your updated meal plan for Week 2 is ready. Open the app to view it.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhooks/notify",
+							"host": ["{{baseUrl}}"],
+							"path": ["webhooks", "notify"]
+						},
+						"description": "Send a Firebase Cloud Messaging (FCM) push notification to a client device."
+					}
+				}
+			]
+		}
+	]
+}

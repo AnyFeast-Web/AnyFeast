@@ -1,0 +1,64 @@
+$kind: http-request
+description: Create a new consultation record. This will also send an email notification to the client if their email is on file.
+url: "{{baseUrl}}/consultations"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "client_id": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "client_name": "Priya Mehta",
+      "nutritionist_id": "nutr_dr_sharma_001",
+      "nutritionist_name": "Dr. Anjali Sharma",
+      "type": "structured",
+      "status": "scheduled",
+      "scheduled_at": "2026-04-22T10:30:00.000Z",
+      "medical_history": {
+        "conditions": ["PCOS", "Hypothyroidism"],
+        "medications": ["Metformin 500mg", "Thyroxine 50mcg"],
+        "surgeries": [],
+        "family_history": "Diabetes (maternal)"
+      },
+      "lifestyle": {
+        "activity_level": "sedentary",
+        "sleep_hours": 6,
+        "stress_level": "high",
+        "water_intake_litres": 1.5,
+        "smoking": false,
+        "alcohol": "occasional"
+      },
+      "nutrition_history": {
+        "current_diet": "Irregular meals, heavy on carbs",
+        "breakfast_habit": "Skips frequently",
+        "eating_out_frequency": "3-4 times/week",
+        "sugar_cravings": true
+      },
+      "supplements": {
+        "current": ["Vitamin D3 — 60000 IU weekly", "Iron — 1 tab daily"],
+        "recommended": ["Omega-3 Fish Oil", "Chromium Picolinate", "Inositol"]
+      },
+      "blood_reports": {
+        "hba1c": 5.8,
+        "fasting_glucose": 102,
+        "tsh": 6.2,
+        "vitamin_d": 18,
+        "hemoglobin": 11.2,
+        "report_date": "2026-04-10"
+      },
+      "goals": {
+        "primary": "Lose 8 kg in 3 months",
+        "secondary": ["Regulate menstrual cycle", "Improve energy levels", "Better skin health"]
+      },
+      "plan": {
+        "diet_approach": "Low GI, anti-inflammatory",
+        "meal_frequency": 5,
+        "exercise": "30 min brisk walk daily + yoga 3x/week",
+        "follow_up": "Bi-weekly check-in",
+        "notes": "Start with 1400 cal/day, reassess after 2 weeks."
+      },
+      "consent_given": true,
+      "consent_timestamp": "2026-04-20T09:00:00.000Z"
+    }
+order: 3000

@@ -1,0 +1,18 @@
+$kind: http-request
+description: Update an existing ingredient's nutritional data.
+url: "{{baseUrl}}/ingredients/{{ingredientId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Quinoa (cooked, 100g serving)",
+      "calories": 120,
+      "protein_g": 4.4,
+      "carbs_g": 21.3,
+      "fat_g": 1.9,
+      "updated_by": "nutr_dr_sharma_001"
+    }
+order: 4000

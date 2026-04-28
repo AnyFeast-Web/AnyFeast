@@ -1,0 +1,5 @@
+$kind: http-request
+description: Delete an ingredient by its ID.
+url: "{{baseUrl}}/ingredients/{{ingredientId}}"
+method: DELETE
+order: 5000

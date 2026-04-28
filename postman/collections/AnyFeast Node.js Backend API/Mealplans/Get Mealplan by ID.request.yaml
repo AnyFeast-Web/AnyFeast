@@ -1,0 +1,5 @@
+$kind: http-request
+description: Retrieve a single meal plan by its ID.
+url: "{{baseUrl}}/mealplans/{{mealplanId}}"
+method: GET
+order: 2000

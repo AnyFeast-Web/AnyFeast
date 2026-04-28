@@ -1,0 +1,40 @@
+$kind: http-request
+description: Create a new client with personal info, goals, tags, and measurements.
+url: "{{baseUrl}}/clients"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nutritionist_id": "nutr_dr_sharma_001",
+      "status": "active",
+      "personal_info": {
+        "first_name": "Priya",
+        "last_name": "Mehta",
+        "email": "priya.mehta@example.com",
+        "phone": "+919876543210",
+        "age": 28,
+        "gender": "female",
+        "city": "Mumbai"
+      },
+      "goals": [
+        "Weight loss",
+        "Improve gut health",
+        "Reduce sugar intake"
+      ],
+      "tags": [
+        "vegetarian",
+        "lactose-intolerant",
+        "PCOS"
+      ],
+      "measurements": {
+        "height_cm": 162,
+        "weight_kg": 72.5,
+        "bmi": 27.6,
+        "body_fat_pct": 32.1,
+        "waist_cm": 84
+      }
+    }
+order: 3000

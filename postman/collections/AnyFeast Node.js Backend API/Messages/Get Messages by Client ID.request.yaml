@@ -1,0 +1,5 @@
+$kind: http-request
+description: Retrieve all messages for a specific client, ordered by timestamp ascending.
+url: "{{baseUrl}}/messages/{{clientId}}"
+method: GET
+order: 1000

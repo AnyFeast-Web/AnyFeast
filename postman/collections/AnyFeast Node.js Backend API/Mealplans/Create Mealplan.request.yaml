@@ -1,0 +1,73 @@
+$kind: http-request
+description: Create a new meal plan with grid, nutrition targets, grocery list, and guidelines.
+url: "{{baseUrl}}/mealplans"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "client_id": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
+      "nutritionist_id": "nutr_dr_sharma_001",
+      "title": "PCOS Weight Management — Week 1",
+      "status": "draft",
+      "date_range": {
+        "start": "2026-04-21",
+        "end": "2026-04-27"
+      },
+      "grid": {
+        "early_morning": {
+          "time": "6:30 AM",
+          "items": ["Warm lemon water", "5 soaked almonds"]
+        },
+        "breakfast": {
+          "time": "8:00 AM",
+          "items": ["Moong dal chilla (2 pcs)", "Mint chutney", "1 cup green tea"]
+        },
+        "mid_morning": {
+          "time": "10:30 AM",
+          "items": ["1 small apple", "10 walnuts"]
+        },
+        "lunch": {
+          "time": "1:00 PM",
+          "items": ["1 cup brown rice", "Palak dal (1 bowl)", "Cucumber raita", "Mixed salad"]
+        },
+        "evening_snack": {
+          "time": "4:30 PM",
+          "items": ["Roasted makhana (1 cup)", "Herbal tea"]
+        },
+        "dinner": {
+          "time": "7:30 PM",
+          "items": ["2 bajra roti", "Lauki sabzi", "Small bowl curd"]
+        }
+      },
+      "total_nutrition_targets": {
+        "calories": 1450,
+        "protein_g": 60,
+        "carbs_g": 180,
+        "fat_g": 50,
+        "fiber_g": 28
+      },
+      "grocery_list": [
+        "Moong dal — 500g",
+        "Brown rice — 1 kg",
+        "Bajra flour — 500g",
+        "Palak — 2 bunches",
+        "Lauki — 1 medium",
+        "Makhana — 200g",
+        "Walnuts — 100g",
+        "Almonds — 100g",
+        "Lemons — 6",
+        "Curd — 500ml",
+        "Green tea bags — 1 box"
+      ],
+      "preferences": {
+        "diet_type": "vegetarian",
+        "allergies": ["lactose"],
+        "cuisine": "Indian",
+        "cooking_level": "intermediate"
+      },
+      "guidelines": "Drink at least 2.5L of water daily. Avoid processed sugar and maida-based products. Take a 20 min walk after dinner. Finish last meal by 8 PM."
+    }
+order: 3000

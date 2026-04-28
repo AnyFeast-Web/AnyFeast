@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: 4b4cede9-b9fd-4b01-980f-8e4d8f6653e3
+
+cloudResources:
+  collections:
+    ..\postman\collections\AnyFeast Node.js Backend API: 3e1fc401-79c3-4bc8-aba1-838a28f3291f
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/

@@ -1,0 +1,5 @@
+$kind: http-request
+description: Retrieve all consultations, ordered by created_at descending.
+url: "{{baseUrl}}/consultations"
+method: GET
+order: 1000

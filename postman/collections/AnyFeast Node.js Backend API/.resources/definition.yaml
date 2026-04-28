@@ -1,0 +1,11 @@
+$kind: collection
+description: |-
+  Complete API test collection for the AnyFeast Nutritionist App Node.js backend.
+
+  Base URL: http://localhost:5000/api/v1
+variables:
+  baseUrl: http://localhost:5000/api/v1
+  clientId: c1a2b3c4-d5e6-7890-abcd-ef1234567890
+  mealplanId: mp-a1b2c3d4-e5f6-7890-abcd-111111111111
+  consultationId: con-a1b2c3d4-e5f6-7890-abcd-222222222222
+  ingredientId: ing-a1b2c3d4-e5f6-7890-abcd-333333333333

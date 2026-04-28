@@ -1,0 +1,15 @@
+$kind: http-request
+description: Send a Firebase Cloud Messaging (FCM) push notification to a client device.
+url: "{{baseUrl}}/webhooks/notify"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "token": "exampleFCMdeviceToken1234567890abcdefghijklmnop",
+      "title": "New Message from Dr. Sharma",
+      "body": "Your updated meal plan for Week 2 is ready. Open the app to view it."
+    }
+order: 2000

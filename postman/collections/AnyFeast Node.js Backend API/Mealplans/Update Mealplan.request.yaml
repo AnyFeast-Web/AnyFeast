@@ -1,0 +1,22 @@
+$kind: http-request
+description: Update an existing meal plan. Supports partial updates via COALESCE.
+url: "{{baseUrl}}/mealplans/{{mealplanId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "PCOS Weight Management — Week 1 (Revised)",
+      "status": "active",
+      "total_nutrition_targets": {
+        "calories": 1500,
+        "protein_g": 65,
+        "carbs_g": 175,
+        "fat_g": 52,
+        "fiber_g": 30
+      },
+      "guidelines": "Drink at least 3L of water daily. Avoid processed sugar, maida, and fried foods. Take a 30 min walk after dinner. Finish last meal by 7:30 PM. Add 10 mins morning yoga."
+    }
+order: 4000

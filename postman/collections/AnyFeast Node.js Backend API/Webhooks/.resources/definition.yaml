@@ -1,0 +1,3 @@
+$kind: collection
+description: Webhook ingestion and FCM push notification endpoints.
+order: 7000

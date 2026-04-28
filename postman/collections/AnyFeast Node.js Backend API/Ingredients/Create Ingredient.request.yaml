@@ -1,0 +1,18 @@
+$kind: http-request
+description: Add a new ingredient to the nutrition database.
+url: "{{baseUrl}}/ingredients"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Quinoa (cooked)",
+      "calories": 120,
+      "protein_g": 4.4,
+      "carbs_g": 21.3,
+      "fat_g": 1.9,
+      "created_by": "nutr_dr_sharma_001"
+    }
+order: 3000

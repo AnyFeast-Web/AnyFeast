@@ -1,0 +1,5 @@
+$kind: http-request
+description: Retrieve a single consultation by its ID.
+url: "{{baseUrl}}/consultations/{{consultationId}}"
+method: GET
+order: 2000

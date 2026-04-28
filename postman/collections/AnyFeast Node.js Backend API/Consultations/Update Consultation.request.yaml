@@ -1,0 +1,24 @@
+$kind: http-request
+description: Update an existing consultation. Supports partial updates via COALESCE.
+url: "{{baseUrl}}/consultations/{{consultationId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "status": "completed",
+      "plan": {
+        "diet_approach": "Low GI, anti-inflammatory",
+        "meal_frequency": 5,
+        "exercise": "30 min brisk walk daily + yoga 3x/week + strength training 2x/week",
+        "follow_up": "Weekly check-in for first month",
+        "notes": "Patient responded well to initial plan. Increase protein to 65g/day. Add probiotics."
+      },
+      "goals": {
+        "primary": "Lose 8 kg in 3 months",
+        "secondary": ["Regulate menstrual cycle", "Improve energy levels", "Better skin health", "Reduce bloating"]
+      }
+    }
+order: 4000

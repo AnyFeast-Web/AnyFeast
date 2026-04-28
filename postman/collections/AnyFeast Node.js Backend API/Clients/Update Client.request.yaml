@@ -1,0 +1,41 @@
+$kind: http-request
+description: Update an existing client's profile data.
+url: "{{baseUrl}}/clients/{{clientId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "status": "active",
+      "personal_info": {
+        "first_name": "Priya",
+        "last_name": "Mehta",
+        "email": "priya.mehta@example.com",
+        "phone": "+919876543210",
+        "age": 29,
+        "gender": "female",
+        "city": "Mumbai"
+      },
+      "goals": [
+        "Weight loss",
+        "Improve gut health",
+        "Reduce sugar intake",
+        "Better sleep quality"
+      ],
+      "tags": [
+        "vegetarian",
+        "lactose-intolerant",
+        "PCOS",
+        "thyroid"
+      ],
+      "measurements": {
+        "height_cm": 162,
+        "weight_kg": 70.0,
+        "bmi": 26.7,
+        "body_fat_pct": 30.5,
+        "waist_cm": 82
+      }
+    }
+order: 4000

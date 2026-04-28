@@ -1,0 +1,21 @@
+$kind: http-request
+description: Ingest and store an incoming webhook event (e.g., from Twilio).
+url: "{{baseUrl}}/webhooks"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "event_type": "twilio.message.received",
+      "payload": {
+        "MessageSid": "SM1234567890abcdef1234567890abcdef",
+        "From": "+919876543210",
+        "To": "+14155551234",
+        "Body": "Thank you doctor, I will follow the diet plan.",
+        "NumMedia": "0",
+        "AccountSid": "AC_EXAMPLE_SID"
+      }
+    }
+order: 1000

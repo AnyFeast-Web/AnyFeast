@@ -1,0 +1,5 @@
+$kind: http-request
+description: Retrieve a single ingredient by its ID.
+url: "{{baseUrl}}/ingredients/{{ingredientId}}"
+method: GET
+order: 2000
