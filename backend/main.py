@@ -35,3 +35,7 @@ app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Aut
 @app.get("/")
 def root():
     return {"message": "Welcome to the AnyFeast FastAPI Server. Visit /docs to view schemas."}
+
+@app.get("/api/v1/test")
+def test_route():
+    return {"status": "ok", "version": "v2"}
