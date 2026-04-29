@@ -12,7 +12,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
     token = credentials.credentials
     
     if token == "mock_token":
-        return {"uid": "mock_uid", "email": "mock@example.com"}
+        return {"uid": "FNPV9M9RUUfjDaSFbonS8QxDZQv1", "email": "anyfeast_web@gmail.com"}
         
     try:
         decoded_token = auth.verify_id_token(token)

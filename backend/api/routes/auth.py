@@ -34,7 +34,7 @@ def login(creds: LoginRequest):
         "accessToken": "mock_token",
         "refreshToken": "mock_refresh_token",
         "user": {
-            "id": "mock_uid",
+            "id": "FNPV9M9RUUfjDaSFbonS8QxDZQv1",
             "email": creds.email,
             "name": "Nutritionist Admin",
             "role": "admin",
@@ -51,7 +51,7 @@ def logout():
 def get_me():
     return {
         "user": {
-            "id": "mock_uid",
+            "id": "FNPV9M9RUUfjDaSFbonS8QxDZQv1",
             "email": "mock@example.com",
             "name": "Nutritionist Admin",
             "role": "admin",
