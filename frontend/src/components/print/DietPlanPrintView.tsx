@@ -144,12 +144,12 @@ export function DietPlanPrintView({
         <table className="pv-meal-table">
           <thead>
             <tr>
-              <th style={{ width: '14%' }}>MEAL</th>
-              <th style={{ width: '9%' }}>TIME</th>
-              <th style={{ width: '22%' }}>MENU</th>
-              <th style={{ width: '12%' }}>SERVING</th>
-              <th style={{ width: '28%' }}>NUTRITION</th>
-              <th style={{ width: '15%' }}>PREP / COOK</th>
+              <th style={{ width: '11%' }}>MEAL</th>
+              <th style={{ width: '7%' }}>TIME</th>
+              <th style={{ width: '38%' }}>MENU</th>
+              <th style={{ width: '10%' }}>SERVING</th>
+              <th style={{ width: '22%' }}>NUTRITION</th>
+              <th style={{ width: '12%' }}>PREP / COOK</th>
             </tr>
           </thead>
           <tbody>
